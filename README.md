@@ -19,4 +19,6 @@ The output are the following three files:
 * eigU.dat: Contains radial eigenvalues of shape (n_max+1)*(l_max+1) X Nr. Here Nr is the number of grids in the radial direction.
 * eigV.dat: Contains angular eigenvalues of shape (n_max+1)*(l_max+1) X Nr. Here Nr is the number of grids in the radial direction.
 
+One can now read these files in a plotting interface like MATLAB and reshape arrays according to the n vs l values in the file n_and_l.dat.
+
 CAUTION: Running this code will generate data files of cumulative size ~ 1.1GB
