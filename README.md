@@ -9,5 +9,6 @@ The local directory must contain the files:
 
 Run the code 'read_eigen.f90' by:
 
-gfortran read_eigen.f90
-./a.out
+$ gfortran read_eigen.f90
+
+$ ./a.out
