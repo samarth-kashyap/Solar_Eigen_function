@@ -51,28 +51,23 @@ Bmm *= (-1)**(1+m_)/(r*r) * prefac
 #B0- EXPRESSION
 B0m = wig_red(0,-1,1)*om(l,0) * (2*U*U_ + om(l_,2)**2*V*U_ + om(l_,0)**2*(-2*U*V_ + V*V_ + r*V*dV_) + r*(-U - V + r*dV)*dU_)
 B0m += wig_red(-1,-1,2)*om(l,0)*om(l_,0)*om(l,2) * V * (U_ - V_ + r*V_)
-B0m *=  0.5*(-1)**(m_)/(r*r) * prefac
 B0m += wig_red(2,-1,-1)*om(l,0)*om(l_,0)*om(l_,2) * (V*U_ - 3*V*V_ + r*V*dV_ + 2*r*dV*V_)
 B0m -= wig_red(1,-1,0)*om(l_,0) * (2*U*U_ + om(l_,0)**2*V*U_ + om(l,0)**2*(-V*V_ + r*V*V_) + U*(2*V_ + r*(dU_ - 2*dV_ + r*d2V_)))
+B0m *=  0.5*(-1)**(m_)/(r*r) * prefac
+
+#B00 EXPRESSION
+B00 = -(wig_red(-1,0,-1)+wig_red(1,0,-1))*om(l_,0)*om(l,0) * (V*(-4*U_ + 2*(1+om(l_,0)**2)*V_ + r*(dU_ - 2*dV_)) + 2*r*dV*(U_ - V_ + r*dV_))
+B00 += wig_red(0,0,0) * ((6*U - 4*om(l,0)**2*V -2*r*dU)*U_ + 2*om(l_,0)**2*((-3*U+2*om(l,0)**2*V + r*dU)*V_ + r*U*dV_) + r*((-4*U + 2*om(l,0)**2*V + r*dU)*U_ + r*U*d2U_))
+B00 *= 0.5*(-1)**(m_)/(r*r) * prefac
 
 r_start = 0.9
 start_ind = fn.nearest_index(r,r_start)
-plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'k-')
+plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'r-')
+plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'b-')
+plt.plot(r[start_ind:],(rho*B00)[start_ind:],'k-')
+
 plt.grid(True)
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
