@@ -10,6 +10,7 @@ Sequence:
 1. Run read_eig.f90. Reads egvt.sfopal5h5 and saves eigenfunctions in separate files. 
 2. Run mince_eig.py. Reads eigenfunctions from above created files and saves individual modes in new directory eig_files.
 3. Run plot_kern.py. Plots required component of kernel for required modes.
-4. Run plot_eig.py for plotting eigenfunctions for specified mode.
 
+Python Libraries required: numpy, sympy, matplotlob, os
+Python version used: 2.7.15
 CAUTION: Running this code will generate data files of cumulative size ~ 2.5GB
