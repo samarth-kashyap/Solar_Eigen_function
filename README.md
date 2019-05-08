@@ -1,22 +1,15 @@
-# Solar Eigen function reader (now used for Lorentz stress plotting kernels)
+# Solar Lorentz Stress Kernel Plotter
 
-This repository contains the file related to reading the eigen functions.
+Repository contains data and script files for evaluation and plotting of solar Lorentz stress kernel.
 
-The local directory must contain the files: 
-
-* egvt.sfopal5h5
-* sfopal5h5
-
+Local directory should contain the following data files:
+* egvt.sfopal5h5: binary file containing eigenfunctions in compact form
+* sfopal5h5: binary file containing r gridpoints and rho values
 
 Sequence:
-1. Run $gfortran read_eigen.f90; ./a.out (for creating U,V, r, and rho binary data files)
-2. Now, python scripts can be run to probe the data
+1. Run read_eig.f90. Reads egvt.sfopal5h5 and saves eigenfunctions in separate files. 
+2. Run mince_eig.py. Reads eigenfunctions from above created files and saves individual modes in new directory eig_files.
+3. Run plot_kern.py. Plots required component of kernel for required modes.
+4. Run plot_eig.py for plotting eigenfunctions for specified mode.
 
-The output are the following three files:
-
-* n_and_l.dat: Contains the n,l values, i.e, the number of n's corresponding to a particular value of l. Note: n and l stars from 0 to n_max and l_max respectively.
-* eigU.dat: Contains radial eigenvalues of shape (n_max+1)*(l_max+1) X Nr. Here Nr is the number of grids in the radial direction.
-* eigV.dat: Contains angular eigenvalues of shape (n_max+1)*(l_max+1) X Nr. Here Nr is the number of grids in the radial direction.
-* nl.dat: Contains the sequence of n,l for corresponding nl index
-
-CAUTION: Running this code will generate data files of cumulative size ~ 1.1GB
+CAUTION: Running this code will generate data files of cumulative size ~ 2.5GB

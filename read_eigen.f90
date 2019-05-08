@@ -82,7 +82,7 @@ program READ_EIGENFUNC
     close(7)	
 
     !do while (int(l) .le. lmax)
-    do while (nl_count < 100)
+    do while (nl_count < max_nl)
     !do while (l .le. max_l)
         read(99)  norder, l, zk, muhz
         print *, norder, int(l)
