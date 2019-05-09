@@ -18,10 +18,8 @@ if(nl == None or nl_ == None):
 
 #loading required functions
 eig_dir = (getcwd() + '/eig_files')
-U = fn.load_U(n,l,eig_dir)
-V = fn.load_V(n,l,eig_dir)
-U_ = fn.load_U(n_,l_,eig_dir)
-V_ = fn.load_V(n_,l_,eig_dir)
+U,V = fn.load_eig(n,l,eig_dir)
+U_,V_= fn.load_eig(n_,l_,eig_dir)
 r = np.loadtxt('r.dat')
 rho = np.loadtxt('rho.dat')
 
@@ -73,7 +71,7 @@ plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'g-')
 plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'r-')
 plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'b-')
 plt.plot(r[start_ind:],(rho*B00)[start_ind:],'k-')
-
+plt.legend(['B+-','B--','B0-','B00'])
 plt.grid(True)
 plt.show()
 

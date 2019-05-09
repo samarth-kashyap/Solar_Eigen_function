@@ -1,3 +1,5 @@
+# python library of functions used in Lorentz stress kernel evaluation
+
 import numpy as np
 from sympy.physics.wigner import wigner_3j
 from sympy import N as sympy_eval
@@ -58,14 +60,9 @@ def find_mode(nl):
 	"""returns (n,l) for given nl"""
 	return int(nl_list[nl][0]), int(nl_list[nl][1])
 
-def load_U(n,l,eig_dir):
-	"""returns U for mode n,l stored in directory eig_dir"""
+def load_eig(n,l,eig_dir):
+	"""returns U,V for mode n,l stored in directory eig_dir"""
 	nl = find_nl(n,l)
-	return np.loadtxt(eig_dir + '/'+'U'+str(nl)+'.dat')
-
-def load_V(n,l,eig_dir):
-	"""returns V for mode n,l stored in directory eig_dir"""
-	nl = find_nl(n,l)
-	return np.loadtxt(eig_dir + '/'+'V'+str(nl)+'.dat')
-
-#print find_nl(find_mode(313)[0],find_mode(313)[1]) == 313
+	U = np.loadtxt(eig_dir + '/'+'U'+str(nl)+'.dat')
+	V = np.loadtxt(eig_dir + '/'+'V'+str(nl)+'.dat')	
+	return U,V

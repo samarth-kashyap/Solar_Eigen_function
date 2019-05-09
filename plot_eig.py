@@ -8,8 +8,7 @@ eig_dir = os.getcwd()+'/eig_files'
 
 for nl in range(100):
 	n,l = fn.find_mode(nl)
-	U = fn.load_U(n,l,eig_dir)
-	V = fn.load_V(n,l,eig_dir)
+	U,V = fn.load_eig(n,l,eig_dir)
 	plt.figure()
 	plt.plot(r,U,'r-')
 	plt.plot(r,V,'b-')
