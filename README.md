@@ -11,6 +11,6 @@ Sequence:
 2. Run mince_eig.py. Reads eigenfunctions from above created files and saves individual modes in new directory eig_files.
 3. Run plot_kern.py. Plots required component of kernel for required modes.
 
-Python Libraries required: numpy, sympy, matplotlob, os
-Python version used: 2.7.15
-CAUTION: Running this code will generate data files of cumulative size ~ 2.5GB
+* Python Libraries required: numpy, sympy, matplotlob, os
+* Python version used: 2.7.15
+* CAUTION: Running this code will generate data files of cumulative size ~ 2.5GB
