@@ -23,6 +23,21 @@ def deriv(y,x):
 	for i in range(1,l-1):
 		ret[i] = (y[i+1]-y[i-1]) / (x[i+1]-x[i-1])
 	return ret
+
+def deriv2(y,x):
+	"""returns second derivative of y wrt x"""
+	if(len(x) != len(y)):	
+		print("lengths dont match")
+		exit()
+	l = len(y)	
+	ret = np.zeros(l)
+	for i in range(1,l-1):
+		xf,yf = x[i+1], y[i+1]
+		xb,yb = x[i-1], y[i-1]
+		xx,yy = x[i], y[i]
+		ret[i] = 2./(xf-xb) * ((yf-yy)/(xf-xx) - (yy-yb)/(xx-xb))
+	ret[0], ret[-1] = ret[1], ret[-2]
+	return ret
 	
 def nearest_index(array, value):
 	"""returns index of object nearest to value in array"""
