@@ -5,6 +5,8 @@ import functions as fn
 
 r = np.loadtxt('r.dat')
 eig_dir = os.getcwd()+'/eig_files'
+sd = os.getcwd()+'/plots' #storage directory
+if (os.path.exists(sd) == False):	os.mkdir(sd)
 
 for nl in range(100):
 	n,l = fn.find_mode(nl)
@@ -14,6 +16,6 @@ for nl in range(100):
 	plt.plot(r,V,'b-')
 	name = str(n)+'_'+str(l)
 	print name
-	plt.savefig(os.getcwd()+'/plots/'+name+'.png')
+	plt.savefig(sd+'/'+name+'.png')
 	plt.close()
 exit()

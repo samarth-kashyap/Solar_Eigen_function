@@ -54,7 +54,7 @@ def find_nl(n,l):
 	for i in range(len(nl_list)):
 		if (np.array_equal(nl_list[i],np.array([n,l]))):
 			return i
-	return None
+	return None #when mode not found in nl_lsit
 
 def find_mode(nl):
 	"""returns (n,l) for given nl"""
@@ -63,6 +63,9 @@ def find_mode(nl):
 def load_eig(n,l,eig_dir):
 	"""returns U,V for mode n,l stored in directory eig_dir"""
 	nl = find_nl(n,l)
+	if (nl == None):
+		print "mode doesn't exist in nl_list. exiting."
+		exit()
 	U = np.loadtxt(eig_dir + '/'+'U'+str(nl)+'.dat')
 	V = np.loadtxt(eig_dir + '/'+'V'+str(nl)+'.dat')	
 	return U,V
