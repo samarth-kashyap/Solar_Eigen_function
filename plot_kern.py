@@ -1,9 +1,25 @@
+#Code reads eigenvalue functions and plots loentz stress kernels
+
+#Defining function and variables for timing code. Not essential to working of code
+from time import clock
+start_time = clock() #ref time
+last_time = start_time #ref time
+def echo_elap_time(stampname):
+	'''returns time elapsed since beginning of runtime'''	
+	this_time = clock()
+	global last_time
+	print(stampname + ': ' + str(this_time - last_time))
+	last_time = this_time
+	
+#Beginning of main part
 import numpy as np
 import matplotlib.pyplot as plt
 #from scipy import integrate
 #from functions import * #importing file for evaluating derivative
 import functions as fn
 from os import getcwd
+
+echo_elap_time('library loading') #printing elapsed time from beginning of runtime
 
 n,l,m = 1,60,1
 n_,l_,m_ = n,l,2
@@ -22,6 +38,8 @@ U,V = fn.load_eig(n,l,eig_dir)
 U_,V_= fn.load_eig(n_,l_,eig_dir)
 r = np.loadtxt('r.dat')
 rho = np.loadtxt('rho.dat')
+
+echo_elap_time('files loading')
 
 #print integrate.simps(r*r*rho*(U_*U + l*(l+1.) * V_*V),r, even= 'avg')
 #plt.plot(r,U*U,'r-')
@@ -65,6 +83,8 @@ Bpm += (1+p)*wig_red(-1,0,1)*om(l_,0)*om(l,0) * (-r*V*dU_ + U*(U_-V_-r*dV_))
 Bpm += wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
 Bpm *= 0.5*(-1)**(m_)/(r*r) * prefac
 
+echo_elap_time('calculations')
+
 r_start = 0.9
 start_ind = fn.nearest_index(r,r_start)
 plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'g-')
@@ -75,6 +95,7 @@ plt.legend(['B+-','B--','B0-','B00'])
 plt.grid(True)
 plt.show()
 
+echo_elap_time('plotting')
 
 
 
