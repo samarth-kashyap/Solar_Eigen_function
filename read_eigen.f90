@@ -40,6 +40,8 @@ program READ_EIGENFUNC
     open(199, file='sfopal5h5', form='unformatted', status='old')
     read(199)
     read(199) arr2
+    
+
 
     rsun= arr2(1)   !radius of the Sun
     msun = arr2(2)  !mass of the Sun
@@ -70,14 +72,23 @@ program READ_EIGENFUNC
     open (unit=1,file='n_and_l.dat',status='replace')
     open (unit=2,file='eigU.dat',status='replace')
     open (unit=3,file='eigV.dat',status='replace')
+    open (unit=4,file='nl.dat', status='replace')
+    open (unit=5,file='rho.dat',status='replace')
+    open (unit=7,file='r.dat',status='replace')
+    
+	write (5,*) rho(:)
+	write (7,*) r(:)
+    close(5)
+    close(7)	
 
     !do while (int(l) .le. lmax)
     do while (nl_count < max_nl)
     !do while (l .le. max_l)
         read(99)  norder, l, zk, muhz
         print *, norder, int(l)
+        write (4,*) norder, int(l)
         if(int(l) .gt. l_present) then
-            print *, norder_max, l_present
+!            print *, norder_max, l_present
             write (1,*) norder_max, l_present
             nl_array(:,l_present + 1) = [norder_max,l_present]
             l_present = l
@@ -102,13 +113,15 @@ program READ_EIGENFUNC
         norder_max = norder
 
     enddo
-
-    print *, norder, int(l)
-    write (1,*) norder_max, l_present
+	
+!    print *, norder, int(l)
+  !  write (1,*) norder_max, l_present
+  	
 
     close(1)
     close(2)
     close(3)
     close(99)
+    close(4)
 
 END program READ_EIGENFUNC
