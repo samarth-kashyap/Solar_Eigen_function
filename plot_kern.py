@@ -4,11 +4,11 @@
 from time import clock
 start_time = clock() #ref time
 last_time = start_time #ref time
-def tstamp(stampname, print_stamp = True):
+def tstamp(stampname = None):
 	'''returns time elapsed since beginning of runtime'''	
 	this_time = clock()
 	global last_time
-	if(print_stamp):
+	if(stampname != None):
 		print(stampname + ': ' + str(this_time - last_time))
 	last_time = this_time
 	

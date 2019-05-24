@@ -13,18 +13,29 @@ def omega(l,n):
 	"""returns numerical value of \Omega_l^n"""
 	return np.sqrt(0.5*(l+n)*(l-n+1.))
 
+#def deriv(y,x):
+#	"""returns derivative of y wrt x. same len as x and y"""
+#	if(len(x) != len(y)):	
+#		print("lengths dont match")
+#		exit()
+#	l = len(y)	
+#	ret = np.zeros(l)
+#	ret[0] = (y[1]-y[0]) / (x[1]-x[0])
+#	ret[-1] = (y[-1]-y[-2]) / (x[-1]-x[-2])
+#	for i in range(1,l-1):
+#		ret[i] = (y[i+1]-y[i-1]) / (x[i+1]-x[i-1])
+#	return ret
+
 def deriv(y,x):
 	"""returns derivative of y wrt x. same len as x and y"""
 	if(len(x) != len(y)):	
 		print("lengths dont match")
 		exit()
-	l = len(y)	
-	ret = np.zeros(l)
-	ret[0] = (y[1]-y[0]) / (x[1]-x[0])
-	ret[-1] = (y[-1]-y[-2]) / (x[-1]-x[-2])
-	for i in range(1,l-1):
-		ret[i] = (y[i+1]-y[i-1]) / (x[i+1]-x[i-1])
-	return ret
+	dy = np.empty(y.shape)
+	dy[0] = (y[1]-y[0]) / (x[1] - x[0])
+	dy[-1] = (dy[-1] - dy[-2]) / (x[-1] - x[-2])
+	dy[1:-1] = (y[2:] - y[:-2]) / (x[2:]-x[:-2])
+	return dy
 
 def deriv2(y,x):
 	"""returns second derivative of y wrt x"""
