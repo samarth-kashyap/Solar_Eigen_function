@@ -13,19 +13,6 @@ def omega(l,n):
 	"""returns numerical value of \Omega_l^n"""
 	return np.sqrt(0.5*(l+n)*(l-n+1.))
 
-#def deriv(y,x):
-#	"""returns derivative of y wrt x. same len as x and y"""
-#	if(len(x) != len(y)):	
-#		print("lengths dont match")
-#		exit()
-#	l = len(y)	
-#	ret = np.zeros(l)
-#	ret[0] = (y[1]-y[0]) / (x[1]-x[0])
-#	ret[-1] = (y[-1]-y[-2]) / (x[-1]-x[-2])
-#	for i in range(1,l-1):
-#		ret[i] = (y[i+1]-y[i-1]) / (x[i+1]-x[i-1])
-#	return ret
-
 def deriv(y,x):
 	"""returns derivative of y wrt x. same len as x and y"""
 	if(len(x) != len(y)):	
@@ -80,3 +67,19 @@ def load_eig(n,l,eig_dir):
 	U = np.loadtxt(eig_dir + '/'+'U'+str(nl)+'.dat')
 	V = np.loadtxt(eig_dir + '/'+'V'+str(nl)+'.dat')	
 	return U,V
+	
+def smooth(y,n = 3):
+	N = len(y)
+	ysmooth = [y[i] for i in range(N)]
+	ysmooth[n:-n] = [np.mean(y[i-n:i+n]) for i in range(n,N-n)]
+	return np.array(ysmooth)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

@@ -52,7 +52,10 @@ def wig_red(m1,m2,m3):
 prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * wig_red(-m_,t,m)
 dU,dV = fn.deriv(U,r), fn.deriv(V,r)
 dU_,dV_ = fn.deriv(U_,r), fn.deriv(V_,r)
+dU, dV = fn.smooth(dU, 5), fn.smooth(dV,5)
+dU_,dV_ = fn.smooth(dU_,7), fn.smooth(dV_,7)
 d2U_,d2V_ = fn.deriv(dU_,r), fn.deriv(dV_,r)
+d2U_,d2V_ = fn.smooth(d2U_,10), fn.smooth(d2V_,10)
 #d2U_, d2V_ = fn.deriv2(U_,r), fn.deriv2(V_,r)
 om = fn.omega
 p = (-1)**(l+l_+s) #parity of selected modes
@@ -84,12 +87,12 @@ Bpm *= 0.5*(-1)**(m_)/(r*r) * prefac
 
 tstamp('calculations')
 
-r_start = 0.97
+r_start = 0.9
 start_ind = fn.nearest_index(r,r_start)
-plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'g.')
+plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'g-')
 plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'r-')
 plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'b-')
-plt.plot(r[start_ind:],(rho*B00)[start_ind:],'k.')
+plt.plot(r[start_ind:],(rho*B00)[start_ind:],'k-')
 plt.legend(['$\mathcal{B}^{+-}$','$\mathcal{B}^{--}$','$\mathcal{B}^{0-}$','$\mathcal{B}^{00}$'])
 plt.grid(True)
 plt.show()
