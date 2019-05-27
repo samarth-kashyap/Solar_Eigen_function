@@ -3,6 +3,8 @@
 import numpy as np
 from sympy.physics.wigner import wigner_3j
 from sympy import N as sympy_eval
+from scipy.signal import savgol_filter
+from scipy import interpolate
 
 #evaluation
 def wig(l1,l2,l3,m1,m2,m3):
@@ -62,18 +64,32 @@ def load_eig(n,l,eig_dir):
 	"""returns U,V for mode n,l stored in directory eig_dir"""
 	nl = find_nl(n,l)
 	if (nl == None):
-		print "mode doesn't exist in nl_list. exiting."
+		print("mode doesn't exist in nl_list. exiting.")
 		exit()
 	U = np.loadtxt(eig_dir + '/'+'U'+str(nl)+'.dat')
 	V = np.loadtxt(eig_dir + '/'+'V'+str(nl)+'.dat')	
 	return U,V
 	
-def smooth(y,n = 3):
-	N = len(y)
-	ysmooth = [y[i] for i in range(N)]
-	ysmooth[n:-n] = [np.mean(y[i-n:i+n]) for i in range(n,N-n)]
-	return np.array(ysmooth)
-	
+def smooth(U,r,window,order,npts):
+
+	#creating interpolated function
+	U_interp = interpolate.interp1d(r,U)
+	#creating new grid
+	r_new = np.linspace(np.amin(r),np.amax(r),npts)
+
+	#smoothening the U
+	U_sm = savgol_filter(U_interp(r_new), window, order)
+
+	#taking derivative on smoothened U
+	dU = np.gradient(U_sm,r_new)
+	#smoothening the derivative obtained from smoothened U
+	dU_sm = savgol_filter(dU, window, order)
+
+	#obtaining the second derivative
+	ddU = np.gradient(dU_sm,r_new)
+	ddU_sm = savgol_filter(ddU, window, order)
+
+	return U_sm, dU_sm, ddU_sm
 	
 	
 	

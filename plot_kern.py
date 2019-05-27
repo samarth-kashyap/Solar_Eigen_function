@@ -28,6 +28,10 @@ s = 22
 t = m_-m
 
 
+#Savitsky golay filter for smoothening
+window = 45  #must be odd
+order = 3
+
 if(nl == None or nl_ == None):
 	print("Mode not found. Exiting."); exit()
 
@@ -37,6 +41,10 @@ U,V = fn.load_eig(n,l,eig_dir)
 U_,V_= fn.load_eig(n_,l_,eig_dir)
 r = np.loadtxt('r.dat')
 rho = np.loadtxt('rho.dat')
+
+#interpolation params
+npts = 30000
+r_new = np.linspace(np.amin(r),np.amax(r),npts)
 
 tstamp('files loading')
 
@@ -50,15 +58,29 @@ def wig_red(m1,m2,m3):
 	return fn.wig(l_,s,l,m1,m2,m3)
 #common prefactor appearing in all kernels
 prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * wig_red(-m_,t,m)
-dU,dV = fn.deriv(U,r), fn.deriv(V,r)
+'''dU,dV = fn.deriv(U,r), fn.deriv(V,r)
 dU_,dV_ = fn.deriv(U_,r), fn.deriv(V_,r)
 dU, dV = fn.smooth(dU, 5), fn.smooth(dV,5)
 dU_,dV_ = fn.smooth(dU_,7), fn.smooth(dV_,7)
 d2U_,d2V_ = fn.deriv(dU_,r), fn.deriv(dV_,r)
-d2U_,d2V_ = fn.smooth(d2U_,10), fn.smooth(d2V_,10)
+d2U_,d2V_ = fn.smooth(d2U_,10), fn.smooth(d2V_,10)'''
+
+U,dU,d2U = fn.smooth(U,r,window,order,npts)
+V,dV,d2V = fn.smooth(V,r,window,order,npts)
+
+U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
+V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
+
+rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
+
+
 #d2U_, d2V_ = fn.deriv2(U_,r), fn.deriv2(V_,r)
 om = fn.omega
 p = (-1)**(l+l_+s) #parity of selected modes
+
+#re-assigning with smoothened variables
+r = r_new
+rho = rho_sm
 
 #B-- EXPRESSION
 Bmm = wig_red(3,-2,-1)*om(l,0)*om(l_,0)*om(l_,2)*om(l_,3) * V*V_
