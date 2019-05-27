@@ -18,13 +18,11 @@ def deriv(y,x):
 	if(len(x) != len(y)):	
 		print("lengths dont match")
 		exit()
-	l = len(y)	
-	ret = np.zeros(l)
-	ret[0] = (y[1]-y[0]) / (x[1]-x[0])
-	ret[-1] = (y[-1]-y[-2]) / (x[-1]-x[-2])
-	for i in range(1,l-1):
-		ret[i] = (y[i+1]-y[i-1]) / (x[i+1]-x[i-1])
-	return ret
+	dy = np.empty(y.shape)
+	dy[0] = (y[1]-y[0]) / (x[1] - x[0])
+	dy[-1] = (dy[-1] - dy[-2]) / (x[-1] - x[-2])
+	dy[1:-1] = (y[2:] - y[:-2]) / (x[2:]-x[:-2])
+	return dy
 
 def deriv2(y,x):
 	"""returns second derivative of y wrt x"""
@@ -54,7 +52,7 @@ def find_nl(n,l):
 	for i in range(len(nl_list)):
 		if (np.array_equal(nl_list[i],np.array([n,l]))):
 			return i
-	return None
+	return None #when mode not found in nl_lsit
 
 def find_mode(nl):
 	"""returns (n,l) for given nl"""
@@ -63,6 +61,25 @@ def find_mode(nl):
 def load_eig(n,l,eig_dir):
 	"""returns U,V for mode n,l stored in directory eig_dir"""
 	nl = find_nl(n,l)
+	if (nl == None):
+		print "mode doesn't exist in nl_list. exiting."
+		exit()
 	U = np.loadtxt(eig_dir + '/'+'U'+str(nl)+'.dat')
 	V = np.loadtxt(eig_dir + '/'+'V'+str(nl)+'.dat')	
 	return U,V
+	
+def smooth(y,n = 3):
+	N = len(y)
+	ysmooth = [y[i] for i in range(N)]
+	ysmooth[n:-n] = [np.mean(y[i-n:i+n]) for i in range(n,N-n)]
+	return np.array(ysmooth)
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

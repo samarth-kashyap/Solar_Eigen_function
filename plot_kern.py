@@ -1,9 +1,24 @@
+#Code reads eigenvalue functions and plots loentz stress kernels
+
+#Defining function and variables for timing code. Not essential to working of code
+from time import clock
+start_time = clock() #ref time
+last_time = start_time #ref time
+def tstamp(stampname = None):
+	'''returns time elapsed since beginning of runtime'''	
+	this_time = clock()
+	global last_time
+	if(stampname != None):
+		print(stampname + ': ' + str(this_time - last_time))
+	last_time = this_time
+	
+#Beginning of main part
 import numpy as np
 import matplotlib.pyplot as plt
-#from scipy import integrate
-#from functions import * #importing file for evaluating derivative
 import functions as fn
 from os import getcwd
+
+tstamp('library loading') #printing elapsed time from beginning of runtime
 
 n,l,m = 1,60,1
 n_,l_,m_ = n,l,2
@@ -23,6 +38,8 @@ U_,V_= fn.load_eig(n_,l_,eig_dir)
 r = np.loadtxt('r.dat')
 rho = np.loadtxt('rho.dat')
 
+tstamp('files loading')
+
 #print integrate.simps(r*r*rho*(U_*U + l*(l+1.) * V_*V),r, even= 'avg')
 #plt.plot(r,U*U,'r-')
 #plt.plot(r,V*V,'b-')
@@ -35,7 +52,10 @@ def wig_red(m1,m2,m3):
 prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * wig_red(-m_,t,m)
 dU,dV = fn.deriv(U,r), fn.deriv(V,r)
 dU_,dV_ = fn.deriv(U_,r), fn.deriv(V_,r)
+dU, dV = fn.smooth(dU, 5), fn.smooth(dV,5)
+dU_,dV_ = fn.smooth(dU_,7), fn.smooth(dV_,7)
 d2U_,d2V_ = fn.deriv(dU_,r), fn.deriv(dV_,r)
+d2U_,d2V_ = fn.smooth(d2U_,10), fn.smooth(d2V_,10)
 #d2U_, d2V_ = fn.deriv2(U_,r), fn.deriv2(V_,r)
 om = fn.omega
 p = (-1)**(l+l_+s) #parity of selected modes
@@ -65,16 +85,19 @@ Bpm += (1+p)*wig_red(-1,0,1)*om(l_,0)*om(l,0) * (-r*V*dU_ + U*(U_-V_-r*dV_))
 Bpm += wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
 Bpm *= 0.5*(-1)**(m_)/(r*r) * prefac
 
+tstamp('calculations')
+
 r_start = 0.9
 start_ind = fn.nearest_index(r,r_start)
 plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'g-')
 plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'r-')
 plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'b-')
 plt.plot(r[start_ind:],(rho*B00)[start_ind:],'k-')
-plt.legend(['B+-','B--','B0-','B00'])
+plt.legend(['$\mathcal{B}^{+-}$','$\mathcal{B}^{--}$','$\mathcal{B}^{0-}$','$\mathcal{B}^{00}$'])
 plt.grid(True)
 plt.show()
 
+tstamp('plotting')
 
 
 

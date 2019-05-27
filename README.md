@@ -1,6 +1,6 @@
 # Solar Lorentz Stress Kernel Plotter
 
-Repository contains data and script files for evaluation and plotting of solar Lorentz stress kernel.
+Repository contains fortran and python script for evaluation and plotting of solar Lorentz stress kernel.
 
 Local directory should contain the following data files:
 * egvt.sfopal5h5: binary file containing eigenfunctions in compact form
