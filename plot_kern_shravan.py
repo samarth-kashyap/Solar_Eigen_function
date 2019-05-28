@@ -124,34 +124,32 @@ Bpm_ += wig_red(0,0,0) * r*r*U*d2U_
 Bpm_ *= 0.5*((-1)**m_)*prefac/r**2
 
 
-
-
 tstamp('calculations')
 
 r_start = 0.9
 start_ind = fn.nearest_index(r,r_start)
 
-plt.subplot(1,2,2)
+plt.subplot(2,2,1)
 plt.plot(r[start_ind:],(2*rho*Bpm)[start_ind:],'k-.')
-plt.plot(r[start_ind:],(2*rho*Bpm_)[start_ind:],'b--')
+plt.plot(r[start_ind:],(2*rho*Bpm_)[start_ind:],'r--')
 plt.plot(r[start_ind:],(2*rho*(Bpm+Bpm_))[start_ind:],'b-')
 plt.title('$\mathcal{B}^{+-}$')
 
 plt.subplot(2,2,2)
 plt.plot(r[start_ind:],(2*rho*Bmm)[start_ind:],'k-.')
-plt.plot(r[start_ind:],(2*rho*Bmm_)[start_ind:],'b--')
+plt.plot(r[start_ind:],(2*rho*Bmm_)[start_ind:],'r--')
 plt.plot(r[start_ind:],(2*rho*(Bmm+Bmm_))[start_ind:],'b-')
 plt.title('$\mathcal{B}^{--}$')
 
-plt.subplot(3,2,2)
+plt.subplot(2,2,3)
 plt.plot(r[start_ind:],(2*rho*B0m)[start_ind:],'k-.')
-plt.plot(r[start_ind:],(2*rho*B0m_)[start_ind:],'b--')
+plt.plot(r[start_ind:],(2*rho*B0m_)[start_ind:],'r--')
 plt.plot(r[start_ind:],(2*rho*(B0m+B0m_))[start_ind:],'b-')
 plt.title('$\mathcal{B}^{0-}$')
 
-plt.subplot(4,2,2)
+plt.subplot(2,2,4)
 plt.plot(r[start_ind:],(2*rho*B00)[start_ind:],'k-.')
-plt.plot(r[start_ind:],(2*rho*B00_)[start_ind:],'b--')
+plt.plot(r[start_ind:],(2*rho*B00_)[start_ind:],'r--')
 plt.plot(r[start_ind:],(2*rho*(B00+B00_))[start_ind:],'b-')
 plt.title('$\mathcal{B}^{00}$')
 
