@@ -1,4 +1,4 @@
-#Code reads eigenvalue functions and plots loentz stress kernels
+#PLOTTING SHRAVAN'S KERNEL (WITHOUT TERM6 AND TERM7)
 
 #Defining function and variables for timing code. Not essential to working of code
 from time import clock
@@ -20,11 +20,11 @@ from os import getcwd
 
 tstamp('library loading') #printing elapsed time from beginning of runtime
 
-n,l,m = 1,60,1
-n_,l_,m_ = n,l,2
+n,l,m = 1,1,0
+n_,l_,m_ = n,l,0
 nl = fn.find_nl(n,l)
 nl_ = fn.find_nl(n_,l_)
-s = 22
+s = 2
 t = m_-m
 
 
@@ -48,116 +48,102 @@ r_new = np.linspace(np.amin(r),np.amax(r),npts)
 
 tstamp('files loading')
 
-#print integrate.simps(r*r*rho*(U_*U + l*(l+1.) * V_*V),r, even= 'avg')
-#plt.plot(r,U*U,'r-')
-#plt.plot(r,V*V,'b-')
-
 #setting up shorthand repeatedly used in kernel evaluation
 def wig_red(m1,m2,m3):
 	'''3j symbol with upper row fixed'''
 	return fn.wig(l_,s,l,m1,m2,m3)
 om = fn.omega
 p = (-1)**(l+l_+s) #parity of selected modes
-#common prefactor appearing in all kernels
 prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * wig_red(-m_,t,m)
-	
-#########################################################################
 
-#dU,dV = fn.deriv(U,r), fn.deriv(V,r)
-#dU_,dV_ = fn.deriv(U_,r), fn.deriv(V_,r)
-#d2U_,d2V_ = fn.deriv(dU_,r), fn.deriv(dV_,r)
+#EIGENFUCNTION DERIVATIVES
 
+#smoothing
+#U,dU,d2U = fn.smooth(U,r,window,order,npts)
+#V,dV,d2V = fn.smooth(V,r,window,order,npts)
 
-##B-- EXPRESSION
-#Bmm = wig_red(3,-2,-1)*om(l,0)*om(l_,0)*om(l_,2)*om(l_,3) * V*V_
-#Bmm += wig_red(0,-2,2)*om(l,0)*om(l,2) * r*V*dU_
-#Bmm += wig_red(1,-2,1)*om(l_,0)*om(l,0) * (-U*U_ + U*V_ + om(l_,2)**2 * V*V_ - r*U*V_)
-#Bmm += wig_red(2,-2,0)*om(l_,0)*om(l_,2) * (U*V_ + r*dU*V_ - r*U*dV_)
-#Bmm *= (-1)**(1+m_)/(r*r) * prefac
+#U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
+#V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
 
-##B0- EXPRESSION
-#B0m = wig_red(0,-1,1)*om(l,0) * (2*U*U_ + om(l_,2)**2*V*U_ + om(l_,0)**2*(-2*U*V_ + V*V_ + r*V*dV_) + r*(-U - V + r*dV)*dU_)
-#B0m += wig_red(-1,-1,2)*om(l,0)*om(l_,0)*om(l,2) * V * (U_ - V_ + r*V_)
-#B0m += wig_red(2,-1,-1)*om(l,0)*om(l_,0)*om(l_,2) * (V*U_ - 3*V*V_ + r*V*dV_ + 2*r*dV*V_)
-#B0m -= wig_red(1,-1,0)*om(l_,0) * (2*U*U_ + om(l_,0)**2*V*U_ + om(l,0)**2*(-V*V_ + r*V*V_) + U*(2*V_ + r*(dU_ - 2*dV_ + r*d2V_)))
-#B0m *=  0.5*(-1)**(m_)/(r*r) * prefac
+#rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
+##re-assigning with smoothened variables
+#r = r_new
+#rho = rho_sm
 
-##B00 EXPRESSION
-#B00 = -(wig_red(-1,0,1)+wig_red(1,0,-1))*om(l_,0)*om(l,0) * (V*(-4*U_ + 2*(1+om(l_,0)**2)*V_ + r*(dU_ - 2*dV_)) + 2*r*dV*(U_ - V_ + r*dV_))
-#B00 += wig_red(0,0,0) * ((6*U - 4*om(l,0)**2*V -2*r*dU)*U_ + 2*om(l_,0)**2*((-3*U+2*om(l,0)**2*V + r*dU)*V_ + r*U*dV_) + r*((-4*U + 2*om(l,0)**2*V + r*dU)*U_ + r*U*d2U_))
-#B00 *= 0.5*(-1)**(m_)/(r*r) * prefac
-
-##B+- EXPRESSION
-#Bpm = -2*(1+p)*wig_red(-2,0,-2)*om(l_,0)*om(l,0)*om(l_,2)*om(l,2)*V*V_
-#Bpm += (1+p)*wig_red(-1,0,1)*om(l_,0)*om(l,0) * (-r*V*dU_ + U*(U_-V_-r*dV_))
-#Bpm += wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
-#Bpm *= 0.5*(-1)**(m_)/(r*r) * prefac
-
-#tstamp('calculations')
-
-#r_start = 0.9
-#start_ind = fn.nearest_index(r,r_start)
-#plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'g.',label = '$\mathcal{B}^{+-}$')
-#plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'r.',label = '$\mathcal{B}^{--}$')
-#plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'b.',label = '$\mathcal{B}^{0-}$')
-#plt.plot(r[start_ind:],(rho*B00)[start_ind:],'k.',label = '$\mathcal{B}^{00}$')
-
-#plt.grid(True)
-##plt.show()
-#########################################################################
-
-U,dU,d2U = fn.smooth(U,r,window,order,npts)
-V,dV,d2V = fn.smooth(V,r,window,order,npts)
-
-U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
-V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
-
-rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-
-#re-assigning with smoothened variables
-r = r_new
-rho = rho_sm
+##no smoothing
+dU, dV = np.gradient(U,r), np.gradient(V,r)
+dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
+d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
 
 #B-- EXPRESSION
-Bmm = wig_red(3,-2,-1)*om(l,0)*om(l_,0)*om(l_,2)*om(l_,3) * V*V_
-Bmm += wig_red(0,-2,2)*om(l,0)*om(l,2) * r*V*dU_
-Bmm += wig_red(1,-2,1)*om(l_,0)*om(l,0) * (-U*U_ + U*V_ + om(l_,2)**2 * V*V_ - r*U*V_)
-Bmm += wig_red(2,-2,0)*om(l_,0)*om(l_,2) * (U*V_ + r*dU*V_ - r*U*dV_)
-Bmm *= (-1)**(1+m_)/(r*r) * prefac
+Bmm = -r*(wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + wig_red(2,-2,0)*om(l_,0)* \
+		om(l_,2)*V_*dU)
+Bmm += wig_red(1,-2,1)*om(l_,0)*om(l,0)*(U-V)*(U_ - V_ + r*dV_)
+Bmm *= ((-1)**m_)*prefac/(r**2)
+
+#B-- EXTRA
+Bmm_ = om(l_,0)*(wig_red(2,-2,0)*om(l_,2)*U*(V_ - r*dV_) + om(l,0)*V \
+		*(wig_red(3,-2,-1)*om(l_,2)*om(l_,3)*V_ + wig_red(1,-2,1) \
+		*(-U_ + V_ + om(l_,2)**2 *V_ - r*dV_)))
+Bmm_ *= (-1)**(1+m_) *prefac/r**2
 
 #B0- EXPRESSION
-B0m = wig_red(0,-1,1)*om(l,0) * (2*U*U_ + om(l_,2)**2*V*U_ + om(l_,0)**2*(-2*U*V_ + V*V_ + r*V*dV_) + r*(-U - V + r*dV)*dU_)
-B0m += wig_red(-1,-1,2)*om(l,0)*om(l_,0)*om(l,2) * V * (U_ - V_ + r*V_)
-B0m += wig_red(2,-1,-1)*om(l,0)*om(l_,0)*om(l_,2) * (V*U_ - 3*V*V_ + r*V*dV_ + 2*r*dV*V_)
-B0m -= wig_red(1,-1,0)*om(l_,0) * (2*U*U_ + om(l_,0)**2*V*U_ + om(l,0)**2*(-V*V_ + r*V*V_) + U*(2*V_ + r*(dU_ - 2*dV_ + r*d2V_)))
-B0m *=  0.5*(-1)**(m_)/(r*r) * prefac
+B0m = wig_red(1,-1,0)*om(l_,0)*(U - (om(l,0)**2)*V)*(U_ - V_ + r*dV_)
+B0m += om(l,0)*(om(l_,0)*(wig_red(-1,-1,2)*om(l,2)*V*(U_ - V_ + r*dV_) \
+       + 2*r*wig_red(2,-1,-1)*om(l_,2)*V_*dV) + wig_red(0,-1,1) \
+	   *((U-V)*(2*U_ - 2*(om(l_,0)**2)*V_ - r*dU_) + r**2 * dU_*dV))
+B0m *= 0.5*((-1)**m_)*prefac/r**2
+#B0- EXTRA
+B0m_ = om(l,0)*V*(wig_red(2,-1,-1)*om(l_,0)*om(l_,2)*(U_ - 3*V_ + r*dV_) \
+		+ wig_red(0,-1,1)*((2+om(l_,0)**2)*U_ - 2*r*dU_ + om(l_,0)**2 \
+		*(-3*V_ + r*dV_)))
+B0m_ += wig_red(1,-1,0)*om(l_,0)*U*(U_ - V_ - r*(dU_ - dV_ + r*d2V_))
+B0m_ *= 0.5*((-1)**m_)*prefac/r**2
 
-#B00 EXPRESSION
-B00 = -(wig_red(-1,0,1)+wig_red(1,0,-1))*om(l_,0)*om(l,0) * (V*(-4*U_ + 2*(1+om(l_,0)**2)*V_ + r*(dU_ - 2*dV_)) + 2*r*dV*(U_ - V_ + r*dV_))
-B00 += wig_red(0,0,0) * ((6*U - 4*om(l,0)**2*V -2*r*dU)*U_ + 2*om(l_,0)**2*((-3*U+2*om(l,0)**2*V + r*dU)*V_ + r*U*dV_) + r*((-4*U + 2*om(l,0)**2*V + r*dU)*U_ + r*U*d2U_))
-B00 *= 0.5*(-1)**(m_)/(r*r) * prefac
+#B00 OLD
+B00 = -wig_red(0,0,0)*(2*U_ - 2*om(l_,0)**2 * V_ - r*dU_)*(-2*U + 2*om(l,0)**2 *V + \
+		r*dU)
+B00 -= 2*r*(wig_red(-1,0,1) + wig_red(1,0,-1))*om(l_,0)*om(l,0) \
+       *(U_ - V_ + r*dV_)*dV
+B00 *= 0.5*((-1)**m_)*prefac/r**2
+#B00 EXTRA
+B00_ = -(wig_red(-1,0,1) + wig_red(1,0,-1)) * om(l_,0)*om(l,0) * V*(-4*U_+2*(1+om(l_,0)**2)*V_+r*(dU_-2*dV_))
+B00_ += wig_red(0,0,0)*U*(2*U_-2*r*dU_-2*om(l_,0)**2 *(V_-r*dV_)+r*r*d2U_)
+B00_ *= 0.5*((-1)**m_)*prefac/r**2
 
-#B+- EXPRESSION
-Bpm = -2*(1+p)*wig_red(-2,0,-2)*om(l_,0)*om(l,0)*om(l_,2)*om(l,2)*V*V_
-Bpm += (1+p)*wig_red(-1,0,1)*om(l_,0)*om(l,0) * (-r*V*dU_ + U*(U_-V_-r*dV_))
-Bpm += wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
-Bpm *= 0.5*(-1)**(m_)/(r*r) * prefac
+#B+- OLD
+Bpm = -r**2 * wig_red(0,0,0)*dU_*dU 
+Bpm += om(l_,0)*om(l,0)*(-2*(wig_red(-2,0,2)+wig_red(2,0,-2))*om(l_,2)*om(l,2)*V_*V \
+		+ wig_red(-1,0,1)*(U-V)*(U_ - V_ + r*dV_) + wig_red(1,0,-1) \
+		*(U-V)*(U_ - V_ + r*dV_))
+Bpm *= 0.5*((-1)**m_)*prefac/r**2
+#B0+- EXTRA
+Bpm_ = (wig_red(-1,0,1) + wig_red(1,0,-1)) * om(l_,0)*om(l,0) * V * (U_-V_+r*(-dU_+dV_))
+Bpm_ += wig_red(0,0,0) * r*r*U*d2U_
+Bpm_ *= 0.5*((-1)**m_)*prefac/r**2
 
+Bmm += Bmm_
+B0m += B0m_
+B00 += B00_
+Bpm += Bpm_
 tstamp('calculations')
 
-r_start = 0.9
+r_start = 0.
 start_ind = fn.nearest_index(r,r_start)
-plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'g-',label = '$\mathcal{B}^{+-}$')
-plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'r-',label = '$\mathcal{B}^{--}$')
-plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'b-',label = '$\mathcal{B}^{0-}$')
-plt.plot(r[start_ind:],(rho*B00)[start_ind:],'k-',label = '$\mathcal{B}^{00}$')
+
+plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
+plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'b-',label = '$\mathcal{B}^{--}$')
+plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'k-',label = '$\mathcal{B}^{0-}$')
+plt.plot(r[start_ind:],(rho*B00)[start_ind:],'g-',label = '$\mathcal{B}^{00}$')
+
+#plt.semilogy(r[start_ind:],(rho*Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
+#plt.semilogy(r[start_ind:],(rho*Bmm)[start_ind:],'b-',label = '$\mathcal{B}^{--}$')
+#plt.semilogy(r[start_ind:],(rho*B0m)[start_ind:],'k-',label = '$\mathcal{B}^{0-}$')
+#plt.semilogy(r[start_ind:],(rho*B00)[start_ind:],'g-',label = '$\mathcal{B}^{00}$')
+
+
 plt.grid(True)
 plt.legend()
 plt.show()
 
 tstamp('plotting')
-
-
-
-
-

@@ -13,6 +13,8 @@ def wig(l1,l2,l3,m1,m2,m3):
 
 def omega(l,n):
 	"""returns numerical value of \Omega_l^n"""
+	if (np.abs(n) > l):	
+		return 0.
 	return np.sqrt(0.5*(l+n)*(l-n+1.))
 
 def deriv(y,x):
