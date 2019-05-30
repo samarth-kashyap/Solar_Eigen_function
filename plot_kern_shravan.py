@@ -1,8 +1,8 @@
 #PLOTTING CORRECTION TO SHRAVAN'S KERNEL
 	
 import timing
-tstamp = timing.timestamp()
-tstamp = tstamp.lap
+kernclock = timing.stopclock() #stopclock object for timing program
+tstamp = kernclock.lap
 import numpy as np
 import matplotlib.pyplot as plt
 import functions as fn

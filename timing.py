@@ -1,6 +1,6 @@
 from time import clock
 	
-class timestamp:
+class stopclock:
 	def __init__(self):
 		self.last_time = clock()
 		self.this_time = self.last_time
