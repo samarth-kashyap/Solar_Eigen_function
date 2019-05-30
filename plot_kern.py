@@ -20,7 +20,7 @@ from os import getcwd
 
 tstamp('library loading') #printing elapsed time from beginning of runtime
 
-n,l,m = 1,1,0
+n,l,m = 1,60,0
 n_,l_,m_ = n,l,0
 nl = fn.find_nl(n,l)
 nl_ = fn.find_nl(n_,l_)
@@ -54,11 +54,11 @@ def wig_red(m1,m2,m3):
 	return fn.wig(l_,s,l,m1,m2,m3)
 om = fn.omega
 p = (-1)**(l+l_+s) #parity of selected modes
-prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * wig_red(-m_,t,m)
+prefac = 0.25/np.pi * np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * wig_red(-m_,t,m)
 
 #EIGENFUCNTION DERIVATIVES
 
-#smoothing
+##smoothing
 #U,dU,d2U = fn.smooth(U,r,window,order,npts)
 #V,dV,d2V = fn.smooth(V,r,window,order,npts)
 
@@ -66,16 +66,16 @@ prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * wig_red(-m_,t,
 #V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
 
 #rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-##re-assigning with smoothened variables
+#re-assigning with smoothened variables
 #r = r_new
 #rho = rho_sm
 
-##no smoothing
+#no smoothing
 dU, dV = np.gradient(U,r), np.gradient(V,r)
 dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
 d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
 
-#B-- EXPRESSION
+#B-- OLD
 Bmm = -r*(wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + wig_red(2,-2,0)*om(l_,0)* \
 		om(l_,2)*V_*dU)
 Bmm += wig_red(1,-2,1)*om(l_,0)*om(l,0)*(U-V)*(U_ - V_ + r*dV_)
@@ -87,7 +87,7 @@ Bmm_ = om(l_,0)*(wig_red(2,-2,0)*om(l_,2)*U*(V_ - r*dV_) + om(l,0)*V \
 		*(-U_ + V_ + om(l_,2)**2 *V_ - r*dV_)))
 Bmm_ *= (-1)**(1+m_) *prefac/r**2
 
-#B0- EXPRESSION
+#B0- OLD
 B0m = wig_red(1,-1,0)*om(l_,0)*(U - (om(l,0)**2)*V)*(U_ - V_ + r*dV_)
 B0m += om(l,0)*(om(l_,0)*(wig_red(-1,-1,2)*om(l,2)*V*(U_ - V_ + r*dV_) \
        + 2*r*wig_red(2,-1,-1)*om(l_,2)*V_*dV) + wig_red(0,-1,1) \
@@ -128,13 +128,25 @@ B00 += B00_
 Bpm += Bpm_
 tstamp('calculations')
 
-r_start = 0.
+#setting up units for plots in cgs
+r_sun = 6.96e10
+m_sun = 1.99e33
+rho_mean = m_sun / (4./3. * np.pi * r_sun**3)
+r *= r_sun
+rho *= rho_mean/3.
+(Bmm, B0m, B00, Bpm) = [4.*np.pi/m_sun * B for B in (Bmm, B0m, B00, Bpm)] 
+r_start = 0.9*r[-1]
 start_ind = fn.nearest_index(r,r_start)
 
-plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
-plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'b-',label = '$\mathcal{B}^{--}$')
-plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'k-',label = '$\mathcal{B}^{0-}$')
-plt.plot(r[start_ind:],(rho*B00)[start_ind:],'g-',label = '$\mathcal{B}^{00}$')
+#plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
+#plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'b-',label = '$\mathcal{B}^{--}$')
+#plt.plot(r[start_ind:],(rho*B0m)[start_ind:],'k-',label = '$\mathcal{B}^{0-}$')
+#plt.plot(r[start_ind:],(rho*B00)[start_ind:],'g-',label = '$\mathcal{B}^{00}$')
+
+plt.plot(r[start_ind:],(Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
+plt.plot(r[start_ind:],(Bmm)[start_ind:],'b-',label = '$\mathcal{B}^{--}$')
+plt.plot(r[start_ind:],(B0m)[start_ind:],'k-',label = '$\mathcal{B}^{0-}$')
+plt.plot(r[start_ind:],(B00)[start_ind:],'g-',label = '$\mathcal{B}^{00}$')
 
 #plt.semilogy(r[start_ind:],(rho*Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
 #plt.semilogy(r[start_ind:],(rho*Bmm)[start_ind:],'b-',label = '$\mathcal{B}^{--}$')
