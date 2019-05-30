@@ -1,18 +1,8 @@
 #PLOTTING SHRAVAN'S KERNEL (WITHOUT TERM6 AND TERM7)
 
-#Defining function and variables for timing code. Not essential to working of code
-from time import clock
-start_time = clock() #ref time
-last_time = start_time #ref time
-def tstamp(stampname = None):
-	'''returns time elapsed since beginning of runtime'''	
-	this_time = clock()
-	global last_time
-	if(stampname != None):
-		print(stampname + ': ' + str(this_time - last_time))
-	last_time = this_time
-	
-#Beginning of main part
+import timing
+tstamp = timing.timestamp()
+tstamp = tstamp.lap
 import numpy as np
 import matplotlib.pyplot as plt
 import functions as fn
@@ -58,22 +48,22 @@ prefac = 0.25/np.pi * np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * w
 
 #EIGENFUCNTION DERIVATIVES
 
-##smoothing
-#U,dU,d2U = fn.smooth(U,r,window,order,npts)
-#V,dV,d2V = fn.smooth(V,r,window,order,npts)
+#smoothing
+U,dU,d2U = fn.smooth(U,r,window,order,npts)
+V,dV,d2V = fn.smooth(V,r,window,order,npts)
 
-#U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
-#V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
+U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
+V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
 
-#rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
+rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
 #re-assigning with smoothened variables
-#r = r_new
-#rho = rho_sm
+r = r_new
+rho = rho_sm
 
-#no smoothing
-dU, dV = np.gradient(U,r), np.gradient(V,r)
-dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
-d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
+##no smoothing
+#dU, dV = np.gradient(U,r), np.gradient(V,r)
+#dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
+#d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
 
 #B-- OLD
 Bmm = -r*(wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + wig_red(2,-2,0)*om(l_,0)* \
