@@ -10,11 +10,11 @@ from os import getcwd
 
 tstamp('library loading') #printing elapsed time from beginning of runtime
 
-n,l,m = 1,60,0
-n_,l_,m_ = n,l,0
+n,l,m = 1,3,2
+n_,l_,m_ = n,l,3
 nl = fn.find_nl(n,l)
 nl_ = fn.find_nl(n_,l_)
-s = 2
+s = 1
 t = m_-m
 
 
@@ -120,14 +120,14 @@ B00 += B00_
 Bpm += Bpm_
 tstamp('calculations')
 
-#setting up units for plots in cgs
-r_sun = 6.96e10
-m_sun = 1.99e33
-rho_mean = m_sun / (4./3. * np.pi * r_sun**3)
-r *= r_sun
-rho *= rho_mean/3.
-(Bmm, B0m, B00, Bpm) = [4.*np.pi/m_sun * B for B in (Bmm, B0m, B00, Bpm)] 
-r_start = 0.9*r[-1]
+##setting up units for plots in cgs
+#r_sun = 6.96e10
+#m_sun = 1.99e33
+#rho_mean = m_sun / (4./3. * np.pi * r_sun**3)
+#r *= r_sun
+#rho *= rho_mean/3.
+#(Bmm, B0m, B00, Bpm) = [4.*np.pi/m_sun * B for B in (Bmm, B0m, B00, Bpm)] 
+r_start = 0.997*r[-1]
 start_ind = fn.nearest_index(r,r_start)
 
 #plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
