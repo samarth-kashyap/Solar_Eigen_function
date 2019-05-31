@@ -48,26 +48,28 @@ prefac = 0.25/np.pi * np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * w
 
 #EIGENFUCNTION DERIVATIVES
 
-#smoothing
-U,dU,d2U = fn.smooth(U,r,window,order,npts)
-V,dV,d2V = fn.smooth(V,r,window,order,npts)
+##smoothing
+#U,dU,d2U = fn.smooth(U,r,window,order,npts)
+#V,dV,d2V = fn.smooth(V,r,window,order,npts)
 
-U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
-V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
+#U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
+#V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
 
-rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-#re-assigning with smoothened variables
-r = r_new
-rho = rho_sm
+#rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
+##re-assigning with smoothened variables
+#r = r_new
+#rho = rho_sm
 
-##no smoothing
-#dU, dV = np.gradient(U,r), np.gradient(V,r)
-#dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
-#d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
+#no smoothing
+dU, dV = np.gradient(U,r), np.gradient(V,r)
+dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
+d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
 
 #B-- OLD
+tstamp()
 Bmm = -r*(wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + wig_red(2,-2,0)*om(l_,0)* \
 		om(l_,2)*V_*dU)
+tstamp('Bmm')
 Bmm += wig_red(1,-2,1)*om(l_,0)*om(l,0)*(U-V)*(U_ - V_ + r*dV_)
 Bmm *= ((-1)**m_)*prefac/(r**2)
 
