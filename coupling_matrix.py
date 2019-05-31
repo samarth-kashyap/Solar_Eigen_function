@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import scipy.integrate
 import get_kernels as gkerns
 plt.ion()
+
+#timing the code
 import timing
 clock2 = timing.stopclock()
 tstamp = clock2.lap
@@ -31,10 +33,13 @@ mm,mm_,ss1 = np.meshgrid(m,m,s,indexing='ij')
 
 __,__,ss2,__ = np.meshgrid(m,m,s,r,indexing='ij')
 
-kern_eval = gkerns.Hkernels(l,l_,ss1,ss2,rpts)
+kern_eval = gkerns.Hkernels(l,l_,ss1,ss2,r,rpts)
 
 ##computing the tensor components
-Bmm,B0m,B00,Bpm,Bpp,B0p = kern_eval.ret_kerns(l,ss1,l_,mm,mm_,n,n_)
+#Bmm,B0m,B00,Bpm,Bpp,B0p = kern_eval.ret_kerns(l,ss1,l_,mm,mm_,n,n_)
+
+Bmm,B0m,B00,Bpm,Bpp,B0p = kern_eval.isol_multiplet(n,l,s)
+
 tstamp('kernel evaluated')
 #sample h's for now
 

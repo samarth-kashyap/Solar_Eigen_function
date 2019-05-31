@@ -11,12 +11,28 @@ class Hkernels:
     """This class handles l parameters of the kernel"""
     #setting up shorthand repeatedly used in kernel evaluation
 
-    def __init__(self,l,l_,ss1,ss2,rpts):
+    def __init__(self,l,l_,ss1,ss2,r,rpts):
         self.l = l
         self.l_ = l_
         self.ss = ss1
         self.s = ss2[0,0,:,:]
         self.rpts = rpts
+        self.r = r
+
+    def isol_multiplet(self,n,l,s):
+        n_ = n
+        l_ = l
+        m = np.arange(-l,l+1,1)
+        m_ = np.arange(-l,l+1,1)
+
+        mm,mm_,ss1 = np.meshgrid(m,m_,s,indexing='ij')
+        __,__,ss2,__ = np.meshgrid(m,m,s,self.r,indexing='ij')
+
+        self.ss = ss1
+        self.s = ss2[0,0,:,:]
+
+        Bmm,B0m,B00,Bpm,Bpp,B0p = self.ret_kerns(l,self.ss,l_,mm,mm_,n,n_)
+        return Bmm,B0m,B00,Bpm,Bpp,B0p
 
     def wig_red_o(self,m1,m2,m3):
         '''3j symbol with upper row fixed'''
@@ -119,7 +135,7 @@ class Hkernels:
         rf = np.tile(r,(len_m,len_m_,1,1))
         
         tstamp()
-        print dU_.shape
+        print(dU_.shape)
         #B-- EXPRESSION
         Bmm = -r*(self.wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + self.wig_red(2,-2,0)*om(l_,0)* \
                 om(l_,2)*V_*dU)
@@ -240,6 +256,6 @@ class Hkernels:
         #constructing the other two components of the kernel
         Bpp = parity_fac[:,:,:,np.newaxis]*Bmm
         B0p = parity_fac[:,:,:,np.newaxis]*B0m
-        print np.max(np.abs(prefac[:,:,0]))
+        print(np.max(np.abs(prefac[:,:,0])))
 
         return Bmm,B0m,B00,Bpm,Bpp,B0p
