@@ -6,15 +6,17 @@ import timing
 clock1 = timing.stopclock()
 tstamp = clock1.lap
 
+
 class Hkernels:
     """This class handles l parameters of the kernel"""
     #setting up shorthand repeatedly used in kernel evaluation
 
-    def __init__(self,l,l_,ss1,ss2):
+    def __init__(self,l,l_,ss1,ss2,rpts):
         self.l = l
         self.l_ = l_
         self.ss = ss1
         self.s = ss2[0,0,:,:]
+        self.rpts = rpts
 
     def wig_red_o(self,m1,m2,m3):
         '''3j symbol with upper row fixed'''
@@ -48,12 +50,12 @@ class Hkernels:
         rho = np.loadtxt('rho.dat')
 
 
-#        r = r[-100:]
-#        rho = rho[-100:]
-#        Ui = Ui[-100:]
-#        Vi = Vi[-100:]
-#        Ui_ = Ui_[-100:]
-#        Vi_ = Vi_[-100:]
+        r = r[-self.rpts:]
+        rho = rho[-self.rpts:]
+        Ui = Ui[-self.rpts:]
+        Vi = Vi[-self.rpts:]
+        Ui_ = Ui_[-self.rpts:]
+        Vi_ = Vi_[-self.rpts:]
 
         tstamp()
         om = np.vectorize(fn.omega)
@@ -155,21 +157,31 @@ class Hkernels:
         B0m += om(l,0)*(om(l_,0)*(self.wig_red(-1,-1,2)*om(l,2)*V*(U_ - V_ + r*dV_) \
             + 2*r*self.wig_red(2,-1,-1)*om(l_,2)*V_*dV) + self.wig_red(0,-1,1) \
             *((U-V)*(2*U_ - 2*(om(l_,0)**2)*V_ - r*dU_) + r**2 * dU_*dV))
+            
+        print(np.max(np.abs(B0m)))
 
         # B0m = np.tile(B0m,(len_m,len_m_,1,1))
         
         B0m = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m/r**2)[np.newaxis,:,:]
+                
+        print(np.max(np.abs(B0m)))
         #B0- EXTRA
         B0m_ = om(l,0)*V*(self.wig_red(2,-1,-1)*om(l_,0)*om(l_,2)*(U_ - 3*V_ + r*dV_) \
                 + self.wig_red(0,-1,1)*((2+om(l_,0)**2)*U_ - 2*r*dU_ + om(l_,0)**2 \
                 *(-3*V_ + r*dV_)))
         B0m_ += self.wig_red(1,-1,0)*om(l_,0)*U*(U_ - V_ - r*(dU_ - dV_ + r*d2V_))
+        
+        print(np.max(np.abs(B0m_)))
 
         # B0m_ = np.tile(B0m_,(len_m,len_m_,1,1))
 
         B0m_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m_/r**2)[np.newaxis,:,:]
+                
+        print(np.max(np.abs(B0m_+B0m)))
+        plt.plot(r[0,:],(B0m_+B0m)[-2,-1,0,:])
+        plt.show('Block')
 
         print('B0m done')
 
@@ -221,12 +233,13 @@ class Hkernels:
         Bpm += Bpm_
 
         Bmm = Bmm.astype('float64')
-        B0m = Bmm.astype('float64')
-        B00 = Bmm.astype('float64')
-        Bpm = Bmm.astype('float64')
+        B0m = B0m.astype('float64')
+        B00 = B00.astype('float64')
+        Bpm = Bpm.astype('float64')
         
         #constructing the other two components of the kernel
         Bpp = parity_fac[:,:,:,np.newaxis]*Bmm
         B0p = parity_fac[:,:,:,np.newaxis]*B0m
+        print np.max(np.abs(prefac[:,:,0]))
 
         return Bmm,B0m,B00,Bpm,Bpp,B0p
