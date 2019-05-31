@@ -3,19 +3,18 @@ import matplotlib.pyplot as plt
 import functions as fn
 from os import getcwd
 import timing
-__ = timing.stopclock()
-tstamp = __.lap
-
+clock1 = timing.stopclock()
+tstamp = clock1.lap
 
 class Hkernels:
     """This class handles l parameters of the kernel"""
     #setting up shorthand repeatedly used in kernel evaluation
 
-    def __init__(self,l,l_,s):
+    def __init__(self,l,l_,ss1,ss2):
         self.l = l
         self.l_ = l_
-        self.ss = s
-        self.s = s[0,0,:,:]
+        self.ss = ss1
+        self.s = ss2[0,0,:,:]
 
     def wig_red_o(self,m1,m2,m3):
         '''3j symbol with upper row fixed'''
@@ -32,7 +31,7 @@ class Hkernels:
         nl = fn.find_nl(n,l)
         nl_ = fn.find_nl(n_,l_)
 
-        len_s, len_m, len_m_, __ = np.shape(s)
+        len_m, len_m_, len_s = np.shape(s)
 
         #Savitsky golay filter for smoothening
         window = 45  #must be odd
@@ -55,12 +54,14 @@ class Hkernels:
 #        Vi = Vi[-100:]
 #        Ui_ = Ui_[-100:]
 #        Vi_ = Vi_[-100:]
+
         tstamp()
         om = np.vectorize(fn.omega)
         parity_fac = (-1)**(l+l_+s) #parity of selected modes
         prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) \
                     / (4.* np.pi)) * self.wig_red_o(-m_,m_-m,m)
-        tstamp('vectorizatoin')
+        tstamp('prefac')
+
         #EIGENFUCNTION DERIVATIVES
 
         #smoothing
@@ -85,15 +86,16 @@ class Hkernels:
         dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
         dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
         d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
+        tstamp('loading eigfiles')
 
         ##making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
-        tstamp()
+
         U = np.tile(Ui,(len_s,1))
         V = np.tile(Vi,(len_s,1))
         dU = np.tile(dUi,(len_s,1))
         dV = np.tile(dVi,(len_s,1))
-        tstamp('UV init')
-        print(np.shape(U),np.shape(V))
+        tstamp('tiling')
+
 
         # U_ = np.tile(Ui_,(len_s,len_m,len_m_,1))
         # V_ = np.tile(Vi_,(len_s,len_m,len_m_,1))
@@ -110,33 +112,40 @@ class Hkernels:
         dV_ = np.tile(dVi_,(len_s,1))
         d2U_ = np.tile(d2Ui_,(len_s,1))
         d2V_ = np.tile(d2Vi_,(len_s,1))
-
+        tstamp('deriv tiling')
         r = np.tile(r,(len_s,1))
         rf = np.tile(r,(len_m,len_m_,1,1))
-
-        print(np.shape(r),np.shape(self.wig_red(0,-2,2)), om(1,0),np.shape(V),np.shape(dU))
-
-        #B-- EXPRESSION
+        
         tstamp()
+        print dU_.shape
+        #B-- EXPRESSION
         Bmm = -r*(self.wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + self.wig_red(2,-2,0)*om(l_,0)* \
                 om(l_,2)*V_*dU)
-        tstamp('Bmm')
         Bmm += self.wig_red(1,-2,1)*om(l_,0)*om(l,0)*(U-V)*(U_ - V_ + r*dV_)
+        tstamp('Bmm without prefac')
 
-        Bmm = np.tile(Bmm,(len_m,len_m_,1,1))
 
-        print(np.shape(Bmm),np.shape(m_),np.shape(r))
+        # Bmm = np.tile(Bmm,(len_m,len_m_,1,1))
 
-        Bmm *= ((-1)**np.abs(m_))*prefac/(rf**2)
 
+        # Bmm = (((-1)**np.abs(m_))*prefac/(rf**2))[:,:,:,np.newaxis] \
+                #  * Bmm[np.newaxis,:,:]
+        print('new axis')
+        Bmm = (((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+                 * (Bmm/r**2)[np.newaxis,:,:]
+        tstamp('Bmm_')		
         #B-- EXTRA
         Bmm_ = om(l_,0)*(self.wig_red(2,-2,0)*om(l_,2)*U*(V_ - r*dV_) + om(l,0)*V \
                 *(self.wig_red(3,-2,-1)*om(l_,2)*om(l_,3)*V_ + self.wig_red(1,-2,1) \
                 *(-U_ + V_ + om(l_,2)**2 *V_ - r*dV_)))
 
-        Bmm_ = np.tile(Bmm_,(len_m,len_m_,1,1))
+        # Bmm_ = np.tile(Bmm_,(len_m,len_m_,1,1))
 
-        Bmm_ *= (-1)**(np.abs(1+m_)) *prefac/rf**2
+        # Bmm_ = (((-1)**np.abs(m_))*prefac/(rf**2))[:,:,:,np.newaxis] \
+                #  * Bmm_[np.newaxis,:,:]
+
+        Bmm_ = (((-1)**np.abs(1+m_))*prefac)[:,:,:,np.newaxis] \
+                 * (Bmm_/r**2)[np.newaxis,:,:]
 
         print('Bmm done')
 
@@ -147,18 +156,20 @@ class Hkernels:
             + 2*r*self.wig_red(2,-1,-1)*om(l_,2)*V_*dV) + self.wig_red(0,-1,1) \
             *((U-V)*(2*U_ - 2*(om(l_,0)**2)*V_ - r*dU_) + r**2 * dU_*dV))
 
-        B0m = np.tile(B0m,(len_m,len_m_,1,1))
+        # B0m = np.tile(B0m,(len_m,len_m_,1,1))
         
-        B0m *= 0.5*((-1)**np.abs(m_))*prefac/rf**2
+        B0m = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+                * (B0m/r**2)[np.newaxis,:,:]
         #B0- EXTRA
         B0m_ = om(l,0)*V*(self.wig_red(2,-1,-1)*om(l_,0)*om(l_,2)*(U_ - 3*V_ + r*dV_) \
                 + self.wig_red(0,-1,1)*((2+om(l_,0)**2)*U_ - 2*r*dU_ + om(l_,0)**2 \
                 *(-3*V_ + r*dV_)))
         B0m_ += self.wig_red(1,-1,0)*om(l_,0)*U*(U_ - V_ - r*(dU_ - dV_ + r*d2V_))
 
-        B0m_ = np.tile(B0m_,(len_m,len_m_,1,1))
+        # B0m_ = np.tile(B0m_,(len_m,len_m_,1,1))
 
-        B0m_ *= 0.5*((-1)**np.abs(m_))*prefac/rf**2
+        B0m_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+                * (B0m_/r**2)[np.newaxis,:,:]
 
         print('B0m done')
 
@@ -168,16 +179,18 @@ class Hkernels:
         B00 -= 2*r*(self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*om(l_,0)*om(l,0) \
             *(U_ - V_ + r*dV_)*dV
 
-        B00 = np.tile(B00,(len_m,len_m_,1,1))
+        # B00 = np.tile(B00,(len_m,len_m_,1,1))
 
-        B00 *= 0.5*((-1)**np.abs(m_))*prefac/rf**2
+        B00 = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+                * (B00/r**2)[np.newaxis,:,:]
         #B00 EXTRA
         B00_ = -(self.wig_red(-1,0,1) + self.wig_red(1,0,-1)) * om(l_,0)*om(l,0) * V*(-4*U_+2*(1+om(l_,0)**2)*V_+r*(dU_-2*dV_))
         B00_ += self.wig_red(0,0,0)*U*(2*U_-2*r*dU_-2*om(l_,0)**2 *(V_-r*dV_)+r*r*d2U_)
 
-        B00_ = np.tile(B00_,(len_m,len_m_,1,1))
+        #B00_ = np.tile(B00_,(len_m,len_m_,1,1))
 
-        B00_ *= 0.5*((-1)**np.abs(m_))*prefac/rf**2
+        B00_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+                * (B00_/r**2)[np.newaxis,:,:]
 
         print('B00 done')
 
@@ -187,16 +200,18 @@ class Hkernels:
                 + self.wig_red(-1,0,1)*(U-V)*(U_ - V_ + r*dV_) + self.wig_red(1,0,-1) \
                 *(U-V)*(U_ - V_ + r*dV_))
 
-        Bpm = np.tile(Bpm,(len_m,len_m_,1,1))
+        # Bpm = np.tile(Bpm,(len_m,len_m_,1,1))
 
-        Bpm *= 0.5*((-1)**np.abs(m_))*prefac/rf**2
+        Bpm = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+                * (Bpm/r**2)[np.newaxis,:,:]
         #B0+- EXTRA
         Bpm_ = (self.wig_red(-1,0,1) + self.wig_red(1,0,-1)) * om(l_,0)*om(l,0) * V * (U_-V_+r*(-dU_+dV_))
         Bpm_ += self.wig_red(0,0,0) * r*r*U*d2U_
 
-        Bpm_ = np.tile(Bpm_,(len_m,len_m_,1,1))
+        # Bpm_ = np.tile(Bpm_,(len_m,len_m_,1,1))
 
-        Bpm_ *= 0.5*((-1)**np.abs(m_))*prefac/rf**2
+        Bpm_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+                * (Bpm_/r**2)[np.newaxis,:,:]
 
         print('Bpm done')
 
@@ -211,7 +226,7 @@ class Hkernels:
         Bpm = Bmm.astype('float64')
         
         #constructing the other two components of the kernel
-        Bpp = parity_fac*Bmm
-        B0p = parity_fac*B0m
+        Bpp = parity_fac[:,:,:,np.newaxis]*Bmm
+        B0p = parity_fac[:,:,:,np.newaxis]*B0m
 
         return Bmm,B0m,B00,Bpm,Bpp,B0p
