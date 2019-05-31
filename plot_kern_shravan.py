@@ -1,18 +1,8 @@
-#PLOTTING SHRAVAN'S KERNEL (WITHOUT TERM6 AND TERM7)
-
-#Defining function and variables for timing code. Not essential to working of code
-from time import clock
-start_time = clock() #ref time
-last_time = start_time #ref time
-def tstamp(stampname = None):
-	'''returns time elapsed since beginning of runtime'''	
-	this_time = clock()
-	global last_time
-	if(stampname != None):
-		print(stampname + ': ' + str(this_time - last_time))
-	last_time = this_time
+#PLOTTING CORRECTION TO SHRAVAN'S KERNEL
 	
-#Beginning of main part
+import timing
+kernclock = timing.stopclock() #stopclock object for timing program
+tstamp = kernclock.lap
 import numpy as np
 import matplotlib.pyplot as plt
 import functions as fn
