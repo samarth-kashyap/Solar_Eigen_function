@@ -11,11 +11,13 @@ class Hkernels:
     """This class handles l parameters of the kernel"""
     #setting up shorthand repeatedly used in kernel evaluation
 
-    def __init__(self,l,l_,ss1,ss2,r,rpts):
+    def __init__(self,l,l_,r,rpts,ss1=0,ss2=0):
         self.l = l
         self.l_ = l_
-        self.ss = ss1
-        self.s = ss2[0,0,:,:]
+        # self.ss = ss1
+        # self.s = ss2[0,0,:,:]
+        self.ss = 0
+        self.s = 0
         self.rpts = rpts
         self.r = r
 
@@ -65,7 +67,7 @@ class Hkernels:
         r = np.loadtxt('r.dat')
         rho = np.loadtxt('rho.dat')
 
-
+        #slicing the radial function acoording to radial grids
         r = r[-self.rpts:]
         rho = rho[-self.rpts:]
         Ui = Ui[-self.rpts:]
@@ -78,7 +80,7 @@ class Hkernels:
         parity_fac = (-1)**(l+l_+s) #parity of selected modes
         prefac = np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) \
                     / (4.* np.pi)) * self.wig_red_o(-m_,m_-m,m)
-        tstamp('prefac')
+        tstamp('Computed prefac in')
 
         #EIGENFUCNTION DERIVATIVES
 
@@ -104,7 +106,7 @@ class Hkernels:
         dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
         dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
         d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
-        tstamp('loading eigfiles')
+        tstamp('Loaded eigfiles in')
 
         ##making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
 
@@ -112,7 +114,7 @@ class Hkernels:
         V = np.tile(Vi,(len_s,1))
         dU = np.tile(dUi,(len_s,1))
         dV = np.tile(dVi,(len_s,1))
-        tstamp('tiling')
+        tstamp('Tiling initial functions in')
 
 
         # U_ = np.tile(Ui_,(len_s,len_m,len_m_,1))
@@ -130,17 +132,17 @@ class Hkernels:
         dV_ = np.tile(dVi_,(len_s,1))
         d2U_ = np.tile(d2Ui_,(len_s,1))
         d2V_ = np.tile(d2Vi_,(len_s,1))
-        tstamp('deriv tiling')
+        tstamp('Derivatives tiled in')
         r = np.tile(r,(len_s,1))
         rf = np.tile(r,(len_m,len_m_,1,1))
         
         tstamp()
-        print(dU_.shape)
+
         #B-- EXPRESSION
         Bmm = -r*(self.wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + self.wig_red(2,-2,0)*om(l_,0)* \
                 om(l_,2)*V_*dU)
         Bmm += self.wig_red(1,-2,1)*om(l_,0)*om(l,0)*(U-V)*(U_ - V_ + r*dV_)
-        tstamp('Bmm without prefac')
+        tstamp('Computed Bmm without prefac in')
 
 
         # Bmm = np.tile(Bmm,(len_m,len_m_,1,1))
@@ -148,10 +150,10 @@ class Hkernels:
 
         # Bmm = (((-1)**np.abs(m_))*prefac/(rf**2))[:,:,:,np.newaxis] \
                 #  * Bmm[np.newaxis,:,:]
-        print('new axis')
+        print('Constructed new axes')
         Bmm = (((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                  * (Bmm/r**2)[np.newaxis,:,:]
-        tstamp('Bmm_')		
+        tstamp('Bmm corrected in')		
         #B-- EXTRA
         Bmm_ = om(l_,0)*(self.wig_red(2,-2,0)*om(l_,2)*U*(V_ - r*dV_) + om(l,0)*V \
                 *(self.wig_red(3,-2,-1)*om(l_,2)*om(l_,3)*V_ + self.wig_red(1,-2,1) \
@@ -191,8 +193,6 @@ class Hkernels:
         B0m_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m_/r**2)[np.newaxis,:,:]
                 
-        plt.plot(r[0,:],(B0m_+B0m)[-2,-1,0,:])
-        plt.show('Block')
 
         print('B0m done')
 
