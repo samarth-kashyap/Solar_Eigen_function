@@ -11,7 +11,7 @@ tstamp = clock2.lap
 
 
 #Choosing n,l and n_,l_
-n,l = 1,10
+n,l = 1,5
 n_,l_ = n,l
 
 #Choosing s
@@ -19,15 +19,15 @@ smin = 0
 #smax = 'max_s' for 0 <= s <= 2l+1
 #smax = False for s = s_arr (custom choice)
 #smax = <some integral value> 
-smax = 'max_s'
+smax = 0
 #custom made s array
-s_arr = np.array([1,2,3,4])
+s = np.array([0,1])
 
 
-#assigning the s array according to user's choice
-if(smax == 'max_s'): s = np.arange(0,2*l+1,1)  #to generate all s
-elif(smax == False): s = s_arr  #to stick to a particular s_array
-else: s = np.arange(smin,smax+1,1)  #generate s between a max and min value
+##assigning the s array according to user's choice
+#if(smax == 'max_s'): s = np.arange(0,2*l+1,1)  #to generate all s
+#elif(smax == False): s = s_arr  #to stick to a particular s_array
+#else: s = np.arange(smin,smax+1,1)  #generate s between a max and min value
 
 
 #loading and chopping r grid
@@ -57,13 +57,13 @@ tstamp('kernel evaluated')
 
 #sample h's for now
 hmm = 100.*np.ones(np.shape(Bmm))
-hpp = h00 = hpm = h0p = hmm
+hpp = h00 = hpm = hp0 = hmm
 h0m = -259.
 
 
 #find integrand by summing all component
 cp_mat_s = hpp*Bpp + h00*B00 + hmm*Bmm \
-           + 2*hpm*Bpm + 2*h0m*B0m + 2*h0p*B0p
+           + 2*hpm*Bpm + 2*h0m*B0m + 2*hp0*B0p
 
 
 
