@@ -3,11 +3,16 @@ import functions as fn
 import matplotlib.pyplot as plt
 import scipy.integrate
 import get_kernels as gkerns
+import h_components as hcomps
 plt.ion()
 #code snippet for timing the code
 import timing
 clock2 = timing.stopclock()
 tstamp = clock2.lap
+
+#variable set in stone
+mu = np.array([-1,0,1])
+nu = np.array([-1,0,1])
 
 
 #Choosing n,l and n_,l_
@@ -21,7 +26,7 @@ smin = 0
 #smax = <some integral value> 
 smax = 0
 #custom made s array
-s = np.array([0,1])
+s = np.array([0,1,2,3,4])
 
 
 ##assigning the s array according to user's choice
@@ -55,10 +60,24 @@ Bmm,B0m,B00,Bpm,Bpp,B0p = kern_eval.isol_multiplet(n,l,s)
 
 tstamp('kernel evaluated')
 
-#sample h's for now
-hmm = 100.*np.ones(np.shape(Bmm))
-hpp = h00 = hpm = hp0 = hmm
-h0m = -259.
+#Fetching the H-components
+get_h = hcomps.getHcomps(mu,nu,s,m,l,r)
+
+tstamp()
+H_super = get_h.ret_hcomps()  #this is where its getting computed
+tstamp('Computed H-components in')
+
+#distributing the components
+hmm = H_super[:,:,0,0,:,:]
+h0m = H_super[:,:,1,0,:,:]
+h00 = H_super[:,:,1,1,:,:]
+hp0 = H_super[:,:,2,1,:,:]
+hpp = H_super[:,:,2,2,:,:]
+hpm = H_super[:,:,2,0,:,:]
+
+# hmm = 100.*np.ones(np.shape(Bmm))
+# hpp = h00 = hpm = hp0 = hmm
+# h0m = -259.
 
 
 #find integrand by summing all component
@@ -77,3 +96,6 @@ cp_mat = scipy.integrate.trapz(cp_mat_befint,x=r,axis=2)
 plt.pcolormesh(cp_mat)
 plt.colorbar()
 plt.show('Block')
+
+
+
