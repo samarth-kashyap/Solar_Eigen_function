@@ -5,7 +5,7 @@ import scipy.integrate
 import get_kernels as gkerns
 plt.ion()
 
-#timing the code
+#code snippet for timing the code
 import timing
 clock2 = timing.stopclock()
 tstamp = clock2.lap
@@ -13,11 +13,20 @@ tstamp = clock2.lap
 n,l = 1,3
 n_,l_ = n,l
 
-smax = 1
+smin = 1
 
-if(smax > 2*l+1) : exit()
+#smax = 'max_s' for 0 <= s <= 2l+1
+#smax = False for s = s_arr (custom choice)
+#smax = <some integral value> 
+smax = 4
 
-s = np.arange(1,smax+1,1)  #confined to l_= l
+#custom made s array
+s_arr = np.array([1,2,3,4])
+
+#assigning the s array according to user's choice
+if(smax == 'max_s'): s = np.arange(0,2*l+1,1)  #to generate all s
+elif(smax == False): s = s_arr  #to stick to a particular s_array
+else: s = np.arange(smin,smax+1,1)  #generate s between a max and min value
 
 #loading required functions
 r = np.loadtxt('r.dat')
@@ -41,8 +50,8 @@ kern_eval = gkerns.Hkernels(l,l_,ss1,ss2,r,rpts)
 Bmm,B0m,B00,Bpm,Bpp,B0p = kern_eval.isol_multiplet(n,l,s)
 
 tstamp('kernel evaluated')
-#sample h's for now
 
+#sample h's for now
 hmm = 100.*np.ones(np.shape(Bmm))
 hpp = h00 = hpm = h0p = hmm
 h0m = -259.
