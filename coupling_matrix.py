@@ -10,6 +10,14 @@ import timing
 clock2 = timing.stopclock()
 tstamp = clock2.lap
 
+def b_radial(r,r_cen):
+    return np.exp(-0.5*((r-r_cen)/0.0001)**2)
+
+#loading and chopping r grid
+r = np.loadtxt('r.dat')
+rpts = 700
+r = r[-rpts:]
+
 #variable set in stone
 mu = np.array([-1,0,1])
 nu = np.array([-1,0,1])
@@ -18,6 +26,13 @@ nu = np.array([-1,0,1])
 #Choosing n,l and n_,l_
 n,l = 1,5
 n_,l_ = n,l
+
+#mode for toroidal magnetic field
+l_b = 1
+m_b = 0
+
+r_cen = 0.998
+b_r = b_radial(r,r_cen)
 
 #Choosing s
 smin = 0
@@ -33,12 +48,6 @@ s = np.array([0,1,2,3,4])
 #if(smax == 'max_s'): s = np.arange(0,2*l+1,1)  #to generate all s
 #elif(smax == False): s = s_arr  #to stick to a particular s_array
 #else: s = np.arange(smin,smax+1,1)  #generate s between a max and min value
-
-
-#loading and chopping r grid
-r = np.loadtxt('r.dat')
-rpts = 700
-r = r[-rpts:]
 
 
 #for now considering l = l_
@@ -61,7 +70,7 @@ Bmm,B0m,B00,Bpm,Bpp,B0p = kern_eval.isol_multiplet(n,l,s)
 tstamp('kernel evaluated')
 
 #Fetching the H-components
-get_h = hcomps.getHcomps(mu,nu,s,m,l,r)
+get_h = hcomps.getHcomps(mu,nu,s,m,l_b,m_b,r,b_r)
 
 tstamp()
 H_super = get_h.ret_hcomps()  #this is where its getting computed

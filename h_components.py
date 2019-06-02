@@ -4,13 +4,15 @@ import functions as fn
 class getHcomps:
     """Class to compute the H-coefficients for Lorentz stresses"""
 
-    def __init__(self,mu,nu,s,m,l,r):
+    def __init__(self,mu,nu,s,m,l_b,m_b,r,b_r):
         self.mu = mu
         self.nu = nu
         self.s = s 
         self.m = m
-        self.l = l
+        self.l_b = l_b
+        self.m_b = m_b
         self.r = r
+        self.b_r = b_r
 
     def ret_hcomps(self):
         
@@ -19,13 +21,23 @@ class getHcomps:
 
         wig_calc = np.vectorize(fn.wig)
 
-        #signs to be checked
-        wig1 = wig_calc(1,ss,1,mumu,-(mumu+nunu),nunu)
-        wig2 = wig_calc(1,ss,1,0,tt,0)
-        #factor of 9 needs to be replaced with generic l expression
-        H = np.sqrt((9/(4*np.pi))*(2*ss+1))*wig1*wig2
+        b_mu_nu = np.array([-1j*fn.omega(self.l_b,0),0,1j*fn.omega(self.l_b,0)])
 
-        HH = H[:,:,:,:,np.newaxis]*self.r[np.newaxis,:]
+
+        B_mu_nu = np.real(np.outer(b_mu_nu,b_mu_nu))
+        B_mu_nu_r = B_mu_nu[:,:,np.newaxis]*self.b_r[np.newaxis,:] 
+    
+
+        #signs to be checked
+        wig1 = wig_calc(self.l_b,ss,self.l_b,mumu,-(mumu+nunu),nunu)
+        wig2 = wig_calc(self.l_b,ss,self.l_b,self.m_b,tt,self.m_b)
+        #factor of 9 needs to be replaced with generic l expression
+        H = ((-1)**(np.abs(tt))) \
+                *np.sqrt((2*self.l_b+1)*(2*self.l_b+1)*(2*ss+1)/(4*np.pi))*wig1*wig2
+
+        HH = H[:,:,:,:,np.newaxis] \
+                *(B_mu_nu_r*self.r[np.newaxis,:])[:,:,np.newaxis,np.newaxis,:]
+
 
         HH = HH.astype('float64')
 
