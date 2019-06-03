@@ -21,7 +21,10 @@ class getHcomps:
 
         wig_calc = np.vectorize(fn.wig)
 
-        b_mu_nu = np.array([-1j*fn.omega(self.l_b,0),0,1j*fn.omega(self.l_b,0)])
+        #factor for converting SH to GSH
+        gamma_l = np.sqrt((2*self.l_b+1)/(4*np.pi))
+
+        b_mu_nu = gamma_l*np.array([-1j*fn.omega(self.l_b,0),0,1j*fn.omega(self.l_b,0)])
 
 
         B_mu_nu = np.real(np.outer(b_mu_nu,b_mu_nu))
