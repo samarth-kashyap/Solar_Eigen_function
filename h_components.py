@@ -21,10 +21,8 @@ class getHcomps:
 
         wig_calc = np.vectorize(fn.wig)
 
-        #factor for converting SH to GSH
-        gamma_l = np.sqrt((2*self.l_b+1)/(4*np.pi))
 
-        b_mu_nu = gamma_l*np.array([-1j*fn.omega(self.l_b,0),0,1j*fn.omega(self.l_b,0)])
+        b_mu_nu = np.array([-1j*fn.omega(self.l_b,0),0,1j*fn.omega(self.l_b,0)])
 
 
         B_mu_nu = np.real(np.outer(b_mu_nu,b_mu_nu))
@@ -33,9 +31,9 @@ class getHcomps:
 
         #signs to be checked
         wig1 = wig_calc(self.l_b,ss,self.l_b,mumu,-(mumu+nunu),nunu)
-        wig2 = wig_calc(self.l_b,ss,self.l_b,self.m_b,tt,self.m_b)
+        wig2 = wig_calc(self.l_b,ss,self.l_b,self.m_b,-tt,self.m_b)
         #factor of 9 needs to be replaced with generic l expression
-        H = ((-1)**(np.abs(tt))) \
+        H = ((-1)**(np.abs(tt+mumu+nunu))) \
                 *np.sqrt((2*self.l_b+1)*(2*self.l_b+1)*(2*ss+1)/(4*np.pi))*wig1*wig2
 
         HH = H[:,:,:,:,np.newaxis] \
