@@ -79,7 +79,7 @@ class cp_mat_nn_ll_:
         tstamp('kernel evaluated')
 
         #Fetching the H-components
-        get_h = hcomps.getHcomps(mu,nu,s,m,l_b,m_b,r,b_r)
+        get_h = hcomps.getHcomps(s,m,l_b,m_b,r,b_r)
 
         tstamp()
         H_super = get_h.ret_hcomps()  #this is where its getting computed

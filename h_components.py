@@ -4,9 +4,9 @@ import functions as fn
 class getHcomps:
     """Class to compute the H-coefficients for Lorentz stresses"""
 
-    def __init__(self,mu,nu,s,m,l_b,m_b,r,b_r):
-        self.mu = mu
-        self.nu = nu
+    def __init__(self,s,m,l_b,m_b,r,b_r):
+        self.mu = np.array([-1,0,1])
+        self.nu = np.array([-1,0,1])
         self.s = s 
         self.m = m
         self.l_b = l_b

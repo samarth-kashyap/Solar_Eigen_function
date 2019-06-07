@@ -10,8 +10,8 @@ from os import getcwd
 
 tstamp('library loading') #printing elapsed time from beginning of runtime
 
-n,l,m = 1,3,2
-n_,l_,m_ = n,l,3
+n,l,m = 1,2,2
+n_,l_,m_ = n,l,m
 nl = fn.find_nl(n,l)
 nl_ = fn.find_nl(n_,l_)
 s = 1
@@ -48,22 +48,22 @@ prefac = 0.25/np.pi * np.sqrt((2*l_+1.) * (2*s+1.) * (2*l+1.) / (4.* np.pi)) * w
 
 #EIGENFUCNTION DERIVATIVES
 
-##smoothing
-#U,dU,d2U = fn.smooth(U,r,window,order,npts)
-#V,dV,d2V = fn.smooth(V,r,window,order,npts)
+#smoothing
+U,dU,d2U = fn.smooth(U,r,window,order,npts)
+V,dV,d2V = fn.smooth(V,r,window,order,npts)
 
-#U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
-#V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
+U_,dU_,d2U_ = fn.smooth(U_,r,window,order,npts)
+V_,dV_,d2V_ = fn.smooth(V_,r,window,order,npts)
 
-#rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-##re-assigning with smoothened variables
-#r = r_new
-#rho = rho_sm
+rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
+#re-assigning with smoothened variables
+r = r_new
+rho = rho_sm
 
-#no smoothing
-dU, dV = np.gradient(U,r), np.gradient(V,r)
-dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
-d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
+##no smoothing
+#dU, dV = np.gradient(U,r), np.gradient(V,r)
+#dU_, dV_ = np.gradient(U_,r), np.gradient(V_,r)
+#d2U_,d2V_ = np.gradient(dU_,r), np.gradient(dV_,r)
 
 #B-- OLD
 tstamp()
@@ -128,7 +128,8 @@ tstamp('calculations')
 #rho *= rho_mean/3.
 #(Bmm, B0m, B00, Bpm) = [4.*np.pi/m_sun * B for B in (Bmm, B0m, B00, Bpm)] 
 r_start = 0.997*r[-1]
-start_ind = fn.nearest_index(r,r_start)
+#start_ind = fn.nearest_index(r,r_start)
+start_ind = -700
 
 #plt.plot(r[start_ind:],(rho*Bpm)[start_ind:],'r-',label = '$\mathcal{B}^{+-}$')
 #plt.plot(r[start_ind:],(rho*Bmm)[start_ind:],'b-',label = '$\mathcal{B}^{--}$')

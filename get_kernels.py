@@ -14,8 +14,6 @@ class Hkernels:
     def __init__(self,l,l_,r,rpts,ss1=0,ss2=0):
         self.l = l
         self.l_ = l_
-        # self.ss = ss1
-        # self.s = ss2[0,0,:,:]
         self.ss = 0
         self.s = 0
         self.rpts = rpts
@@ -47,6 +45,19 @@ class Hkernels:
         return wig_vect(self.l_,self.s,self.l,m1,m2,m3)
 
     def ret_kerns(self,l,s,l_,m,m_,n,n_):
+    
+    
+    	########################################################
+    	
+    	m = np.arange(-l,l+1,1)
+        m_ = np.arange(-l_,l_+1,1)
+
+        __,__,ss2,__ = np.meshgrid(m,m,s[0,0,:],self.r[-700],indexing='ij')
+
+        self.ss = s
+        self.s = ss2[0,0,:,:]
+    	
+    	########################################################
 
         nl = fn.find_nl(n,l)
         nl_ = fn.find_nl(n_,l_)
@@ -168,6 +179,7 @@ class Hkernels:
                  * (Bmm_/r**2)[np.newaxis,:,:]
 
         print('Bmm done')
+        print prefac
 
 
         #B0- EXPRESSION
@@ -181,6 +193,9 @@ class Hkernels:
         B0m = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m/r**2)[np.newaxis,:,:]
                 
+        
+#        plt.plot(r[0,:],B0m[0,0,0,:])
+                
         #B0- EXTRA
         B0m_ = om(l,0)*V*(self.wig_red(2,-1,-1)*om(l_,0)*om(l_,2)*(U_ - 3*V_ + r*dV_) \
                 + self.wig_red(0,-1,1)*((2+om(l_,0)**2)*U_ - 2*r*dU_ + om(l_,0)**2 \
@@ -193,8 +208,13 @@ class Hkernels:
         B0m_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m_/r**2)[np.newaxis,:,:]
                 
+        print (np.max(np.abs(prefac))), np.max(np.abs(U)), np.max(np.abs(V)), np.max(np.abs(U_)), np.max(np.abs(V_))
+                
+#        plt.plot(r[0,:],B0m_[0,0,0,:])
 
         print('B0m done')
+        
+     
 
         #B00 OLD
         B00 = -self.wig_red(0,0,0)*(2*U_ - 2*om(l_,0)**2 * V_ - r*dU_)*(-2*U + 2*om(l,0)**2 *V + \
