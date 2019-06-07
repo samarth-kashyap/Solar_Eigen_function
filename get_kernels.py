@@ -11,15 +11,15 @@ class Hkernels:
     """This class handles l parameters of the kernel"""
     #setting up shorthand repeatedly used in kernel evaluation
 
-    def __init__(self,n_,l_,n,l,s,r_start,r_end):
+    def __init__(self,n_,l_,m_,n,l,m,s,r_start,r_end):
         self.n = n
         self.l = l
         self.n_ = n_
         self.l_ = l_
         r_full = np.loadtxt('r.dat')
         self.r = r_full[r_start:r_end]
-        m = np.arange(-l,l+1,1)
-        m_ = np.arange(-l_,l_+1,1)
+#        m = np.arange(-l,l+1,1)
+#        m_ = np.arange(-l_,l_+1,1)
         #ss is m X m X s dim (outer)
         self.mm_, self.mm, self.ss_o = np.meshgrid(m_,m,s, indexing = 'ij')
         #ss_in is s X r dim (inner)
@@ -70,7 +70,8 @@ class Hkernels:
         parity_fac = (-1)**(l+l_+self.ss_o) #parity of selected modes
         prefac = np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
                     / (4.* np.pi)) * self.wig_red_o(-m_,m_-m,m)
-        tstamp('Computed prefac in')
+        tstamp('prefac computation')
+        print prefac.shape
 
         #EIGENFUCNTION DERIVATIVES
 
@@ -96,7 +97,7 @@ class Hkernels:
         dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
         dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
         d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
-        tstamp('Loaded eigfiles in')
+        tstamp('load eigfiles')
 
         #making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
 
@@ -106,14 +107,11 @@ class Hkernels:
         dV = np.tile(dVi,(len_s,1))
         U_ = np.tile(Ui_,(len_s,1))
         V_ = np.tile(Vi_,(len_s,1))
-        tstamp('Tiling initial functions in')
         dU_ = np.tile(dUi_,(len_s,1))
         dV_ = np.tile(dVi_,(len_s,1))
         d2U_ = np.tile(d2Ui_,(len_s,1))
         d2V_ = np.tile(d2Vi_,(len_s,1))
-        tstamp('Derivatives tiled in')
         r = np.tile(r,(len_s,1))
-        #        rf = np.tile(r,(len_m_,len_m,1,1))
 
         tstamp()
 
@@ -130,7 +128,7 @@ class Hkernels:
         Bmm_ = (((-1)**np.abs(1+m_))*prefac)[:,:,:,np.newaxis] \
                  * (Bmm_/r**2)[np.newaxis,:,:]
 
-        print('Bmm done')
+        tstamp('Bmm done')
 
         #B0- EXPRESSION
         B0m = self.wig_red(1,-1,0)*om(l_,0)*(U - (om(l,0)**2)*V)*(U_ - V_ + r*dV_)
@@ -148,8 +146,7 @@ class Hkernels:
         B0m_ += self.wig_red(1,-1,0)*om(l_,0)*U*(U_ - V_ - r*(dU_ - dV_ + r*d2V_))
         B0m_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m_/r**2)[np.newaxis,:,:]
-                
-        print (np.max(np.abs(prefac))), np.max(np.abs(U)), np.max(np.abs(V)), np.max(np.abs(U_)), np.max(np.abs(V_))
+        tstamp('B0m done')
 
         #B00 OLD
         B00 = -self.wig_red(0,0,0)*(2*U_ - 2*om(l_,0)**2 * V_ - r*dU_)*(-2*U + 2*om(l,0)**2 *V + \
@@ -170,7 +167,7 @@ class Hkernels:
         B00_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B00_/r**2)[np.newaxis,:,:]
 
-        print('B00 done')
+        tstamp('B00 done')
 
         #B+- OLD
         Bpm = -r**2 * self.wig_red(0,0,0)*dU_*dU 
@@ -191,7 +188,7 @@ class Hkernels:
         Bpm_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (Bpm_/r**2)[np.newaxis,:,:]
 
-        print('Bpm done')
+        tstamp('Bpm done')
 
         Bmm += Bmm_
         B0m += B0m_
