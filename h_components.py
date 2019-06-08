@@ -49,6 +49,13 @@ class getHcomps:
 
         for i in t:
             H_super[mm-mm_ == i] = HH[:,:,:,i+np.max(np.abs(self.s)),:] 
+            
+#        print(np.shape(H_super))
+            
+        H_super = np.swapaxes(H_super,0,2)
+        H_super = np.swapaxes(H_super,1,3)
+        
+#        print(np.shape(H_super))
                 
         return H_super
 
