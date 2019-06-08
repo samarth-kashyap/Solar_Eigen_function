@@ -199,6 +199,6 @@ class Hkernels:
 
         #constructing the other two components of the kernel
         Bpp = parity_fac[:,:,:,np.newaxis]*Bmm
-        B0p = parity_fac[:,:,:,np.newaxis]*B0m
+        Bp0 = parity_fac[:,:,:,np.newaxis]*B0m
 
-        return Bmm,B0m,B00,Bpm,Bpp,B0p
+        return Bmm,B0m,B00,Bpm,Bp0,Bpp
