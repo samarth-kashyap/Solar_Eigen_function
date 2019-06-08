@@ -18,8 +18,6 @@ class Hkernels:
         self.l_ = l_
         r_full = np.loadtxt('r.dat')
         self.r = r_full[r_start:r_end]
-#        m = np.arange(-l,l+1,1)
-#        m_ = np.arange(-l_,l_+1,1)
         #ss is m X m X s dim (outer)
         self.mm_, self.mm, self.ss_o = np.meshgrid(m_,m,s, indexing = 'ij')
         #ss_in is s X r dim (inner)
@@ -71,7 +69,6 @@ class Hkernels:
         prefac = np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
                     / (4.* np.pi)) * self.wig_red_o(-m_,m_-m,m)
         tstamp('prefac computation')
-        print prefac.shape
 
         #EIGENFUCNTION DERIVATIVES
 
