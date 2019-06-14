@@ -1,1 +1,9 @@
 lol.txt
+*.pyc
+*~
+egvt.sfopal5h5
+sfopal5h5
+eig_files/
+plots/
+*.dat
+*.out
