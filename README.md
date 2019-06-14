@@ -13,4 +13,5 @@ Sequence:
 
 * Python Libraries required: numpy, sympy, matplotlob, os
 * Python version used: 2.7.15
+* Fortran version used: GNU Fortran 7.4.0
 * CAUTION: Running this code will generate data files of cumulative size ~ 2.5GB
