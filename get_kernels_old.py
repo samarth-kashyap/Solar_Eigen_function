@@ -113,84 +113,37 @@ class Hkernels:
         tstamp()
 
         #B-- EXPRESSION
-        Bmm = -r*(self.wig_red(0,-2,2)*om(l,0)*om(l,2)*V*dU_ + self.wig_red(2,-2,0)*om(l_,0)* \
-                om(l_,2)*V_*dU)
-        Bmm += self.wig_red(1,-2,1)*om(l_,0)*om(l,0)*(U-V)*(U_ - V_ + r*dV_)
-        Bmm = (((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
+        Bmm = self.wig_red(3,-2,-1)*om(l,0)*om(l_,0)*om(l_,2)*om(l_,3) * V*V_
+        Bmm += self.wig_red(0,-2,2)*om(l,0)*om(l,2) * r*V*dU_
+        Bmm += self.wig_red(1,-2,1)*om(l_,0)*om(l,0) * (-U*U_ + U*V_ + om(l_,2)**2 * V*V_ - r*U*dV_)
+        Bmm += self.wig_red(2,-2,0)*om(l_,0)*om(l_,2) * (U*V_ + r*dU*V_ - r*U*dV_)        
+        Bmm = (((-1)**np.abs(1+m_))*prefac)[:,:,:,np.newaxis] \
                  * (Bmm/r**2)[np.newaxis,:,:]
-        #B-- EXTRA
-        Bmm_ = om(l_,0)*(self.wig_red(2,-2,0)*om(l_,2)*U*(V_ - r*dV_) + om(l,0)*V \
-                *(self.wig_red(3,-2,-1)*om(l_,2)*om(l_,3)*V_ + self.wig_red(1,-2,1) \
-                *(-U_ + V_ + om(l_,2)**2 *V_ - r*dV_)))
-        Bmm_ = (((-1)**np.abs(1+m_))*prefac)[:,:,:,np.newaxis] \
-                 * (Bmm_/r**2)[np.newaxis,:,:]
-
         tstamp('Bmm done')
 
         #B0- EXPRESSION
-        B0m = self.wig_red(1,-1,0)*om(l_,0)*(U - (om(l,0)**2)*V)*(U_ - V_ + r*dV_)
-        B0m += om(l,0)*(om(l_,0)*(self.wig_red(-1,-1,2)*om(l,2)*V*(U_ - V_ + r*dV_) \
-            + 2*r*self.wig_red(2,-1,-1)*om(l_,2)*V_*dV) + self.wig_red(0,-1,1) \
-            *((U-V)*(2*U_ - 2*(om(l_,0)**2)*V_ - r*dU_) + r**2 * dU_*dV))
-
+        B0m = self.wig_red(0,-1,1)*om(l,0) * (2*U*U_ + om(l_,2)**2*V*U_ + om(l_,0)**2*(-2*U*V_ - V*V_ + r*V*dV_) + r*(-U - V + r*dV)*dU_)
+        B0m += self.wig_red(-1,-1,2)*om(l,0)*om(l_,0)*om(l,2) * V * (U_ - V_ + r*dV_)
+        B0m += self.wig_red(2,-1,-1)*om(l,0)*om(l_,0)*om(l_,2) * (V*U_ - 3*V*V_ + r*V*dV_ + 2*r*dV*V_)
+        B0m -= self.wig_red(1,-1,0)*om(l_,0) * (-2*U*U_ + om(l_,0)**2*V*U_ + om(l,0)**2*(-V*V_ + r*V*dV_) + U*(2*V_ + r*(dU_ - 2*dV_ + r*d2V_)))
         B0m = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m/r**2)[np.newaxis,:,:]
-                
-        #B0- EXTRA
-        B0m_ = om(l,0)*V*(self.wig_red(2,-1,-1)*om(l_,0)*om(l_,2)*(U_ - 3*V_ + r*dV_) \
-                + self.wig_red(0,-1,1)*((2+om(l_,0)**2)*U_ - 2*r*dU_ + om(l_,0)**2 \
-                *(-3*V_ + r*dV_)))
-        B0m_ += self.wig_red(1,-1,0)*om(l_,0)*U*(U_ - V_ - r*(dU_ - dV_ + r*d2V_))
-        B0m_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
-                * (B0m_/r**2)[np.newaxis,:,:]
         tstamp('B0m done')
 
-        #B00 OLD
-        B00 = -self.wig_red(0,0,0)*(2*U_ - 2*om(l_,0)**2 * V_ - r*dU_)*(-2*U + 2*om(l,0)**2 *V + \
-                r*dU)
-        B00 -= 2*r*(self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*om(l_,0)*om(l,0) \
-            *(U_ - V_ + r*dV_)*dV
-
-        # B00 = np.tile(B00,(len_m,len_m_,1,1))
-
+        #B00 EXPRESSION
+        B00 = -(1+parity_fac)*self.wig_red(-1,0,1)*om(l_,0)*om(l,0) * (V*(-4*U_ + 2*(1+om(l_,0)**2)*V_ + r*(dU_ - 2*dV_)) + 2*r*dV*(U_ - V_ + r*dV_))
+        B00 += self.wig_red(0,0,0) * ((6*U - 4*om(l,0)**2*V -2*r*dU)*U_ + 2*om(l_,0)**2*((-3*U+2*om(l,0)**2*V + r*dU)*V_ + r*U*dV_) + r*((-4*U + 2*om(l,0)**2*V + r*dU)*dU_ + r*U*d2U_))
         B00 = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B00/r**2)[np.newaxis,:,:]
-        #B00 EXTRA
-        B00_ = -(self.wig_red(-1,0,1) + self.wig_red(1,0,-1)) * om(l_,0)*om(l,0) * V*(-4*U_+2*(1+om(l_,0)**2)*V_+r*(dU_-2*dV_))
-        B00_ += self.wig_red(0,0,0)*U*(2*U_-2*r*dU_-2*om(l_,0)**2 *(V_-r*dV_)+r*r*d2U_)
-
-        #B00_ = np.tile(B00_,(len_m,len_m_,1,1))
-
-        B00_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
-                * (B00_/r**2)[np.newaxis,:,:]
-
         tstamp('B00 done')
 
-        #B+- OLD
-        Bpm = -r**2 * self.wig_red(0,0,0)*dU_*dU 
-        Bpm += om(l_,0)*om(l,0)*(-2*(self.wig_red(-2,0,2)+self.wig_red(2,0,-2))*om(l_,2)*om(l,2)*V_*V \
-                + self.wig_red(-1,0,1)*(U-V)*(U_ - V_ + r*dV_) + self.wig_red(1,0,-1) \
-                *(U-V)*(U_ - V_ + r*dV_))
-
-        # Bpm = np.tile(Bpm,(len_m,len_m_,1,1))
-
+        #B+- EXPRESSION
+        Bpm = -2*(1+parity_fac)*self.wig_red(-2,0,2)*om(l_,0)*om(l,0)*om(l_,2)*om(l,2)*V*V_
+        Bpm += (1+parity_fac)*self.wig_red(-1,0,1)*om(l_,0)*om(l,0) * (-r*V*dU_ + U*(U_-V_+r*dV_))
+        Bpm += self.wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
         Bpm = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (Bpm/r**2)[np.newaxis,:,:]
-        #B0+- EXTRA
-        Bpm_ = (self.wig_red(-1,0,1) + self.wig_red(1,0,-1)) * om(l_,0)*om(l,0) * V * (U_-V_+r*(-dU_+dV_))
-        Bpm_ += self.wig_red(0,0,0) * r*r*U*d2U_
-
-        # Bpm_ = np.tile(Bpm_,(len_m,len_m_,1,1))
-
-        Bpm_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
-                * (Bpm_/r**2)[np.newaxis,:,:]
-
         tstamp('Bpm done')
-
-        Bmm += Bmm_
-        B0m += B0m_
-        B00 += B00_
-        Bpm += Bpm_
 
         Bmm = Bmm.astype('float64')
         B0m = B0m.astype('float64')
