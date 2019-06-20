@@ -24,9 +24,9 @@ s = np.array([0,1,2])
 m = np.arange(-l,l+1,1)   # -l<=m<=l
 m_ = np.arange(-l_,l_+1,1) # -l_<=m<=l_
 s0 = 1
-t0 = 0
+t0 = np.arange(-s0,s0+1)
 
-r_start, r_end = .6, 1.
+r_start, r_end = .6, 0.7
 r = np.loadtxt('r.dat')
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 #end_ind = start_ind + 700
@@ -35,10 +35,11 @@ r = r[start_ind:end_ind]
 r_cen = np.mean(r)
 #b = lambda r: np.exp(-0.5*((r-r_cen)/0.0001)**2) 
 b = lambda r: 1./r**3
-B_r = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., 2., 1.]),b(r))
+B_mu_t_r = np.zeros((3,2*s0+1,len(r)))
+B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
 
 #Fetching the H-components
-get_h = hcomps.getHcomps(s,m,s0,t0,r,B_r)
+get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r)
 
 tstamp()
 H_super = get_h.ret_hcomps()  #- sign due to i in B
@@ -52,15 +53,12 @@ hpm = H_super[2,0,:,:,:,:]
 hp0 = H_super[2,1,:,:,:,:]
 hpp = H_super[2,2,:,:,:,:]
 
-
 kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,start_ind,end_ind)
-Bmm, B0m,B00, Bpm,Bp0,Bpp = kern.ret_kerns()
+Bmm,B0m,B00,Bpm,Bp0,Bpp = kern.ret_kerns()
 
 #find integrand by summing all component
 Lambda_sr = hpp*Bpp + h00*B00 + hmm*Bmm \
         + 2*hpm*Bpm + 2*h0m*B0m + 2*hp0*Bp0
-
-
 
 #summing over s before carrying out radial integral
 Lambda_r = np.sum(Lambda_sr,axis=2)
