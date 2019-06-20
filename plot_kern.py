@@ -11,7 +11,7 @@ tstamp = kernclock.lap
 r = np.loadtxt('r.dat')
 r_start, r_end = 0.9, 1.0
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
-end_ind = start_ind + 700
+#end_ind = start_ind + 700
 r = r[start_ind:end_ind]
 
 n,l = 1,60

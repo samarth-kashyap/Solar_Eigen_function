@@ -75,25 +75,25 @@ class Hkernels:
         #smoothing
 
         #interpolation params
-        #npts = 30000
-        #r_new = np.linspace(np.amin(r),np.amax(r),npts)
+        npts = len(r)
+        r_new = r
 
 
-        #Ui,dUi,d2Ui = fn.smooth(U,r,window,order,npts)
-        #Vi,dVi,d2Vi = fn.smooth(V,r,window,order,npts)
+        Ui,dUi,d2Ui = fn.smooth(Ui,r,window,order,npts)
+        Vi,dVi,d2Vi = fn.smooth(Vi,r,window,order,npts)
 
-        #Ui_,dUi_,d2Ui_ = fn.smooth(U_,r,window,order,npts)
-        #Vi_,dVi_,d2Vi_ = fn.smooth(V_,r,window,order,npts)
+        Ui_,dUi_,d2Ui_ = fn.smooth(Ui_,r,window,order,npts)
+        Vi_,dVi_,d2Vi_ = fn.smooth(Vi_,r,window,order,npts)
 
-        #rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-        ##re-assigning with smoothened variables
+        rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
+        #re-assigning with smoothened variables
         #r = r_new
-        #rho = rho_sm
+        rho = rho_sm
 
         ##no smoothing
-        dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
-        dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
-        d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
+        # dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
+        # dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
+        # d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
         tstamp('load eigfiles')
 
         #making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
