@@ -105,10 +105,10 @@ def P(mu,l,m,N):
     return ret
 
 def d_rotate(beta,l,m,m_):
-#    if(beta == 0):
-#        if (m==m_): 
-#            return 1
-#        else:
-#            return 0
-    """spherical harmonic rotation matrix"""
+    """spherical harmonic rotation matrix element m,m_"""    
+    if(beta == 0):
+        if (m==m_): 
+            return 1
+        else:
+            return 0
     return  P(np.cos(beta*np.pi/180.),l,m_,m)
