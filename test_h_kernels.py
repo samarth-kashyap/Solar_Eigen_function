@@ -26,7 +26,7 @@ m_ = np.arange(-l_,l_+1,1) # -l_<=m<=l_
 s0 = 1
 t0 = np.arange(-s0,s0+1)
 
-r_start, r_end = .6, 0.7
+r_start, r_end = .6, 0.61
 r = np.loadtxt('r.dat')
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 #end_ind = start_ind + 700
@@ -37,7 +37,8 @@ r_cen = np.mean(r)
 b = lambda r: 1./r**3
 B_mu_t_r = np.zeros((3,2*s0+1,len(r)))
 B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
-
+B_mu_t_r[:,0,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
+B_mu_t_r[:,2,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
 #Fetching the H-components
 get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r)
 
@@ -67,6 +68,9 @@ Lambda_r = np.sum(Lambda_sr,axis=2)
 Lambda = scipy.integrate.trapz(Lambda_r*(r**2)[np.newaxis,:],x=r,axis=2)
 
 Lambda *= OM**2 / 1e-3
+print Lambda
+Lambda = np.transpose(Lambda)
+Lambda = np.flip(Lambda, axis = 1)
 plt.pcolormesh(Lambda)
 plt.colorbar()
 plt.show('Block')
