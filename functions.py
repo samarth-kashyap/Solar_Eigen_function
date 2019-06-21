@@ -5,6 +5,8 @@ from sympy.physics.wigner import wigner_3j
 from sympy import N as sympy_eval
 from scipy.signal import savgol_filter
 from scipy import interpolate
+import sympy as sy
+from math import factorial as fac
 
 #evaluation
 def wig(l1,l2,l3,m1,m2,m3):
@@ -93,11 +95,20 @@ def smooth(U,r,window,order,npts):
 
 	return U_sm, dU_sm, ddU_sm
 	
-	
-	
-	
-	
-	
-	
-	
-	
+def P(mu,l,m,N):
+    """generalised associated legendre function"""
+    x = sy.Symbol('x')
+    ret = sy.diff((x-1)**(l-N) * (x+1)**(l+N), x, l-m)
+    ret = ret.evalf(subs={x:mu})
+    ret *= 1./2**l * 1./np.sqrt(fac(l+N)*fac(l-N)) * np.sqrt(1.*fac(l+m) / fac(l-m))
+    ret /= np.sqrt((1.-mu)**(m-N) * (1.+mu)**(m+N)) 
+    return ret
+
+def d_rotate(beta,l,m,m_):
+#    if(beta == 0):
+#        if (m==m_): 
+#            return 1
+#        else:
+#            return 0
+    """spherical harmonic rotation matrix"""
+    return  P(np.cos(beta*np.pi/180.),l,m_,m)
