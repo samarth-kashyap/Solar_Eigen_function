@@ -20,7 +20,7 @@ class getHcomps:
         mumu,nunu,ss,tt,tt0 = np.meshgrid(self.mu,self.nu,self.s,t,self.t0,indexing='ij')
 
         wig_calc = np.vectorize(fn.wig)
-        BB_mu_nu_t_t0_r = np.zeros((3,3,len(t),len(self.t0),len(self.r)))
+        BB_mu_nu_t_t0_r = np.zeros((3,3,len(t),len(self.t0),len(self.r)),dtype = complex)
         for t_iter in range(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1):
             for t0_iter in range(-self.s0, self.s0+1):
                 if (t0_iter >= max(-self.s0,-self.s0+t_iter) and t0_iter <= min(self.s0,self.s0+t_iter)):

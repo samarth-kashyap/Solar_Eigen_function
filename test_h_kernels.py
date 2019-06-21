@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import functions as fn
 import matplotlib.pyplot as plt
 import scipy.integrate
@@ -10,12 +11,28 @@ plt.ion()
 import timing
 clock2 = timing.stopclock()
 tstamp = clock2.lap
+nperf = np.vectorize(math.erf)
+
+r = np.loadtxt('r.dat')
+r_start, r_end = 0.5, 0.9
+start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
+#end_ind = start_ind + 700
+r = r[start_ind:end_ind]
 
 #all quantities in cgs
 M_sol = 1.989e33 #g
 R_sol = 6.956e10 #cm
 B_0 = 10e5 #G
 OM = np.sqrt(4*np.pi*R_sol*B_0**2/M_sol)
+
+field_type = 'mixed'
+if(field_type=='mixed'):
+        R1 = 0.6
+        R2 = 0.7
+        R1_ind = np.argmin(np.abs(r-R1))
+        R2_ind = np.argmin(np.abs(r-R2))
+        b = 0.5*(1+nperf(70*(r-(R1+R2)/2.0)))
+        a = b - np.gradient(b)*r
 
 n,n_ = 2,2
 l=5
@@ -26,19 +43,35 @@ m_ = np.arange(-l_,l_+1,1) # -l_<=m<=l_
 s0 = 1
 t0 = np.arange(-s0,s0+1)
 
-r_start, r_end = .6, 0.61
-r = np.loadtxt('r.dat')
-start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
-#end_ind = start_ind + 700
-r = r[start_ind:end_ind]
+r_cen = np.mean(r) 
+beta = lambda r: 1./r**3  #a global dipole
+alpha = beta  #for now keeping the radial dependence same as dipolar
 
-r_cen = np.mean(r)
-#b = lambda r: np.exp(-0.5*((r-r_cen)/0.0001)**2) 
-b = lambda r: 1./r**3
-B_mu_t_r = np.zeros((3,2*s0+1,len(r)))
-B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
-B_mu_t_r[:,0,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
-B_mu_t_r[:,2,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
+if(field_type=='mixed'):
+        alpha = lambda r: np.exp(-0.5*(r/0.18)**2)  #goes to zero around r = 0.6 R_sun
+B_mu_t_r = np.zeros((3,2*s0+1,len(r)),dtype=complex)
+
+if(field_type == 'dipolar'):
+        B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
+                                * np.outer(np.array([1., -2., 1.]),beta(r))
+elif(field_type == 'toroidal'):
+        B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
+                                * np.outer(np.array([-1j, 0. , 1j]),alpha(r))
+else:
+        B_mu_t_r[:,s0,start_ind:R1_ind] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
+                                * np.outer(np.array([-1j, 0. , 1j]),\
+                                        alpha(r[start_ind:R1_ind]))
+        B_mu_t_r[:,s0,R2_ind:end_ind] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
+                                * np.outer(np.array([1., -2., 1.]),\
+                                        beta(r[R2_ind:end_ind]))
+        B_mu_t_r[:,s0,R1_ind:R2_ind] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
+                                * np.array([1., -2., 1.])[:,np.newaxis]*\
+                                        beta(r[R1_ind:R2_ind])*np.array([a[R1_ind:R2_ind],\
+                                        b[R1_ind:R2_ind],a[R1_ind:R2_ind]])
+        B_mu_t_r[:,s0,R1_ind:R2_ind] += 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
+                                * np.outer(np.array([-1j, 0., 1j]),\
+                                        alpha(r[R1_ind:R2_ind]))
+
 #Fetching the H-components
 get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r)
 
@@ -68,7 +101,7 @@ Lambda_r = np.sum(Lambda_sr,axis=2)
 Lambda = scipy.integrate.trapz(Lambda_r*(r**2)[np.newaxis,:],x=r,axis=2)
 
 Lambda *= OM**2 / 1e-3
-print Lambda
+
 Lambda = np.transpose(Lambda)
 Lambda = np.flip(Lambda, axis = 1)
 plt.pcolormesh(Lambda)
