@@ -4,39 +4,47 @@ import functions as fn
 class getHcomps:
     """Class to compute the H-coefficients for Lorentz stresses"""
 
-    def __init__(self,s,m,s0,t0,r,b_r):
+    def __init__(self,s,m,s0,t0,r,B_mu_t_r):
         self.mu = np.array([-1,0,1])
         self.nu = np.array([-1,0,1])
-        self.s = s 
+        self.s = s
         self.m = m
         self.s0 = s0
         self.t0 = t0
         self.r = r
-        self.b_r = b_r
+        self.B_mu_t_r = B_mu_t_r
 
     def ret_hcomps(self):
         
         t = np.arange(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1,1)
-        mumu,nunu,ss,tt = np.meshgrid(self.mu,self.nu,self.s,t,indexing='ij')
+        mumu,nunu,ss,tt,tt0 = np.meshgrid(self.mu,self.nu,self.s,t,self.t0,indexing='ij')
 
         wig_calc = np.vectorize(fn.wig)
+        BB_mu_nu_t_t0_r = np.zeros((3,3,len(t),len(self.t0),len(self.r)))
+        for t_iter in range(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1):
+            for t0_iter in range(-self.s0, self.s0+1):
+                if (t0_iter >= max(-self.s0,-self.s0+t_iter) and t0_iter <= min(self.s0,self.s0+t_iter)):
+                    BB_mu_nu_t_t0_r[:,:,t_iter,t0_iter,:] = self.B_mu_t_r[:,np.newaxis,t0_iter,:] * self.B_mu_t_r[np.newaxis,:,t_iter-t0_iter,:]
+#        BB_mu_nu_t_r = np.sum(BB_mu_nu_t_t0_r, axis=3)
+                
+#        print BB_mu_nu_t_r.shape
+#        print BB_mu_nu_t_r[0,0,:,100]
+#        exit()
 
-        B_mu_nu_r = self.b_r[:,np.newaxis,:] * self.b_r[np.newaxis,:,:]
-#        B_mu_nu_r = B_mu_nu[:,:,np.newaxis]*self.b_r[np.newaxis,:] 
-    
 
         #signs to be checked
         wig1 = wig_calc(self.s0,ss,self.s0,mumu,-(mumu+nunu),nunu)
-        wig2 = wig_calc(self.s0,ss,self.s0,self.t0,-tt,self.t0)
+        wig2 = wig_calc(self.s0,ss,self.s0,tt0,-tt,tt-tt0)
         #factor of 9 needs to be replaced with generic l expression
         H = ((-1)**(np.abs(tt+mumu+nunu))) \
                 *np.sqrt((2*self.s0+1)*(2*self.s0+1)*(2*ss+1)/(4*np.pi))*wig1*wig2
 
-        HH = H[:,:,:,:,np.newaxis] \
-                *(B_mu_nu_r*self.r[np.newaxis,:])[:,:,np.newaxis,np.newaxis,:]
-
-
+        HH = H[:,:,:,:,:,np.newaxis] *BB_mu_nu_t_t0_r[:,:,np.newaxis,:,:,:]
         HH = HH.astype('float64')
+        HH = np.sum(HH, axis=4) #summing over t0
+        
+#        print HH.shape
+#        print HH[0,0,-1,:,100]
 
         H_super = np.zeros((len(self.m),len(self.m),len(self.mu), \
                     len(self.nu),len(self.s),len(self.r)))
@@ -44,7 +52,7 @@ class getHcomps:
         mm,mm_ = np.meshgrid(self.m,self.m,indexing='ij')
 
         for i in t:
-            H_super[mm-mm_ == i] = HH[:,:,:,i+np.max(np.abs(self.s)),:] 
+            H_super[mm_-mm == i] = HH[:,:,:,i+np.max(np.abs(self.s)),:]
             
 #        print(np.shape(H_super))
             

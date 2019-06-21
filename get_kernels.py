@@ -75,25 +75,25 @@ class Hkernels:
         #smoothing
 
         #interpolation params
-        npts = len(r)
-        r_new = r
+#        npts = len(r)
+#        r_new = r
 
 
-        Ui,dUi,d2Ui = fn.smooth(Ui,r,window,order,npts)
-        Vi,dVi,d2Vi = fn.smooth(Vi,r,window,order,npts)
+#        Ui,dUi,d2Ui = fn.smooth(Ui,r,window,order,npts)
+#        Vi,dVi,d2Vi = fn.smooth(Vi,r,window,order,npts)
 
-        Ui_,dUi_,d2Ui_ = fn.smooth(Ui_,r,window,order,npts)
-        Vi_,dVi_,d2Vi_ = fn.smooth(Vi_,r,window,order,npts)
+#        Ui_,dUi_,d2Ui_ = fn.smooth(Ui_,r,window,order,npts)
+#        Vi_,dVi_,d2Vi_ = fn.smooth(Vi_,r,window,order,npts)
 
-        rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-        #re-assigning with smoothened variables
-        #r = r_new
-        rho = rho_sm
+#        rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
+#        #re-assigning with smoothened variables
+#        #r = r_new
+#        rho = rho_sm
 
-        ##no smoothing
-        # dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
-        # dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
-        # d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
+        #no smoothing
+        dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
+        dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
+        d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
         tstamp('load eigfiles')
 
         #making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
@@ -129,17 +129,20 @@ class Hkernels:
         B0m = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m/r**2)[np.newaxis,:,:]
         tstamp('B0m done')
+        
+#        print(np.shape(self.wig_red(-1,-0,1)))
+#        exit()
 
         #B00 EXPRESSION
-        B00 = -(1+parity_fac)*self.wig_red(-1,0,1)*om(l_,0)*om(l,0) * (V*(-4*U_ + 2*(1+om(l_,0)**2)*V_ + r*(dU_ - 2*dV_)) + 2*r*dV*(U_ - V_ + r*dV_))
+        B00 = -(self.wig_red(-1,0,1)+self.wig_red(1,0,-1))*om(l_,0)*om(l,0) * (V*(-4*U_ + 2*(1+om(l_,0)**2)*V_ + r*(dU_ - 2*dV_)) + 2*r*dV*(U_ - V_ + r*dV_))
         B00 += self.wig_red(0,0,0) * ((6*U - 4*om(l,0)**2*V -2*r*dU)*U_ + 2*om(l_,0)**2*((-3*U+2*om(l,0)**2*V + r*dU)*V_ + r*U*dV_) + r*((-4*U + 2*om(l,0)**2*V + r*dU)*dU_ + r*U*d2U_))
         B00 = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B00/r**2)[np.newaxis,:,:]
         tstamp('B00 done')
 
         #B+- EXPRESSION
-        Bpm = -2*(1+parity_fac)*self.wig_red(-2,0,2)*om(l_,0)*om(l,0)*om(l_,2)*om(l,2)*V*V_
-        Bpm += (1+parity_fac)*self.wig_red(-1,0,1)*om(l_,0)*om(l,0) * (-r*V*dU_ + U*(U_-V_+r*dV_))
+        Bpm = -2*(self.wig_red(-2,0,2)+self.wig_red(2,0,-2))*om(l_,0)*om(l,0)*om(l_,2)*om(l,2)*V*V_
+        Bpm += (self.wig_red(-1,0,1)+self.wig_red(1,0,-1))*om(l_,0)*om(l,0) * (-r*V*dU_ + U*(U_-V_+r*dV_))
         Bpm += self.wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
         Bpm = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (Bpm/r**2)[np.newaxis,:,:]
