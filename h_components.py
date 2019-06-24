@@ -1,6 +1,5 @@
 import numpy as np
 import functions as fn
-
 class getHcomps:
     """Class to compute the H-coefficients for Lorentz stresses"""
 
@@ -19,17 +18,25 @@ class getHcomps:
         
         t = np.arange(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1,1)
         mumu,nunu,ss,tt,tt0 = np.meshgrid(self.mu,self.nu,self.s,t,self.t0,indexing='ij')
+
+#        d_matrix = fn.d_rotate_matrix(self.beta,self.s0)        
+#        self.B_mu_t_r = d_matrix[np.newaxis,:,:,np.newaxis] * self.B_mu_t_r[:,np.newaxis,:,:]
+#        self.B_mu_t_r = np.sum(self.B_mu_t_r, axis = 2)
         
-        d_rot = np.vectorize(fn.d_rotate)
-        d_matrix = np.zeros((2*self.s0+1, 2*self.s0+1))
-        for i in range(2*self.s0+1):
-            for j in range(2*self.s0+1):
-                d_matrix[i,j] = fn.d_rotate(self.beta, self.s0, i-self.s0, j-self.s0)
-        
-        self.B_mu_t_r = d_matrix[np.newaxis,:,:,np.newaxis] * self.B_mu_t_r[:,:,np.newaxis,:]
-        self.B_mu_t_r = np.sum(self.B_mu_t_r, axis = 1)
-        
-        
+#########TILT TESTING        
+#        eps = 1e-4      
+#        theta = np.linspace(eps,np.pi-eps,20)
+#        phi = np.linspace(0,2*np.pi,21)
+#        NN, tt, thth, phph = np.meshgrid(self.mu, self.t0, theta,phi, indexing = 'ij')
+#        Yv = np.vectorize(fn.Y_lmN)
+#        print 'Yv starts'
+#        YY = Yv(thth, phph, self.s0, tt, NN)
+#        print 'Yv ends'        
+#        B_disp = self.B_mu_t_r[:,:,:, np.newaxis,np.newaxis] * YY[:,:,np.newaxis,:,:]
+#        B_disp = np.sum(B_disp, axis = 1)
+##        B_disp = np.sum(B_disp, axis = 0)
+#        return B_disp[1]        
+#########TILT TESTING        
         
 #        print self.B_mu_t_r.shape
 #        exit()
@@ -59,6 +66,13 @@ class getHcomps:
         HH = H[:,:,:,:,:,np.newaxis] *BB_mu_nu_t_t0_r[:,:,np.newaxis,:,:,:]
         HH = HH.astype('complex128')
         HH = np.sum(HH, axis=4) #summing over t0
+        
+        d_matrix1 = np.d_rotate_matrix(beta,1)
+        d_matrix2 = np.d_rotate_matrix(beta,2)        
+            
+        
+            
+        
         
 #        print HH.shape
 #        print HH[0,0,-1,:,100]

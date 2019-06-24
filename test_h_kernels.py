@@ -21,12 +21,12 @@ B_0 = 10e5 #G
 OM = np.sqrt(4*np.pi*R_sol*B_0**2/M_sol)
 
 r = np.loadtxt('r.dat')
-r_start, r_end = 0.6, 0.63
+r_start, r_end = 0.6, 0.61
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 #end_ind = start_ind + 700
 r = r[start_ind:end_ind]
 
-field_type = 'mixed'
+field_type = 'dipolar'
 if(field_type=='mixed'):
         R1 = 0.61
         R2 = 0.62
@@ -81,10 +81,32 @@ else:
 #B_mu_t_r[:,0,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
 #B_mu_t_r[:,2,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
 #Fetching the H-components
-get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r, 15.)
+get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r, 30.)
 
 tstamp()
+
 H_super = get_h.ret_hcomps()  #- sign due to i in B
+
+###################TESTING
+##H_super = np.transpose(H_super)
+#eps = 1e-4
+#theta = np.linspace(eps,np.pi-eps,20)
+#rr,tt = np.meshgrid(r,theta,indexing='ij')
+#xx = rr*np.cos(tt)
+#yy = rr*np.sin(tt)
+
+#print H_super.shape
+#H_super = H_super.astype('complex128')
+#H_superR = np.real(H_super)
+#plt.pcolormesh(xx,yy,H_superR[:,:,0])
+#plt.colorbar()
+
+
+#sys.exit()
+###################TESTING
+
+
+
 tstamp('Computed H-components in')
 
 #distributing the components
@@ -108,16 +130,20 @@ Lambda_r = np.sum(Lambda_sr,axis=2)
 #radial integral
 Lambda = scipy.integrate.trapz(Lambda_r*(r**2)[np.newaxis,:],x=r,axis=2)
 
+
+#Lambda = np.real(Lambda)
 Lambda *= OM**2 / 1e-3
-print Lambda
+eigenvalues,_ = np.linalg.eig(Lambda)
+eigenvalues = np.sort(eigenvalues)
+print eigenvalues
 Lambda = np.transpose(Lambda)
 Lambda = np.flip(Lambda, axis = 1)
 plt.pcolormesh(np.real(Lambda)  )
 plt.colorbar()
 plt.show('Block')
 
-plt.subplot()
-plt.pcolormesh(np.imag(Lambda))
-plt.colorbar()
-plt.show('Block')
+#plt.subplot()
+#plt.pcolormesh(np.imag(Lambda))
+#plt.colorbar()
+#plt.show('Block')
 
