@@ -5,10 +5,14 @@ from sympy.physics.wigner import wigner_3j
 from sympy import N as sympy_eval
 from scipy.signal import savgol_filter
 from scipy import interpolate
+import sympy as sy
+from math import factorial as fac
 
 #evaluation
 def wig(l1,l2,l3,m1,m2,m3):
 	"""returns numerical value of wigner3j symbol"""
+	if (np.abs(m1) > l1 or np.abs(m2) > l2 or np.abs(m3) > l3):
+	    return 0.
 	return(sympy_eval(wigner_3j(l1,l2,l3,m1,m2,m3)))
 
 def omega(l,n):
@@ -92,12 +96,45 @@ def smooth(U,r,window,order,npts):
 	ddU_sm = savgol_filter(ddU, window, order)
 
 	return U_sm, dU_sm, ddU_sm
+
+def kron_delta(i,j):
+    if (i==j):
+        return 1.
+    else:
+        return 0.
 	
-	
-	
-	
-	
-	
-	
-	
-	
+def P(mu,l,m,N):
+    """generalised associated legendre function"""
+    x = sy.Symbol('x')
+    ret = sy.simplify(sy.diff((x-1)**(l-N) * (x+1)**(l+N), x, l-m))
+    if (type(mu) == np.ndarray):
+        temp = np.ndarray.flatten(mu)
+        temp = np.array([ret.evalf(subs={x:t}) for t in temp])
+        ret = np.reshape(temp, mu.shape)
+    else:    
+        ret = ret.evalf(subs={x:mu})
+    ret *= 1./2**l * 1./np.sqrt(fac(l+N)*fac(l-N)) * np.sqrt(1.*fac(l+m) / fac(l-m))
+    ret /= np.sqrt((1.-mu)**(m-N) * (1.+mu)**(m+N)) 
+    if np.any(ret == np.inf):
+        print 'infinity encountered in P_lmN evaluation. result not reliable'
+    return ret
+
+def d_rotate(beta,l,m_,m):
+    """spherical harmonic rotation matrix element m,m_"""    
+    if(beta == 0):
+        if (m==m_): 
+            return 1
+        else:
+            return 0
+    return  P(np.cos(beta*np.pi/180.),l,m,m_)
+    
+def d_rotate_matrix(beta,l):
+    ret = np.empty((2*l+1,2*l+1))
+    for i in range(2*l+1):
+        for j in range(2*l+1):
+            ret[i,j] = d_rotate(beta,l,i-l,j-l)
+    return ret
+            
+def Y_lmN(theta,phi,l,m,N):
+    ret = np.sqrt((2.*l+1)/(4.*np.pi)) * P(np.cos(theta),l,m,N) * np.exp(1j*m*phi)
+    return ret

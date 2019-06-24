@@ -1,10 +1,9 @@
 import numpy as np
 import functions as fn
-
 class getHcomps:
     """Class to compute the H-coefficients for Lorentz stresses"""
 
-    def __init__(self,s,m,s0,t0,r,B_mu_t_r):
+    def __init__(self,s,m,s0,t0,r,B_mu_t_r, beta):
         self.mu = np.array([-1,0,1])
         self.nu = np.array([-1,0,1])
         self.s = s
@@ -13,12 +12,37 @@ class getHcomps:
         self.t0 = t0
         self.r = r
         self.B_mu_t_r = B_mu_t_r
+        self.beta = beta
 
     def ret_hcomps(self):
         
         t = np.arange(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1,1)
         mumu,nunu,ss,tt,tt0 = np.meshgrid(self.mu,self.nu,self.s,t,self.t0,indexing='ij')
 
+#        d_matrix = fn.d_rotate_matrix(self.beta,self.s0)        
+#        self.B_mu_t_r = d_matrix[np.newaxis,:,:,np.newaxis] * self.B_mu_t_r[:,np.newaxis,:,:]
+#        self.B_mu_t_r = np.sum(self.B_mu_t_r, axis = 2)
+        
+#########TILT TESTING        
+#        eps = 1e-4      
+#        theta = np.linspace(eps,np.pi-eps,20)
+#        phi = np.linspace(0,2*np.pi,21)
+#        NN, tt, thth, phph = np.meshgrid(self.mu, self.t0, theta,phi, indexing = 'ij')
+#        Yv = np.vectorize(fn.Y_lmN)
+#        print 'Yv starts'
+#        YY = Yv(thth, phph, self.s0, tt, NN)
+#        print 'Yv ends'        
+#        B_disp = self.B_mu_t_r[:,:,:, np.newaxis,np.newaxis] * YY[:,:,np.newaxis,:,:]
+#        B_disp = np.sum(B_disp, axis = 1)
+##        B_disp = np.sum(B_disp, axis = 0)
+#        return B_disp[1]        
+#########TILT TESTING        
+        
+#        print self.B_mu_t_r.shape
+#        exit()
+#        print d_matrix
+#        exit()
+        
         wig_calc = np.vectorize(fn.wig)
         BB_mu_nu_t_t0_r = np.zeros((3,3,len(t),len(self.t0),len(self.r)),dtype = complex)
         for t_iter in range(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1):
@@ -40,14 +64,21 @@ class getHcomps:
                 *np.sqrt((2*self.s0+1)*(2*self.s0+1)*(2*ss+1)/(4*np.pi))*wig1*wig2
 
         HH = H[:,:,:,:,:,np.newaxis] *BB_mu_nu_t_t0_r[:,:,np.newaxis,:,:,:]
-        HH = HH.astype('float64')
+        HH = HH.astype('complex128')
         HH = np.sum(HH, axis=4) #summing over t0
+        
+        d_matrix1 = np.d_rotate_matrix(beta,1)
+        d_matrix2 = np.d_rotate_matrix(beta,2)        
+            
+        
+            
+        
         
 #        print HH.shape
 #        print HH[0,0,-1,:,100]
 
         H_super = np.zeros((len(self.m),len(self.m),len(self.mu), \
-                    len(self.nu),len(self.s),len(self.r)))
+                    len(self.nu),len(self.s),len(self.r)),dtype = complex)
 
         mm,mm_ = np.meshgrid(self.m,self.m,indexing='ij')
 
