@@ -26,14 +26,11 @@ start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 #end_ind = start_ind + 700
 r = r[start_ind:end_ind]
 
+#transition radii for mixed field type
+R1 = 0.61
+R2 = 0.62
+
 field_type = 'dipolar'
-if(field_type=='mixed'):
-        R1 = 0.61
-        R2 = 0.62
-        R1_ind = np.argmin(np.abs(r-R1))
-        R2_ind = np.argmin(np.abs(r-R2))
-        b = 0.5*(1+nperf(70*(r-(R1+R2)/2.0)))
-        a = b - np.gradient(b)*r
         
 n,n_ = 2,2
 l=5
@@ -45,43 +42,10 @@ s0 = 1
 t0 = np.arange(-s0,s0+1)
 
 r_cen = np.mean(r)
-#b = lambda r: np.exp(-0.5*((r-r_cen)/0.0001)**2) 
-beta = lambda r: 1./r**3
+                                        
+B_mu_t_r = fn.getB_comps(s0,r,R1,R2,start_ind,end_ind,field_type)
 
-alpha = beta  #for now keeping the radial dependence same as dipolar
-
-if(field_type=='mixed'):
-        alpha = lambda r: np.exp(-0.5*(r/0.18)**2)  #goes to zero around r = 0.6 R_sun
-B_mu_t_r = np.zeros((3,2*s0+1,len(r)),dtype=complex)
-
-if(field_type == 'dipolar'):
-        B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
-                                * np.outer(np.array([1., -2., 1.]),beta(r))
-elif(field_type == 'toroidal'):
-        B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
-                                * np.outer(np.array([-1j, 0. , 1j]),alpha(r))
-else:
-        B_mu_t_r[:,s0,start_ind:R1_ind] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
-                                * np.outer(np.array([-1j, 0. , 1j]),\
-                                        alpha(r[start_ind:R1_ind]))
-        B_mu_t_r[:,s0,R2_ind:end_ind] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
-                                * np.outer(np.array([1., -2., 1.]),\
-                                        beta(r[R2_ind:end_ind]))
-        B_mu_t_r[:,s0,R1_ind:R2_ind] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
-                                * np.array([1., -2., 1.])[:,np.newaxis]*\
-                                        beta(r[R1_ind:R2_ind])*np.array([a[R1_ind:R2_ind],\
-                                        b[R1_ind:R2_ind],a[R1_ind:R2_ind]])
-        B_mu_t_r[:,s0,R1_ind:R2_ind] += 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) \
-                                * np.outer(np.array([-1j, 0., 1j]),\
-                                        alpha(r[R1_ind:R2_ind]))
-
-
-#B_mu_t_r = np.zeros((3,2*s0+1,len(r)))
-#B_mu_t_r[:,s0,:] = 1e-4 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),beta(r))
-#B_mu_t_r[:,0,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
-#B_mu_t_r[:,2,:] = 1e-3 * fn.omega(s0,0) * 1./np.sqrt(2.) * np.outer(np.array([1., -2., 1.]),b(r))
-#Fetching the H-components
-get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r, 30.)
+get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r, 0.)
 
 tstamp()
 
@@ -138,6 +102,7 @@ eigenvalues = np.sort(eigenvalues)
 print eigenvalues
 Lambda = np.transpose(Lambda)
 Lambda = np.flip(Lambda, axis = 1)
+
 plt.pcolormesh(np.real(Lambda)  )
 plt.colorbar()
 plt.show('Block')
