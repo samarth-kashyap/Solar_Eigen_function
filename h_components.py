@@ -15,10 +15,11 @@ class getHcomps:
         self.beta = beta
 
     def ret_hcomps(self):
-        
-        t = np.arange(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1,1)
+        s_max = np.max(np.abs(self.s))
+        t = np.arange(-s_max,s_max+1,1)
         mumu,nunu,ss,tt,tt0 = np.meshgrid(self.mu,self.nu,self.s,t,self.t0,indexing='ij')
 
+        #tilting B
 #        d_matrix = fn.d_rotate_matrix(self.beta,self.s0)        
 #        self.B_mu_t_r = d_matrix[np.newaxis,:,:,np.newaxis] * self.B_mu_t_r[:,np.newaxis,:,:]
 #        self.B_mu_t_r = np.sum(self.B_mu_t_r, axis = 2)
@@ -38,23 +39,12 @@ class getHcomps:
 #        return B_disp[1]        
 #########TILT TESTING        
         
-#        print self.B_mu_t_r.shape
-#        exit()
-#        print d_matrix
-#        exit()
-        
         wig_calc = np.vectorize(fn.wig)
         BB_mu_nu_t_t0_r = np.zeros((3,3,len(t),len(self.t0),len(self.r)),dtype = complex)
         for t_iter in range(-np.max(np.abs(self.s)),np.max(np.abs(self.s))+1):
             for t0_iter in range(-self.s0, self.s0+1):
                 if (t0_iter >= max(-self.s0,-self.s0+t_iter) and t0_iter <= min(self.s0,self.s0+t_iter)):
                     BB_mu_nu_t_t0_r[:,:,t_iter,t0_iter,:] = self.B_mu_t_r[:,np.newaxis,t0_iter,:] * self.B_mu_t_r[np.newaxis,:,t_iter-t0_iter,:]
-#        BB_mu_nu_t_r = np.sum(BB_mu_nu_t_t0_r, axis=3)
-                
-#        print BB_mu_nu_t_r.shape
-#        print BB_mu_nu_t_r[0,0,:,100]
-#        exit()
-
 
         #signs to be checked
         wig1 = wig_calc(self.s0,ss,self.s0,mumu,-(mumu+nunu),nunu)
@@ -66,17 +56,14 @@ class getHcomps:
         HH = H[:,:,:,:,:,np.newaxis] *BB_mu_nu_t_t0_r[:,:,np.newaxis,:,:,:]
         HH = HH.astype('complex128')
         HH = np.sum(HH, axis=4) #summing over t0
-        
-        d_matrix1 = np.d_rotate_matrix(beta,1)
-        d_matrix2 = np.d_rotate_matrix(beta,2)        
-            
-        
-            
-        
-        
-#        print HH.shape
-#        print HH[0,0,-1,:,100]
 
+        #tilting HH     
+        for s_iter in range(s_max+1):
+            d = fn.d_rotate_matrix_padded(self.beta,s_iter,s_max)
+            temp = HH[:,:,s_iter,np.newaxis,:,:] * d[np.newaxis,np.newaxis,:,:,np.newaxis]
+            HH[:,:,s_iter,:,:] = np.sum(temp ,axis = 3)
+
+        
         H_super = np.zeros((len(self.m),len(self.m),len(self.mu), \
                     len(self.nu),len(self.s),len(self.r)),dtype = complex)
 
@@ -85,12 +72,9 @@ class getHcomps:
         for i in t:
             H_super[mm_-mm == i] = HH[:,:,:,i+np.max(np.abs(self.s)),:]
             
-#        print(np.shape(H_super))
             
         H_super = np.swapaxes(H_super,0,2)
         H_super = np.swapaxes(H_super,1,3)
-        
-#        print(np.shape(H_super))
                 
         return H_super
 

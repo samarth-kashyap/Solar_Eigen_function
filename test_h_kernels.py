@@ -28,6 +28,7 @@ R_sol = 6.956e10 #cm
 B_0 = 10e5 #G
 OM = np.sqrt(4*np.pi*R_sol*B_0**2/M_sol)
 
+<<<<<<< HEAD
 field_type = 'dipolar'
 
 if(field_type=='mixed'):
@@ -37,6 +38,19 @@ if(field_type=='mixed'):
         R2_ind = np.argmin(np.abs(r-R2))
         b = 0.5*(1+nperf(70*(r-(R1+R2)/2.0)))
         a = b - np.gradient(b)*r
+=======
+r = np.loadtxt('r.dat')
+r_start, r_end = 0.6, 0.61
+start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
+#end_ind = start_ind + 700
+r = r[start_ind:end_ind]
+
+#transition radii for mixed field type
+R1 = 0.61
+R2 = 0.62
+
+field_type = 'dipolar'
+>>>>>>> 24dfaf7d104c79717f4aecacf64fe27df7225385
         
 n,n_ = 2,2
 l=5
@@ -47,6 +61,7 @@ m_ = np.arange(-l_,l_+1,1) # -l_<=m<=l_
 s0 = 1
 t0 = np.arange(-s0,s0+1)
 
+<<<<<<< HEAD
 r_cen = np.mean(r) 
 beta = lambda r: 1./r**3  #a global dipole
 alpha = beta  #for now keeping the radial dependence same as dipolar
@@ -85,6 +100,13 @@ else:
 
 #Fetching the H-components
 get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r, 30.)
+=======
+r_cen = np.mean(r)
+                                        
+B_mu_t_r = fn.getB_comps(s0,r,R1,R2,start_ind,end_ind,field_type)
+
+get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r, 0.)
+>>>>>>> 24dfaf7d104c79717f4aecacf64fe27df7225385
 
 tstamp()
 
@@ -143,6 +165,7 @@ print eigenvalues
 
 Lambda = np.transpose(Lambda)
 Lambda = np.flip(Lambda, axis = 1)
+
 plt.pcolormesh(np.real(Lambda)  )
 plt.colorbar()
 plt.show('Block')

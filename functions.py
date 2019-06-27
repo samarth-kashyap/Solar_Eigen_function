@@ -102,6 +102,44 @@ def kron_delta(i,j):
         return 1.
     else:
         return 0.
+        
+def getB_comps(s0,r,R1,R2,start_ind,end_ind,field_type):
+    """function to get the components of B_field"""    
+    
+    B_mu_t_r = np.zeros((3,2*s0+1,len(r)),dtype=complex)
+    
+    if(field_type=='mixed'):
+        R1_ind = np.argmin(np.abs(r-R1))
+        R2_ind = np.argmin(np.abs(r-R2))
+        b = 0.5*(1+nperf(70*(r-(R1+R2)/2.0)))
+        a = b - np.gradient(b)*r
+    
+    beta = lambda r: 1./r**3
+
+    alpha = beta  #for now keeping the radial dependence same as dipolar
+    
+    if(field_type == 'dipolar'):
+        B_mu_t_r[:,s0,:] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                * np.outer(np.array([1., -2., 1.]),beta(r))
+    elif(field_type == 'toroidal'):
+            B_mu_t_r[:,s0,:] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                    * np.outer(np.array([-1j, 0. , 1j]),alpha(r))
+    else:
+            B_mu_t_r[:,s0,start_ind:R1_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                    * np.outer(np.array([-1j, 0. , 1j]),\
+                                            alpha(r[start_ind:R1_ind]))
+            B_mu_t_r[:,s0,R2_ind:end_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                    * np.outer(np.array([1., -2., 1.]),\
+                                            beta(r[R2_ind:end_ind]))
+            B_mu_t_r[:,s0,R1_ind:R2_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                    * np.array([1., -2., 1.])[:,np.newaxis]*\
+                                            beta(r[R1_ind:R2_ind])*np.array([a[R1_ind:R2_ind],\
+                                            b[R1_ind:R2_ind],a[R1_ind:R2_ind]])
+            B_mu_t_r[:,s0,R1_ind:R2_ind] += 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                    * np.outer(np.array([-1j, 0., 1j]),\
+                                            alpha(r[R1_ind:R2_ind]))
+                                            
+    return B_mu_t_r
 	
 def P(mu,l,m,N):
     """generalised associated legendre function"""
@@ -129,12 +167,19 @@ def d_rotate(beta,l,m_,m):
     return  P(np.cos(beta*np.pi/180.),l,m,m_)
     
 def d_rotate_matrix(beta,l):
+    """returns spherical harmonic rotation matrix"""
     ret = np.empty((2*l+1,2*l+1))
     for i in range(2*l+1):
         for j in range(2*l+1):
             ret[i,j] = d_rotate(beta,l,i-l,j-l)
     return ret
-            
+
+def d_rotate_matrix_padded(beta,l,l_large):
+    """returns d_rotate matrix padded with 0s in larger 2l_large+1 X 2l_large+1 matrix"""
+    ret = np.zeros((2*l_large+1,2*l_large+1))
+    ret[(l_large-l):l_large+l+1,(l_large-l):l_large+l+1] = d_rotate_matrix(beta,l)
+    return ret
+    
 def Y_lmN(theta,phi,l,m,N):
     ret = np.sqrt((2.*l+1)/(4.*np.pi)) * P(np.cos(theta),l,m,N) * np.exp(1j*m*phi)
     return ret
