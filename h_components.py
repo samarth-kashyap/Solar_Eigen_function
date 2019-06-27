@@ -3,11 +3,12 @@ import functions as fn
 class getHcomps:
     """Class to compute the H-coefficients for Lorentz stresses"""
 
-    def __init__(self,s,m,s0,t0,r,B_mu_t_r, beta):
+    def __init__(self,s,m_,m,s0,t0,r,B_mu_t_r, beta):
         self.mu = np.array([-1,0,1])
         self.nu = np.array([-1,0,1])
         self.s = s
         self.m = m
+        self.m_ = m_
         self.s0 = s0
         self.t0 = t0
         self.r = r
@@ -64,10 +65,10 @@ class getHcomps:
             HH[:,:,s_iter,:,:] = np.sum(temp ,axis = 3)
 
         
-        H_super = np.zeros((len(self.m),len(self.m),len(self.mu), \
+        H_super = np.zeros((len(self.m_),len(self.m),len(self.mu), \
                     len(self.nu),len(self.s),len(self.r)),dtype = complex)
 
-        mm,mm_ = np.meshgrid(self.m,self.m,indexing='ij')
+        mm_,mm = np.meshgrid(self.m_,self.m,indexing='ij')
 
         for i in t:
             H_super[mm_-mm == i] = HH[:,:,:,i+np.max(np.abs(self.s)),:]
