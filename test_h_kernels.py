@@ -32,20 +32,21 @@ R2 = 0.62
 
 field_type = 'dipolar'
         
-n,n_ = 2,2
-l=5
-l_=l
+n,n_ = 5,2
+l=3
+l_=5
 s = np.array([0,1,2])
 m = np.arange(-l,l+1,1)   # -l<=m<=l
 m_ = np.arange(-l_,l_+1,1) # -l_<=m<=l_
 s0 = 1
 t0 = np.arange(-s0,s0+1)
 
+
 r_cen = np.mean(r)
                                         
 B_mu_t_r = fn.getB_comps(s0,r,R1,R2,start_ind,end_ind,field_type)
 
-get_h = hcomps.getHcomps(s,m,s0,t0,r,B_mu_t_r, 0.)
+get_h = hcomps.getHcomps(s,m_,m,s0,t0,r,B_mu_t_r, 15.)
 
 tstamp()
 
@@ -81,8 +82,10 @@ hpm = H_super[2,0,:,:,:,:]
 hp0 = H_super[2,1,:,:,:,:]
 hpp = H_super[2,2,:,:,:,:]
 
+
 kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,start_ind,end_ind)
 Bmm,B0m,B00,Bpm,Bp0,Bpp = kern.ret_kerns()
+#sys.exit()
 
 #find integrand by summing all component
 Lambda_sr = hpp*Bpp + h00*B00 + hmm*Bmm \
@@ -95,15 +98,19 @@ Lambda_r = np.sum(Lambda_sr,axis=2)
 Lambda = scipy.integrate.trapz(Lambda_r*(r**2)[np.newaxis,:],x=r,axis=2)
 
 
-#Lambda = np.real(Lambda)
+Lambda = np.real(Lambda)
 Lambda *= OM**2 / 1e-3
-eigenvalues,_ = np.linalg.eig(Lambda)
-eigenvalues = np.sort(eigenvalues)
-print eigenvalues
-Lambda = np.transpose(Lambda)
-Lambda = np.flip(Lambda, axis = 1)
+#eigenvalues,_ = np.linalg.eig(Lambda)
+#eigenvalues = np.sort(eigenvalues)
+#print eigenvalues
+mm_,mm = np.meshgrid(m_,m,indexing='ij')
+plt.pcolormesh(mm,mm_,Lambda)
+plt.gca().invert_yaxis()
 
-plt.pcolormesh(np.real(Lambda)  )
+#Lambda = np.transpose(Lambda)
+#Lambda = np.flip(Lambda, axis = 1)
+#plt.pcolormesh(np.real(Lambda))
+
 plt.colorbar()
 plt.show('Block')
 
