@@ -11,18 +11,20 @@ class Hkernels:
     """This class handles l parameters of the kernel"""
     #setting up shorthand repeatedly used in kernel evaluation
 
-    def __init__(self,n_,l_,m_,n,l,m,s,r_start,r_end):
+    def __init__(self,n_,l_,m_,n,l,m,s,r):
         self.n = n
         self.l = l
         self.n_ = n_
         self.l_ = l_
         r_full = np.loadtxt('r.dat')
-        self.r = r_full[r_start:r_end]
+        r_start, r_end = np.argmin(np.abs(r_full-r[0])),np.argmin(np.abs(r_full-r[-1]))
+        self.r_range = r_start,r_end+1
+        self.r = r
         #ss is m X m X s dim (outer)
         self.mm_, self.mm, self.ss_o = np.meshgrid(m_,m,s, indexing = 'ij')
         #ss_in is s X r dim (inner)
         self.ss_i,__ = np.meshgrid(s,self.r, indexing = 'ij')
-        self.r_range = r_start,r_end
+
 
     def wig_red_o(self,m1,m2,m3):
         '''3j symbol with upper row fixed (outer)'''
@@ -119,7 +121,7 @@ class Hkernels:
         Bmm += self.wig_red(2,-2,0)*om(l_,0)*om(l_,2) * (U*V_ + r*dU*V_ - r*U*dV_)        
         Bmm = (((-1)**np.abs(1+m_))*prefac)[:,:,:,np.newaxis] \
                  * (Bmm/r**2)[np.newaxis,:,:]
-        tstamp('Bmm done')
+        #tstamp('Bmm done')
 
         #B0- EXPRESSION
         B0m = self.wig_red(0,-1,1)*om(l,0) * (2*U*U_ + om(l_,2)**2*V*U_ + om(l_,0)**2*(-2*U*V_ - V*V_ + r*V*dV_) + r*(-U - V + r*dV)*dU_)
@@ -128,7 +130,7 @@ class Hkernels:
         B0m -= self.wig_red(1,-1,0)*om(l_,0) * (-2*U*U_ + om(l_,0)**2*V*U_ + om(l,0)**2*(-V*V_ + r*V*dV_) + U*(2*V_ + r*(dU_ - 2*dV_ + r*d2V_)))
         B0m = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m/r**2)[np.newaxis,:,:]
-        tstamp('B0m done')
+        #tstamp('B0m done')
         
 #        print(np.shape(self.wig_red(-1,-0,1)))
 #        exit()
@@ -138,7 +140,7 @@ class Hkernels:
         B00 += self.wig_red(0,0,0) * ((6*U - 4*om(l,0)**2*V -2*r*dU)*U_ + 2*om(l_,0)**2*((-3*U+2*om(l,0)**2*V + r*dU)*V_ + r*U*dV_) + r*((-4*U + 2*om(l,0)**2*V + r*dU)*dU_ + r*U*d2U_))
         B00 = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B00/r**2)[np.newaxis,:,:]
-        tstamp('B00 done')
+        #tstamp('B00 done')
 
         #B+- EXPRESSION
         Bpm = -2*(self.wig_red(-2,0,2)+self.wig_red(2,0,-2))*om(l_,0)*om(l,0)*om(l_,2)*om(l,2)*V*V_
@@ -146,7 +148,7 @@ class Hkernels:
         Bpm += self.wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
         Bpm = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (Bpm/r**2)[np.newaxis,:,:]
-        tstamp('Bpm done')
+        #tstamp('Bpm done')
 
         Bmm = Bmm.astype('float64')
         B0m = B0m.astype('float64')

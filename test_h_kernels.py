@@ -52,26 +52,6 @@ tstamp()
 
 H_super = get_h.ret_hcomps()  #- sign due to i in B
 
-###################TESTING
-##H_super = np.transpose(H_super)
-#eps = 1e-4
-#theta = np.linspace(eps,np.pi-eps,20)
-#rr,tt = np.meshgrid(r,theta,indexing='ij')
-#xx = rr*np.cos(tt)
-#yy = rr*np.sin(tt)
-
-#print H_super.shape
-#H_super = H_super.astype('complex128')
-#H_superR = np.real(H_super)
-#plt.pcolormesh(xx,yy,H_superR[:,:,0])
-#plt.colorbar()
-
-
-#sys.exit()
-###################TESTING
-
-
-
 tstamp('Computed H-components in')
 
 #distributing the components
@@ -99,7 +79,6 @@ Lambda = scipy.integrate.trapz(Lambda_r*(r**2)[np.newaxis,:],x=r,axis=2)
 
 
 Lambda = np.real(Lambda)
-Lambda *= OM**2 / 1e-3
 #eigenvalues,_ = np.linalg.eig(Lambda)
 #eigenvalues = np.sort(eigenvalues)
 #print eigenvalues

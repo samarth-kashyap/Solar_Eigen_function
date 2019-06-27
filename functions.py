@@ -7,7 +7,7 @@ from scipy.signal import savgol_filter
 from scipy import interpolate
 import sympy as sy
 from math import factorial as fac
-
+import math
 #evaluation
 def wig(l1,l2,l3,m1,m2,m3):
 	"""returns numerical value of wigner3j symbol"""
@@ -103,11 +103,11 @@ def kron_delta(i,j):
     else:
         return 0.
         
-def getB_comps(s0,r,R1,R2,start_ind,end_ind,field_type):
+def getB_comps(s0,r,R1,R2,field_type):
     """function to get the components of B_field"""    
     
     B_mu_t_r = np.zeros((3,2*s0+1,len(r)),dtype=complex)
-    
+    nperf = np.vectorize(math.erf)
     if(field_type=='mixed'):
         R1_ind = np.argmin(np.abs(r-R1))
         R2_ind = np.argmin(np.abs(r-R2))
@@ -125,12 +125,12 @@ def getB_comps(s0,r,R1,R2,start_ind,end_ind,field_type):
             B_mu_t_r[:,s0,:] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.outer(np.array([-1j, 0. , 1j]),alpha(r))
     else:
-            B_mu_t_r[:,s0,start_ind:R1_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+            B_mu_t_r[:,s0,:R1_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.outer(np.array([-1j, 0. , 1j]),\
-                                            alpha(r[start_ind:R1_ind]))
-            B_mu_t_r[:,s0,R2_ind:end_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                            alpha(r[:R1_ind]))
+            B_mu_t_r[:,s0,R2_ind:] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.outer(np.array([1., -2., 1.]),\
-                                            beta(r[R2_ind:end_ind]))
+                                            beta(r[R2_ind:]))
             B_mu_t_r[:,s0,R1_ind:R2_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.array([1., -2., 1.])[:,np.newaxis]*\
                                             beta(r[R1_ind:R2_ind])*np.array([a[R1_ind:R2_ind],\
