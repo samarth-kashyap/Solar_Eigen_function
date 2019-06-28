@@ -75,6 +75,8 @@ program READ_EIGENFUNC
     open (unit=4,file='nl.dat', status='replace')
     open (unit=5,file='rho.dat',status='replace')
     open (unit=7,file='r.dat',status='replace')
+    open (unit=8,file='zk.dat',status='replace')
+    open (unit=9,file='muhz.dat',status='replace')
     
 	write (5,*) rho(:)
 	write (7,*) r(:)
@@ -87,6 +89,8 @@ program READ_EIGENFUNC
         read(99)  norder, l, zk, muhz
         print *, norder, int(l)
         write (4,*) norder, int(l)
+        write (8,*) zk
+        write (9,*) muhz
         if(int(l) .gt. l_present) then
 !            print *, norder_max, l_present
             write (1,*) norder_max, l_present

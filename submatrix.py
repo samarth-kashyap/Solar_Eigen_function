@@ -57,3 +57,34 @@ def submatrix(n_,n,l_,l,r,beta =0., field_type = 'dipolar'):
     Lambda = np.real(Lambda)
     
     return Lambda
+    
+def submatrix_diffrot(n_,n,l_,l,r,s=np.array([1,3,5])):
+    wig_calc = np.vectorize(fn.wig)
+    
+    r_full = np.loadtxt('r.dat')
+    r_start, r_end = np.argmin(np.abs(r_full-r[0])),np.argmin(np.abs(r_full-r[-1]))+1
+    rho = np.loadtxt('rho.dat')[r_start:r_end]
+    
+    m = np.arange(-l,l+1,1)    #-l<=m<=l
+    m_ = np.arange(-l_,l_+1,1)  #-l_<=m<=l_    
+    
+    mm_,mm,ss = np.meshgrid(m_,m,s,indexing='ij')
+    
+    kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,r)
+    T_kern = kern.Tkern(s)
+    
+    w = np.loadtxt('w.dat')[:,r_start:r_end]
+#    w[1] = w[2] = w[0]
+#    w = np.ones(w.shape)
+
+    C = np.zeros(mm_.shape)
+    
+    C = (2*((-1)**np.abs(mm_))*wig_calc(l_,ss,l,-mm_,0,mm))[:,:,:,np.newaxis]\
+            *rho[np.newaxis,np.newaxis,np.newaxis,:]*(w*T_kern)[np.newaxis,np.newaxis,:,:]
+        
+    C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=3)
+    C = np.sum(C, axis = 2)
+    
+    print(np.shape(C))
+    
+    return C
