@@ -18,11 +18,11 @@ n = 5
 l=50
 
 r = np.loadtxt('r.dat')
-r_start, r_end = 0.6, 0.601
+r_start, r_end = 0.99, 0.991
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 r = r[start_ind:end_ind]
 
-nl_list = np.array([[n,l-2],[n,l],[n,l+2]])
+nl_list = np.array([[4,5], [3,9]])
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = [omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list]
 omega_ref = np.mean(omega_nl)
@@ -59,18 +59,29 @@ for i in range(len(nl_list)):
     
     mi_beg += 2*l_+1
      
+####OMLY FOR TESTING
+Z *= 6e2
+####ONLY FOR TESTING
+
 
 #inserting the diagonal component of the supermatrix
 Z += Z_diag   
-  
-        
-Z *= OM**2 / 1e-3        
-Z[0,5] *= 1000
+
+       
+#Z *= OM**2
 
 #mm_,mm = np.meshgrid(m_,m,indexing='ij')
 plt.pcolormesh(Z)
 plt.gca().invert_yaxis()
 plt.colorbar()
 plt.show('Block')
+plt.close()
 
+eig_vals,_ = np.linalg.eig(Z)
+####OMLY FOR TESTING
+eig_vals /= 2.* omega_ref  
+eig_vals *= OM *1e6
+####ONLY FOR TESTING
     
+plt.plot(np.sort(eig_vals),'-')
+plt.show()
