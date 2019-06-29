@@ -85,6 +85,4 @@ def submatrix_diffrot(n_,n,l_,l,r,s=np.array([1,3,5])):
     C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=3)
     C = np.sum(C, axis = 2)
     
-    print(np.shape(C))
-    
     return C

@@ -197,7 +197,6 @@ class Hkernels:
 
         ss,rr = np.meshgrid(s,r,indexing='ij')
         
-        print(U.shape,ss.shape)
 
         T_s_r = (1-(-1)**(l_+l+ss))*fn.omega(l_,0)*fn.omega(l,0) \
             *wig_calc(l_,ss,l,-1,0,1)*(U_*V+V_*U-U_*U-0.5*V*V_*(l*(l+1) + \
