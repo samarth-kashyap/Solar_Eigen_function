@@ -125,7 +125,7 @@ class Hkernels:
         Bmm_ = (((-1)**np.abs(1+m_))*prefac)[:,:,:,np.newaxis] \
                  * (Bmm_/r**2)[np.newaxis,:,:]
 
-        tstamp('Bmm done')
+#        tstamp('Bmm done')
 
         #B0- EXPRESSION
         B0m = self.wig_red(1,-1,0)*om(l_,0)*(U - (om(l,0)**2)*V)*(U_ - V_ + r*dV_)
@@ -143,7 +143,7 @@ class Hkernels:
         B0m_ += self.wig_red(1,-1,0)*om(l_,0)*U*(U_ - V_ - r*(dU_ - dV_ + r*d2V_))
         B0m_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m_/r**2)[np.newaxis,:,:]
-        tstamp('B0m done')
+#        tstamp('B0m done')
 
         #B00 OLD
         B00 = -self.wig_red(0,0,0)*(2*U_ - 2*om(l_,0)**2 * V_ - r*dU_)*(-2*U + 2*om(l,0)**2 *V + \
@@ -164,7 +164,7 @@ class Hkernels:
         B00_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B00_/r**2)[np.newaxis,:,:]
 
-        tstamp('B00 done')
+#        tstamp('B00 done')
 
         #B+- OLD
         Bpm = -r**2 * self.wig_red(0,0,0)*dU_*dU 
@@ -185,7 +185,7 @@ class Hkernels:
         Bpm_ = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (Bpm_/r**2)[np.newaxis,:,:]
 
-        tstamp('Bpm done')
+#        tstamp('Bpm done')
 
         Bmm += Bmm_
         B0m += B0m_
@@ -200,5 +200,5 @@ class Hkernels:
         #constructing the other two components of the kernel
         Bpp = parity_fac[:,:,:,np.newaxis]*Bmm
         Bp0 = parity_fac[:,:,:,np.newaxis]*B0m
-
+        
         return Bmm,B0m,B00,Bpm,Bp0,Bpp
