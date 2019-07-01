@@ -203,3 +203,27 @@ class Hkernels:
             l_*(l_+1)-ss*(ss+1)))/rr            
 
         return T_s_r
+        
+    def Tkern_self(self,s):
+        n,l = self.n, self.l
+        r = self.r
+        rho = self.rho
+        Ui = self.Ui 
+        Vi = self.Vi 
+
+        #making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
+        m = np.arange(-l,l+1,1)    #-l<=m<=l
+        len_s = len(s)
+
+        U = np.tile(Ui,(len_s,1))
+        V = np.tile(Vi,(len_s,1))
+
+        wig_calc = np.vectorize(fn.wig)
+
+        ss,rr = np.meshgrid(s,r,indexing='ij')
+        
+        T_s_r = (1-(-1)**(l+l+ss))*fn.omega(l,0)**2 \
+            *wig_calc(l,ss,l,-1,0,1)*(2*U*V-U*U-0.5*V*V*(l*(l+1) + \
+            l*(l+1)-ss*(ss+1)))/rr        
+        return T_s_r
+        

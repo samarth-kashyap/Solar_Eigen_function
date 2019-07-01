@@ -32,6 +32,6 @@ w[0] = w1_f
 w[1] = w3_f
 w[2] = w5_f
 
-w *= 1e-9 / OM #w normalising w to natural units of velocity R_sol*OM
+w *= (1e-9 / OM) #w normalising w to natural units of velocity R_sol*OM
 
 np.savetxt('w.dat',w)

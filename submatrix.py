@@ -10,6 +10,8 @@ import timing
 clock2 = timing.stopclock()
 tstamp = clock2.lap
 
+OM = np.loadtxt('OM.dat')
+R_sol = 6.956e10 #cm
         
 def submatrix(n_,n,l_,l,r,beta =0., field_type = 'dipolar'):   
     m = np.arange(-l,l+1,1)    #-l<=m<=l
@@ -58,7 +60,7 @@ def submatrix(n_,n,l_,l,r,beta =0., field_type = 'dipolar'):
     
     return Lambda
     
-def submatrix_diffrot(n_,n,l_,l,r,s=np.array([1,3,5])):
+def submatrix_diffrot(n_,n,l_,l,r,omega_ref,s=np.array([1,3,5])):
     wig_calc = np.vectorize(fn.wig)
     
     r_full = np.loadtxt('r.dat')
@@ -74,15 +76,38 @@ def submatrix_diffrot(n_,n,l_,l,r,s=np.array([1,3,5])):
     T_kern = kern.Tkern(s)
     
     w = np.loadtxt('w.dat')[:,r_start:r_end]
-#    w[1] = w[2] = w[0]
-#    w = np.ones(w.shape)
 
     C = np.zeros(mm_.shape)
     
-    C = (2*((-1)**np.abs(mm_))*wig_calc(l_,ss,l,-mm_,0,mm))[:,:,:,np.newaxis]\
+    C = (2*((-1)**np.abs(mm_))*omega_ref*wig_calc(l_,ss,l,-mm_,0,mm))[:,:,:,np.newaxis]\
             *rho[np.newaxis,np.newaxis,np.newaxis,:]*(w*T_kern)[np.newaxis,np.newaxis,:,:]
         
     C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=3)
     C = np.sum(C, axis = 2)
     
+    return C
+    
+def submatrix_diagonal_diffrot(n,l,r,omega_ref,s=np.array([1,3,5])):
+    wig_calc = np.vectorize(fn.wig)
+    
+    r_full = np.loadtxt('r.dat')
+    r_start, r_end = np.argmin(np.abs(r_full-r[0])),np.argmin(np.abs(r_full-r[-1]))+1
+    rho = np.loadtxt('rho.dat')[r_start:r_end]
+    
+    m = np.arange(-l,l+1,1)    #-l<=m<=l
+    
+    mm,ss = np.meshgrid(m,s,indexing='ij')
+    
+    kern = gkerns.Hkernels(n,l,m,n,l,m,s,r)
+    T_kern = kern.Tkern_self(s)
+    
+    w = np.loadtxt('w.dat')[:,r_start:r_end]
+    C = np.zeros(mm.shape)
+    
+    C = (2.*((-1)**np.abs(mm))*omega_ref*wig_calc(l,ss,l,-mm,0,mm))[:,:,np.newaxis]\
+            *rho[np.newaxis,np.newaxis,:]*(w*T_kern)[np.newaxis,:,:]   
+    C = np.sqrt((2*l+1)**2 * (2*ss+1)/(4.*np.pi))[:,:,np.newaxis] * C
+            
+    C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=2)
+    C = np.sum(C, axis = 1)
     return C
