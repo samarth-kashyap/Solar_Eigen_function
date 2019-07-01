@@ -182,9 +182,6 @@ class Hkernels:
         Ui_ = self.Ui_ 
         Vi_ = self.Vi_ 
 
-        #making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
-        m = np.arange(-l,l+1,1)    #-l<=m<=l
-        m_ = np.arange(-l_,l_+1,1)  #-l_<=m<=l_          
         len_s = len(s)
 
         U = np.tile(Ui,(len_s,1))
@@ -192,12 +189,10 @@ class Hkernels:
         U_ = np.tile(Ui_,(len_s,1))
         V_ = np.tile(Vi_,(len_s,1))
 
-
         wig_calc = np.vectorize(fn.wig)
 
         ss,rr = np.meshgrid(s,r,indexing='ij')
         
-
         T_s_r = (1-(-1)**(l_+l+ss))*fn.omega(l_,0)*fn.omega(l,0) \
             *wig_calc(l_,ss,l,-1,0,1)*(U_*V+V_*U-U_*U-0.5*V*V_*(l*(l+1) + \
             l_*(l_+1)-ss*(ss+1)))/rr            
