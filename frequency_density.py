@@ -8,7 +8,7 @@ nl_list = np.loadtxt('nl.dat')
 
 om_sorted_ind = np.argsort(omega_list)
 width = 20
-eps = 6.
+eps = 5.9
 ind_om = zip(om_sorted_ind, np.take(omega_list,om_sorted_ind))
 
 for i in range(len(omega_list)):

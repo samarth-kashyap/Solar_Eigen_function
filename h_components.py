@@ -3,7 +3,7 @@ import functions as fn
 class getHcomps:
     """Class to compute the H-coefficients for Lorentz stresses"""
 
-    def __init__(self,s,m_,m,s0,t0,r,B_mu_t_r, beta):
+    def __init__(self,s,m_,m,s0,t0,r,B_mu_t_r, beta = 0.):
         self.mu = np.array([-1,0,1])
         self.nu = np.array([-1,0,1])
         self.s = s
@@ -12,7 +12,7 @@ class getHcomps:
         self.s0 = s0
         self.t0 = t0
         self.r = r
-        self.B_mu_t_r = B_mu_t_r
+        self.B_mu_t_r = B_mu_t_r #may or may not have t dimension
         self.beta = beta
 
     def ret_hcomps(self):
@@ -78,5 +78,23 @@ class getHcomps:
         H_super = np.swapaxes(H_super,1,3)
                 
         return H_super
+        
+    def ret_hcomps_axis_symm(self):
+        s_max = np.max(np.abs(self.s)) #remove odd s components
+        mumu,nunu,ss = np.meshgrid(self.mu,self.nu,self.s,indexing='ij')     
+        
+        wig_calc = np.vectorize(fn.wig)
+        B_mu_r = self.B_mu_t_r
+        BB_mu_nu_r = B_mu_r[:,np.newaxis,:] * B_mu_r[np.newaxis,:,:]
 
+        #signs to be checked
+        wig1 = wig_calc(self.s0,ss,self.s0,mumu,-(mumu+nunu),nunu)
+        wig2 = wig_calc(self.s0,ss,self.s0,0,0,0) #can cut down on odd s calculation
+        H = ((-1)**(np.abs(mumu+nunu))) \
+                *np.sqrt((2*self.s0+1)*(2*self.s0+1)*(2*ss+1)/(4*np.pi))*wig1*wig2
 
+        HH = H[:,:,:,np.newaxis] *BB_mu_nu_r[:,:,np.newaxis,:]
+        HH = HH.astype('complex128')       
+                
+        return HH
+        
