@@ -8,7 +8,7 @@ nl_list = np.loadtxt('nl.dat')
 
 om_sorted_ind = np.argsort(omega_list)
 width = 20
-eps = 5.9
+eps = 10.
 ind_om = zip(om_sorted_ind, np.take(omega_list,om_sorted_ind))
 
 for i in range(len(omega_list)):
@@ -18,7 +18,7 @@ for i in range(len(omega_list)):
     for j in range(max(0,i-width), min(len(omega_list), i+width+1)):
         omega1 = ind_om[j][1]
         l1 = fn.find_mode(ind_om[j][0])[1]        
-        if (np.abs(omega0 - omega1) < eps and i != j and np.abs(l0-l1) < 4 and (l0-l1)%2==0 and l0 <280):
+        if (np.abs(omega0 - omega1) < eps and i != j and np.abs(l0-l1) < 4 and (l0-l1)%2==0 and l0 <100 and l0 > 20):
             mode_set.append(fn.find_mode(ind_om[j][0]))
     if(len(mode_set)>1):    
         print mode_set

@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
-
+import functions as fn
 #all quantities in cgs
 #M_sol = 1.989e33 #g
 #R_sol = 6.956e10 #cm
@@ -28,9 +28,9 @@ w1_f = w1_interp(r)
 w3_f = w3_interp(r)
 w5_f = w5_interp(r)
 
-w[0] = w1_f
-w[1] = w3_f
-w[2] = w5_f
+w[0] = w1_f / fn.gam(1)
+w[1] = w3_f / fn.gam(3)
+w[2] = w5_f / fn.gam(5)
 
 w *= (1e-9 / OM) #w normalising w to natural units of velocity R_sol*OM
 

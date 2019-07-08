@@ -57,13 +57,13 @@ def lorentz(n_,n,l_,l,r,beta =0., field_type = 'dipolar'):
 
     return Lambda
 
-def lorentz_diagonal(n_,n,l_,l,r,beta =0., field_type = 'dipolar'):   
-    m = np.arange(-l,l+1,1)    #-l<=m<=l
+def lorentz_diagonal(n_,n,l_,l,r, field_type = 'dipolar'):   
+    m = np.arange(-min(l,l_),min(l,l_)+1,1)    #-l<=m<=l
     s = np.array([0,1,2])
     s0 = 1
     #transition radii for mixed field type
-    R1 = r[0]
-    R2 = r[-1]
+    R1 = r[-15]
+    R2 = r[-10]
     B_mu_r = fn.getB_comps(s0,r,R1,R2,field_type)[:,s0,:] #choosing t = 0 comp
     get_h = hcomps.getHcomps(s,m,m,s0,np.array([s0]),r,B_mu_r)
     tstamp()
@@ -108,7 +108,7 @@ def diffrot(n_,n,l_,l,r,omega_ref,s=np.array([1,3,5])):
     
     mm,ss = np.meshgrid(m,s,indexing='ij')
     
-    kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,r)
+    kern = gkerns.Hkernels(n_,l_,m,n,l,m,s,r)
     T_kern = kern.Tkern(s)
     
     w = np.loadtxt('w.dat')[:,r_start:r_end]
@@ -117,10 +117,10 @@ def diffrot(n_,n,l_,l,r,omega_ref,s=np.array([1,3,5])):
     
     C = (2*((-1)**np.abs(mm))*omega_ref*wig_calc(l_,ss,l,-mm,0,mm))[:,:,np.newaxis]\
             *rho[np.newaxis,np.newaxis,:]*(w*T_kern)[np.newaxis,:,:]
-    C = np.sqrt((2*l+1)**2 * (2*ss+1)/(4.*np.pi))[:,:,np.newaxis] * C            
-        
-    C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=2)
+    C = np.sqrt((2*l+1) * (2*l_+1) * (2*ss+1)/(4.*np.pi))[:,:,np.newaxis] * C            
     C = np.sum(C, axis = 1)
+    C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=1)
+
     
     return C
 

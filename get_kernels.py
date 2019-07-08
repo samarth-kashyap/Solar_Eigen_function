@@ -100,8 +100,6 @@ class Hkernels:
         Vi = self.Vi 
         Ui_ = self.Ui_ 
         Vi_ = self.Vi_ 
-        
-        print(np.shape(r),np.shape(Ui))
 
         #no smoothing
         dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
@@ -221,8 +219,6 @@ class Hkernels:
         Vi = self.Vi 
         Ui_ = self.Ui_ 
         Vi_ = self.Vi_ 
-        
-        print(np.shape(r),np.shape(Ui))
 
         #no smoothing
         dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)

@@ -5,9 +5,11 @@ from sympy.physics.wigner import wigner_3j
 from sympy import N as sympy_eval
 from scipy.signal import savgol_filter
 from scipy import interpolate
+import scipy.special as special
 import sympy as sy
 from math import factorial as fac
 import math
+
 #evaluation
 def wig(l1,l2,l3,m1,m2,m3):
 	"""returns numerical value of wigner3j symbol"""
@@ -20,6 +22,9 @@ def omega(l,n):
 	if (np.abs(n) > l):	
 		return 0.
 	return np.sqrt(0.5*(l+n)*(l-n+1.))
+
+def gam(s):
+    return np.sqrt((2.*s+1.)/ (4.* np.pi))
 
 def deriv(y,x):
 	"""returns derivative of y wrt x. same len as x and y"""
@@ -183,3 +188,22 @@ def d_rotate_matrix_padded(beta,l,l_large):
 def Y_lmN(theta,phi,l,m,N):
     ret = np.sqrt((2.*l+1)/(4.*np.pi)) * P(np.cos(theta),l,m,N) * np.exp(1j*m*phi)
     return ret
+    
+def P_a(m,l,j):
+    if (l == 0):
+        print "l can't be zero in discretised Legendre P"
+        return None
+    ret = l * special.legendre(j)((1.*m)/l)
+    return ret
+    
+def a_coeff(del_om, l, jmax):
+    """a[0] is actually a_1"""
+    a = np.zeros(jmax+1)
+    for j in range(jmax+1):
+        for m in np.arange(-l,l+1,1):
+            a[j] += del_om[m+l] * P_a(m,l,j)
+        a[j] *= (j+0.5) / l**3
+    return a
+
+def find_omega(n,l):
+    return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
