@@ -25,6 +25,10 @@ w_1 = -(w_file)[1]
 w_3 = -(w_file)[2]
 w_5 = -(w_file)[3]
 
+#subtracting 440 nHz. 
+
+#w_1 -= (r_w*440.0/fn.gam(1))
+
 w1_interp = interp1d(r_w,w_1,kind='cubic',bounds_error=False,fill_value=0)
 w3_interp = interp1d(r_w,w_3,kind='cubic',bounds_error=False,fill_value=0)
 w5_interp = interp1d(r_w,w_5,kind='cubic',bounds_error=False,fill_value=0)
