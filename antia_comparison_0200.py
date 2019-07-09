@@ -32,14 +32,4 @@ del_omega_b = b - omega_ref * OM * 1e6
 print fn.a_coeff(del_omega_a,l,5)
 print fn.a_coeff(del_omega_b,l,5)
 
-
-#r = np.loadtxt('r.dat')
-#rho = np.loadtxt('rho.dat')
-
-#n,l = 0,200;
-#U,V = fn.load_eig(n,l,'eig_files')
-#s1 = integrate.trapz(r**2*rho*(U**2 + (l*(l+1) - 1)*V**2 - 2*U*V))
-#s2 = integrate.trapz(r**2*rho*(U**2 + l*(l+1)*V**2))
-#print s1,s2,s1/s2
-
 plt.show()

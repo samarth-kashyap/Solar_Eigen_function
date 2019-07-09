@@ -9,14 +9,21 @@ import functions as fn
 
 OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in Hz (cgs))
 r = np.loadtxt('r.dat')
-w1_file = np.loadtxt('./w_s_antia/rotgongs414.1d23')
-w3_file = np.loadtxt('./w_s_antia/rotgongs414.3d23n')
-w5_file = np.loadtxt('./w_s_antia/rotgongs414.5d23n')
+#w1_file = np.loadtxt('./w_s_antia/rotgongs414.1d23')
+#w3_file = np.loadtxt('./w_s_antia/rotgongs414.3d23n')
+#w5_file = np.loadtxt('./w_s_antia/rotgongs414.5d23n')
 
-r_w = np.transpose(w1_file)[0]
-w_1 = r_w * np.transpose(w1_file)[1]
-w_3 = r_w * np.transpose(w3_file)[1]
-w_5 = r_w * np.transpose(w5_file)[1]
+#r_w = np.transpose(w1_file)[0]
+#w_1 = r_w * np.transpose(w1_file)[1]
+#w_3 = r_w * np.transpose(w3_file)[1]
+#w_5 = r_w * np.transpose(w5_file)[1]
+
+w_file = np.loadtxt('w_samarth.dat')
+
+r_w = (w_file)[0]
+w_1 = -(w_file)[1]
+w_3 = -(w_file)[2]
+w_5 = -(w_file)[3]
 
 w1_interp = interp1d(r_w,w_1,kind='cubic',bounds_error=False,fill_value=0)
 w3_interp = interp1d(r_w,w_3,kind='cubic',bounds_error=False,fill_value=0)
@@ -28,9 +35,9 @@ w1_f = w1_interp(r)
 w3_f = w3_interp(r)
 w5_f = w5_interp(r)
 
-w[0] = w1_f / fn.gam(1)
-w[1] = w3_f / fn.gam(3)
-w[2] = w5_f / fn.gam(5)
+w[0] = w1_f
+w[1] = w3_f
+w[2] = w5_f
 
 w *= (1e-9 / OM) #w normalising w to natural units of velocity R_sol*OM
 

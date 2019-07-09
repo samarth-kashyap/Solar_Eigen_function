@@ -121,6 +121,5 @@ def diffrot(n_,n,l_,l,r,omega_ref,s=np.array([1,3,5])):
     C = np.sum(C, axis = 1)
     C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=1)
 
-    
     return C
 
