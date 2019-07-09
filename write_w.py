@@ -2,7 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import functions as fn
 #all quantities in cgs
-#M_sol = 1.989e33 #g
+#M_sol = 1.989e33 #gn,l = 0,200
 #R_sol = 6.956e10 #cm
 #B_0 = 10e5 #G
 #OM = np.sqrt(4*np.pi*R_sol*B_0**2/M_sol)

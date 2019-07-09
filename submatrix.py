@@ -115,11 +115,12 @@ def diffrot(n_,n,l_,l,r,omega_ref,s=np.array([1,3,5])):
 
     C = np.zeros(mm.shape)
     
-    C = (2*((-1)**np.abs(mm))*omega_ref*wig_calc(l_,ss,l,-mm,0,mm))[:,:,np.newaxis]\
-            *rho[np.newaxis,np.newaxis,:]*(w*T_kern)[np.newaxis,:,:]
-    C = np.sqrt((2*l+1) * (2*l_+1) * (2*ss+1)/(4.*np.pi))[:,:,np.newaxis] * C            
+    tstamp()
+
+    C = scipy.integrate.trapz((w*T_kern)*(rho*(r**2))[np.newaxis,:],x=r,axis=1)
+    C = C[np.newaxis,:] * (2*((-1)**np.abs(mm))*omega_ref*wig_calc(l_,ss,l,-mm,0,mm))
+    C *= np.sqrt((2*l+1) * (2*l_+1) * (2*ss+1)/(4.*np.pi))
     C = np.sum(C, axis = 1)
-    C = scipy.integrate.trapz(C*(r**2)[np.newaxis,:],x=r,axis=1)
 
     return C
 

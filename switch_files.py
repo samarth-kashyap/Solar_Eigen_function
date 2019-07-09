@@ -24,5 +24,5 @@ elif sys.argv[1] == 'up':
     os.rename('w_full.dat','w.dat')
 
 else:
-    print 'invalid argument'
+    print('invalid argument')
     sys.exit()

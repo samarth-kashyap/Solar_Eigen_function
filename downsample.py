@@ -9,7 +9,7 @@ rho = np.loadtxt('rho_full.dat')
 nl_list = np.loadtxt('nl.dat')
 
 
-n_pts = 100
+n_pts = 1000
 grid_ind = np.arange(0,len(r),1+len(r)/n_pts)
 #print np.arange(len(r))
 #sys.exit()
@@ -33,7 +33,7 @@ for nl in range(len(nl_list)):
     Vname = 'V'+str(nl)    
     np.savetxt('eig_files/' + Uname+'.dat', U_new)
     np.savetxt('eig_files/' + Vname+'.dat', V_new)
-    print fn.find_mode(nl)
+    print(fn.find_mode(nl))
     
 np.savetxt('r.dat',r_new)    
 np.savetxt('rho.dat',rho_new)    

@@ -159,7 +159,7 @@ def P(mu,l,m,N):
     ret *= 1./2**l * 1./np.sqrt(fac(l+N)*fac(l-N)) * np.sqrt(1.*fac(l+m) / fac(l-m))
     ret /= np.sqrt((1.-mu)**(m-N) * (1.+mu)**(m+N)) 
     if np.any(ret == np.inf):
-        print 'infinity encountered in P_lmN evaluation. result not reliable'
+        print('infinity encountered in P_lmN evaluation. result not reliable')
     return ret
 
 def d_rotate(beta,l,m_,m):
@@ -191,7 +191,7 @@ def Y_lmN(theta,phi,l,m,N):
     
 def P_a(m,l,j):
     if (l == 0):
-        print "l can't be zero in discretised Legendre P"
+        print("l can't be zero in discretised Legendre P")
         return None
     ret = l * special.legendre(j)((1.*m)/l)
     return ret

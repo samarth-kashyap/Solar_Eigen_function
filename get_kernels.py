@@ -302,17 +302,22 @@ class Hkernels:
 
         len_s = len(s)
 
+        tstamp()
         U = np.tile(Ui,(len_s,1))
         V = np.tile(Vi,(len_s,1))
         U_ = np.tile(Ui_,(len_s,1))
         V_ = np.tile(Vi_,(len_s,1))
+        tstamp('Tiling in Tkerns ends')
 
         wig_calc = np.vectorize(fn.wig)
 
         ss,rr = np.meshgrid(s,r,indexing='ij')
         
+
+        tstamp()
         T_s_r = (1-(-1)**(l_+l+ss))*fn.omega(l_,0)*fn.omega(l,0) \
             *wig_calc(l_,ss,l,-1,0,1)*(U_*V+V_*U-U_*U-0.5*V*V_*(l*(l+1) + \
             l_*(l_+1)-ss*(ss+1)))/rr            
+        tstamp('Computing T_s_r ends')
 
         return T_s_r
