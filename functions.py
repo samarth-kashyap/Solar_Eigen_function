@@ -205,5 +205,24 @@ def a_coeff(del_om, l, jmax):
         a[j] *= (j+0.5) / l**3
     return a
 
+def a_coeff_matinv(del_om, l, jmax):
+    """Inverting for a-coeff from matrix inversion. AC = B. A contains coeffs"""
+
+    P_a_vec = np.vectorize(P_a)
+
+    A_i = np.zeros(jmax+1)
+    j = np.arange(0,jmax+1,1)
+    m = np.arange(-l,l+1,1)
+    jj,mm = np.meshgrid(j,m,indexing='ij')
+
+    P_j_m = P_a_vec(mm,l,jj)
+    C_j_i = np.matmul(P_j_m,np.transpose(P_j_m))
+    B_j = np.matmul(P_j_m,del_om)
+
+    A_i = np.linalg.solve(C_j_i,B_j)
+    return A_i
+
+
+
 def find_omega(n,l):
     return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    

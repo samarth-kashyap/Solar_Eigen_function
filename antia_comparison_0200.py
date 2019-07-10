@@ -13,8 +13,8 @@ omega_ref = np.loadtxt('muhz.dat')[fn.find_nl(n,l)] * 1e-6 /OM
 a = submatrix.diffrot(n,n,l,l,r,omega_ref)
 b = np.loadtxt('omegs200')
 
-#a = np.sqrt(omega_ref**2 + a.astype('float64')) * 1e6 *OM
-a = (omega_ref + a.astype('float64') / (2.*omega_ref)) * 1e6 *OM
+a = np.sqrt(omega_ref**2 + a.astype('float64')) * 1e6 *OM
+#a = (omega_ref + a.astype('float64') / (2.*omega_ref)) * 1e6 *OM
 
 plt.subplot(211)
 plt.plot(m,a,label = 'dpt')
@@ -29,7 +29,10 @@ plt.grid(True)
 
 del_omega_a = a - omega_ref * OM * 1e6
 del_omega_b = b - omega_ref * OM * 1e6
-print(fn.a_coeff(del_omega_a,l,5))
-print(fn.a_coeff(del_omega_b,l,5))
+# print(fn.a_coeff(del_omega_a,l,5))
+# print(fn.a_coeff(del_omega_b,l,5))
+
+print(fn.a_coeff_matinv(del_omega_a,l,5))
+print(fn.a_coeff_matinv(del_omega_b,l,5))
 
 plt.show()
