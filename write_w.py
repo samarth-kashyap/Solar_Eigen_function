@@ -9,14 +9,6 @@ import functions as fn
 
 OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in Hz (cgs))
 r = np.loadtxt('r.dat')
-#w1_file = np.loadtxt('./w_s_antia/rotgongs414.1d23')
-#w3_file = np.loadtxt('./w_s_antia/rotgongs414.3d23n')
-#w5_file = np.loadtxt('./w_s_antia/rotgongs414.5d23n')
-
-#r_w = np.transpose(w1_file)[0]
-#w_1 = r_w * np.transpose(w1_file)[1]
-#w_3 = r_w * np.transpose(w3_file)[1]
-#w_5 = r_w * np.transpose(w5_file)[1]
 
 w_file = np.loadtxt('w_samarth.dat')
 

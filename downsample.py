@@ -8,8 +8,7 @@ r = np.loadtxt('r_full.dat')
 rho = np.loadtxt('rho_full.dat')
 nl_list = np.loadtxt('nl.dat')
 
-
-n_pts = 1000
+n_pts = 100
 grid_ind = np.arange(0,len(r),1+len(r)/n_pts)
 #print np.arange(len(r))
 #sys.exit()
