@@ -62,8 +62,8 @@ def lorentz_diagonal(n_,n,l_,l,r, field_type = 'dipolar'):
     s = np.array([0,1,2])
     s0 = 1
     #transition radii for mixed field type
-    R1 = r[-15]
-    R2 = r[-10]
+    R1 = 0.75
+    R2 = 0.78
     B_mu_r = fn.getB_comps(s0,r,R1,R2,field_type)[:,s0,:] #choosing t = 0 comp
     get_h = hcomps.getHcomps(s,m,m,s0,np.array([s0]),r,B_mu_r)
     tstamp()

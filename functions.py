@@ -8,6 +8,7 @@ from scipy import interpolate
 import scipy.special as special
 import sympy as sy
 from math import factorial as fac
+import matplotlib.pyplot as plt
 import math
 
 #evaluation
@@ -117,32 +118,35 @@ def getB_comps(s0,r,R1,R2,field_type):
         R1_ind = np.argmin(np.abs(r-R1))
         R2_ind = np.argmin(np.abs(r-R2))
         b = 0.5*(1+nperf(70*(r-(R1+R2)/2.0)))
-        a = b - np.gradient(b)*r
+        a = b - np.gradient(b,r)*r
     
-    beta = lambda r: 1./r**3
+    beta = lambda r: 1e-4/r**3  #10G on surface
 
-    alpha = beta  #for now keeping the radial dependence same as dipolar
+    #1e5 Gauss at tachocline
+    alpha = np.exp(-0.5*((r-0.7)/0.01)**2)
+    #1e7 Gauss at core
+    alpha += 100*np.exp(-0.5*(r/0.1)**2)
     
     if(field_type == 'dipolar'):
-        B_mu_t_r[:,s0,:] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+        B_mu_t_r[:,s0,:] = omega(s0,0) * 1./np.sqrt(2.) \
                                 * np.outer(np.array([1., -2., 1.]),beta(r))
     elif(field_type == 'toroidal'):
-            B_mu_t_r[:,s0,:] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
-                                    * np.outer(np.array([-1j, 0. , 1j]),alpha(r))
+            B_mu_t_r[:,s0,:] = omega(s0,0) * 1./np.sqrt(2.) \
+                                    * np.outer(np.array([-1j, 0. , 1j]),alpha[:])
     else:
-            B_mu_t_r[:,s0,:R1_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+            B_mu_t_r[:,s0,:R1_ind] = omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.outer(np.array([-1j, 0. , 1j]),\
-                                            alpha(r[:R1_ind]))
-            B_mu_t_r[:,s0,R2_ind:] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+                                            alpha[:R1_ind])
+            B_mu_t_r[:,s0,R2_ind:] = omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.outer(np.array([1., -2., 1.]),\
                                             beta(r[R2_ind:]))
-            B_mu_t_r[:,s0,R1_ind:R2_ind] = 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+            B_mu_t_r[:,s0,R1_ind:R2_ind] = omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.array([1., -2., 1.])[:,np.newaxis]*\
                                             beta(r[R1_ind:R2_ind])*np.array([a[R1_ind:R2_ind],\
                                             b[R1_ind:R2_ind],a[R1_ind:R2_ind]])
-            B_mu_t_r[:,s0,R1_ind:R2_ind] += 1e-4 * omega(s0,0) * 1./np.sqrt(2.) \
+            B_mu_t_r[:,s0,R1_ind:R2_ind] += omega(s0,0) * 1./np.sqrt(2.) \
                                     * np.outer(np.array([-1j, 0., 1j]),\
-                                            alpha(r[R1_ind:R2_ind]))
+                                            alpha[R1_ind:R2_ind])
                                             
     return B_mu_t_r
 	
@@ -226,3 +230,46 @@ def a_coeff_matinv(del_om, l, jmax):
 
 def find_omega(n,l):
     return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
+
+def plot_freqs(f_dpt,f_qdpt,nl_list):
+    plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+
+    plt.subplot(2,1,1)
+
+    plt.plot(f_dpt,label='Degenerate')
+    plt.plot(f_qdpt,label='Quasi-Degenerate')
+    plt.legend()
+
+    f_dpt_min = np.amin(f_dpt)
+    f_dpt_max = np.amax(f_dpt)
+    freq_arr = np.arange(f_dpt_min,f_dpt_max,(f_dpt_max-f_dpt_min)/100)
+
+    l_local = 0
+    title_str = ''
+    for i in range(len(nl_list)-1):
+        l_local += (2*nl_list[i,1]+1)
+        plt.plot(l_local*np.ones(len(freq_arr)),freq_arr,'--k',alpha = 0.3)
+        title_str = title_str + 'n,l = ' + str(nl_list[i,0]) + ',' + str(nl_list[i,1]) + ';'
+
+    title_str = title_str + 'n,l = ' + str(nl_list[-1,0]) + ',' + str(nl_list[-1,1]) + ';'
+
+    plt.title(title_str)
+    plt.ylabel('Frequency in $\mu$Hz',fontsize=14)
+    plt.xlabel('Cumulative m',fontsize=12)
+
+    plt.subplot(2,1,2)
+
+    erf_dpt_min = np.amin(f_dpt-f_qdpt)
+    erf_dpt_max = np.amax(f_dpt-f_qdpt)
+    erfreq_arr = np.arange(erf_dpt_min,erf_dpt_max,(erf_dpt_max-erf_dpt_min)/100)
+
+    l_local = 0
+    for i in range(len(nl_list)-1):
+        l_local += (2*nl_list[i,1]+1)
+        plt.plot(l_local*np.ones(len(erfreq_arr)),erfreq_arr,'--k',alpha = 0.3)
+
+    plt.plot(f_dpt-f_qdpt)
+    plt.ylabel('$f_D - f_{QD}$ in $\mu$Hz',fontsize=14)
+    plt.xlabel('Cumulative m',fontsize=12)
+    plt.show()
+
