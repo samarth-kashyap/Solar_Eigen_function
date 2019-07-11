@@ -21,6 +21,6 @@ for i in range(len(omega_list)):
         if (np.abs(omega0 - omega1) < eps and i != j and np.abs(l0-l1) < 4 and (l0-l1)%2==0 and l0 <100 and l0 > 20):
             mode_set.append(fn.find_mode(ind_om[j][0]))
     if(len(mode_set)>1):    
-        print mode_set
+        print(mode_set)
         omega_set = [omega_list[fn.find_nl(mode[0], mode[1])] for mode in mode_set]
-        print omega_set
+        print(omega_set)
