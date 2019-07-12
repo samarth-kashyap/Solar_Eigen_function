@@ -36,7 +36,7 @@ total_m = len(nl_list) + 2*np.sum(nl_list, axis = 0)[1]
 Z = np.empty((total_m, total_m))
 Z_diag = np.identity(total_m)
 Z_dpt = np.zeros((total_m, total_m))
-'''mi_beg = 0
+mi_beg = 0
 for i in range(len(nl_list)):
     mj_beg = 0
     for j in range(len(nl_list)): 
@@ -87,9 +87,9 @@ f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 
 fn.plot_freqs(f_dpt,f_qdpt,nl_list)
 
-sys.exit()'''
+sys.exit()
 
-#MAGNETIC PERTUBATION
+'''#MAGNETIC PERTUBATION
 Z = np.empty((total_m, total_m),dtype='complex128')
 Z_diag = np.identity(total_m,dtype='complex128')
 Z_dpt = np.zeros((total_m, total_m),dtype='complex128')
@@ -151,7 +151,7 @@ f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 #######################
 #generating plots for DPT and QDPT and comparing
 
-fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list)
+fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list)'''
 
 '''plt.pcolormesh(np.log(np.abs(Z)))
 plt.gca().invert_yaxis()

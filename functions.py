@@ -285,9 +285,20 @@ def find_omega(n,l):
     return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
 
 def plot_freqs(f_dpt,f_qdpt,nl_list):
-    plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+    OM = np.loadtxt('OM.dat')
+    omega_list = np.loadtxt('muhz.dat')  #normlaised frequency list
+    omega_nl = np.array([omega_list[find_nl(mode[0], mode[1])] for mode in nl_list])
 
+    plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
     plt.subplot(2,1,1)
+
+    l_local = 2*nl_list[0,1]+1
+    m_local = np.arange(0,l_local)
+    plt.plot(m_local,np.ones(len(m_local))*omega_nl[0],'g--',label='Unperturbed')
+    for i in range(1,len(omega_nl)):
+        m_local = np.arange(l_local,l_local+2*nl_list[i,1]+1)
+        plt.plot(m_local,np.ones(len(m_local))*omega_nl[i],'g--')
+        l_local += 2*nl_list[i,1]+1
 
     plt.plot(f_dpt,label='Degenerate')
     plt.plot(f_qdpt,label='Quasi-Degenerate')
