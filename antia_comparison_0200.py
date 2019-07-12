@@ -32,7 +32,7 @@ del_omega_b = b - omega_ref * OM * 1e6
 # print(fn.a_coeff(del_omega_a,l,5))
 # print(fn.a_coeff(del_omega_b,l,5))
 
-print(fn.a_coeff_matinv(del_omega_a,l,20))
-print(fn.a_coeff_matinv(del_omega_b,l,20))
+print(fn.a_coeff_GSO(del_omega_a,l,20))
+print(fn.a_coeff_GSO(del_omega_b,l,20))
 
 plt.show()

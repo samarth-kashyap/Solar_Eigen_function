@@ -11,6 +11,8 @@ from math import factorial as fac
 import matplotlib.pyplot as plt
 import math
 
+P_j = np.array([])
+
 #evaluation
 def wig(l1,l2,l3,m1,m2,m3):
 	"""returns numerical value of wigner3j symbol"""
@@ -193,19 +195,54 @@ def Y_lmN(theta,phi,l,m,N):
     ret = np.sqrt((2.*l+1)/(4.*np.pi)) * P(np.cos(theta),l,m,N) * np.exp(1j*m*phi)
     return ret
     
-def P_a(m,l,j):
+def P_a(l,i):
+    global P_j
+
+    P_l_vec = np.vectorize(special.legendre(i))
+    L = np.sqrt(l*(l+1))
+    m = np.arange(-l,l+1,1)
+
+    #returns 2*l+1 values of P_j^l(m)
+    P = np.zeros(2*l+1)
+    
     if (l == 0):
         print("l can't be zero in discretised Legendre P")
         return None
-    ret = l * special.legendre(j)((1.*m)/l)
-    return ret
+    
+    #P_0^l(m) = l
+    if(i==0): 
+        P += l
+    
+    #creating P''(m) for all m's belonging to l. Needed for c_ij
+    P_pp_i = L*P_l_vec((1.*m)/L)
+    P_p_i = np.zeros(2*l+1)
+
+    for j in range(0,i,1):
+        c_ij_num = 0.0
+        c_ij_denom = 0.0 
+        P_j_l = P_j[j]  #using pre-computed P_j^l(m)'s
+        c_ij_num = np.sum(P_pp_i*P_j_l)
+        c_ij_denom = np.sum(P_j_l**2)
+        c_ij = c_ij_num/c_ij_denom
+        P_p_i -= c_ij*P_j_l
+    
+    P_p_i += P_pp_i
+
+    #returns an array of length (2*l+1) 
+    P = l*P_p_i/P_p_i[-1]
+
+    if(i==0):
+        P_j = np.append(P_j,P)
+        P_j = np.reshape(P_j,(1,2*l+1))
+    else: P_j = np.append(P_j,np.reshape(P,(1,2*l+1)),axis=0)
+    return P
     
 def a_coeff(del_om, l, jmax):
     """a[0] is actually a_1"""
     a = np.zeros(jmax+1)
     for j in range(jmax+1):
         for m in np.arange(-l,l+1,1):
-            a[j] += del_om[m+l] * P_a(m,l,j)
+            a[j] += del_om[m+l] * P_a(l,j)
         a[j] *= (j+0.5) / l**3
     return a
 
@@ -226,7 +263,23 @@ def a_coeff_matinv(del_om, l, jmax):
     A_i = np.linalg.solve(C_j_i,B_j)
     return A_i
 
+#finding a-coefficients using GSO
+def a_coeff_GSO(del_om,l,jmax):
+    """a[0] is actually a_1"""
+    global P_j
 
+    a = np.ones(jmax+1)
+    a_num = np.zeros(jmax+1)
+    a_denom = np.zeros(jmax+1)
+    for j in range(jmax+1): 
+        P_l_j =  P_a(l,j)
+        a_num[j] += np.sum(del_om * P_l_j)
+        a_denom[j] += np.sum(P_l_j**2)
+    a = a_num/a_denom
+
+    P_j = np.array([])
+
+    return a
 
 def find_omega(n,l):
     return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
