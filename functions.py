@@ -284,7 +284,7 @@ def a_coeff_GSO(del_om,l,jmax):
 def find_omega(n,l):
     return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
 
-def plot_freqs(f_dpt,f_qdpt,nl_list,case,saveCond=False):
+def plot_freqs(f_dpt,f_qdpt,nl_list,case,saveCond=False,f_DR=np.array([])):
     OM = np.loadtxt('OM.dat')
     omega_list = np.loadtxt('muhz.dat')  #normlaised frequency list
     omega_nl = np.array([omega_list[find_nl(mode[0], mode[1])] for mode in nl_list])
@@ -324,8 +324,12 @@ def plot_freqs(f_dpt,f_qdpt,nl_list,case,saveCond=False):
 
     plt.subplot(2,1,2)
 
-    erf_dpt_min = np.amin(f_dpt-f_qdpt)
-    erf_dpt_max = np.amax(f_dpt-f_qdpt)
+    if(len(f_DR)>0):
+        erf_dpt_min = np.amin(f_qdpt-f_DR)
+        erf_dpt_max = np.amax(f_qdpt-f_DR)
+    else:
+        erf_dpt_min = np.amin(f_dpt-f_qdpt)
+        erf_dpt_max = np.amax(f_dpt-f_qdpt)
     erfreq_arr = np.arange(erf_dpt_min,erf_dpt_max,(erf_dpt_max-erf_dpt_min)/100)
 
     l_local = 0
@@ -333,8 +337,12 @@ def plot_freqs(f_dpt,f_qdpt,nl_list,case,saveCond=False):
         l_local += (2*nl_list[i,1]+1)
         plt.plot(l_local*np.ones(len(erfreq_arr)),erfreq_arr,'--k',alpha = 0.3)
 
-    plt.plot(f_dpt-f_qdpt)
-    plt.ylabel('$f_D - f_{QD}$ in $\mu$Hz',fontsize=14)
+    if(len(f_DR)>0): 
+        plt.plot(f_qdpt-f_DR)
+        plt.ylabel('$f_{QDM} - f_{DR}$ in $\mu$Hz',fontsize=14)
+    else: 
+        plt.plot(f_dpt-f_qdpt)
+        plt.ylabel('$f_D - f_{QD}$ in $\mu$Hz',fontsize=14)
     plt.xlabel('Cumulative m',fontsize=12)
     plt.show()
 

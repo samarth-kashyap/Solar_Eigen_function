@@ -41,7 +41,7 @@ Z = np.empty((total_m, total_m))
 Z_diag = np.identity(total_m)
 Z_dpt = np.zeros((total_m, total_m))
 mi_beg = 0
-for i in range(len(nl_list)):
+'''for i in range(len(nl_list)):
     mj_beg = 0
     for j in range(len(nl_list)): 
         tstamp()
@@ -111,12 +111,13 @@ for i in range(len(nl_list)):
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
     l_local += 2*nl_list[i,1] + 1
 
-sys.exit()
+sys.exit()'''
 
-'''#MAGNETIC PERTUBATION
+#MAGNETIC PERTUBATION
 Z = np.empty((total_m, total_m),dtype='complex128')
 Z_diag = np.identity(total_m,dtype='complex128')
 Z_dpt = np.zeros((total_m, total_m),dtype='complex128')
+f_DR = np.zeros(total_m)
 mi_beg = 0
 for i in range(len(nl_list)):
     mj_beg = 0
@@ -146,6 +147,7 @@ for i in range(len(nl_list)):
     tstamp('omega_nlm ends')
     
     omega_nlm_sq = omega_nlm_sq.astype('complex128')
+    f_DR[mi_beg:mi_end] = np.sqrt(np.real(np.diag(omega_nlm_sq)))
         
     omega_ref = np.identity(mi_end-mi_beg)*omega_ref0
     Z_diag[mi_beg:mi_end,mi_beg:mi_end] += -(omega_ref**2 - omega_nlm_sq)
@@ -182,7 +184,7 @@ f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 #######################
 #generating plots for DPT and QDPT and comparing
 
-fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list,'M',True)
+fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list,'M',True,f_DR*1e6*OM)
 
 #Extracting the a-coefficients
 
@@ -199,7 +201,7 @@ for i in range(len(nl_list)):
     del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
     a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
-    l_local += 2*nl_list[i,1] + 1'''
+    l_local += 2*nl_list[i,1] + 1
 
 
 
