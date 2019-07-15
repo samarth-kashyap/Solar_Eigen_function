@@ -5,6 +5,7 @@ import functions as fn
 import sys
 import timing
 import matplotlib.gridspec as gridspec
+plt.ion()
 
 clock1 = timing.stopclock()
 tstamp = clock1.lap
@@ -22,7 +23,10 @@ r_start, r_end = 0.,1.
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 r = r[start_ind:end_ind]
 
-nl_list = np.array([[0,97],[0,99],[0,101]])
+#for a-coefficients
+j_max = 10
+
+nl_list = np.array([[0,198],[0,200],[0,202]])
 #nl_list = np.array([[0,2],[0,3]])
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list])
@@ -62,8 +66,8 @@ for i in range(len(nl_list)):
         mj_beg += 2*l+1
                 
     Z_diag[mi_beg:mi_end,mi_beg:mi_end] *= -(omega_ref0**2 - omega_nl[i]**2)
-    Z_dpt[mi_beg:mi_end,mi_beg:mi_end] = Z[mi_beg:mi_end,mi_beg:mi_end]\
-                                 +  np.identity(mi_end-mi_beg) *omega_nl[i]**2
+    Z_dpt[mi_beg:mi_end,mi_beg:mi_end] = Z[mi_beg:mi_end,mi_beg:mi_end]
+
     mi_beg += 2*l_+1
 
 eig_vals_dpt = np.diag(Z_dpt)
@@ -80,12 +84,32 @@ eig_vals_qdpt_arranged = eig_vals_qdpt[m_ind_arr]
 #######################
 #Extracting frequencies
 
-f_dpt = np.sqrt(eig_vals_dpt) * OM *1e6
+l_local = 0
+omega_nl_arr = np.zeros(total_m)
+for i in range(len(nl_list)):
+    omega_nl_arr[l_local:l_local + 2*nl_list[i,1]+1] = \
+                np.ones(2*nl_list[i,1]+1)*omega_nl[i]
+    l_local += 2*nl_list[i,1]+1
+
+f_dpt = (omega_nl_arr + eig_vals_dpt/(2*omega_nl_arr)) * OM *1e6
 f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 
 #generating plots for DPT and QDPT and comparing
 
-fn.plot_freqs(f_dpt,f_qdpt,nl_list)
+fn.plot_freqs(f_dpt,f_qdpt,nl_list,'DR',True)
+
+#Extracting the a-coefficients
+
+a_dpt = np.zeros((len(nl_list),j_max+1))
+a_qdpt = np.zeros((len(nl_list),j_max+1))
+
+l_local = 0
+for i in range(len(nl_list)):
+    del_omega_dpt = f_dpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
+    del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
+    a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
+    a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
+    l_local += 2*nl_list[i,1] + 1
 
 sys.exit()
 
@@ -126,7 +150,7 @@ for i in range(len(nl_list)):
     omega_ref = np.identity(mi_end-mi_beg)*omega_ref0
     Z_diag[mi_beg:mi_end,mi_beg:mi_end] += -(omega_ref**2 - omega_nlm_sq)
     Z_dpt[mi_beg:mi_end,mi_beg:mi_end] = Z[mi_beg:mi_end,mi_beg:mi_end]\
-                                 +  np.identity(mi_end-mi_beg) *omega_nl[i]**2
+
     mi_beg += 2*l_+1
 
 
@@ -145,13 +169,39 @@ eig_vals_qdpt_arranged = eig_vals_qdpt[m_ind_arr]
 #######################
 #Extracting frequencies
 
-f_dpt = np.sqrt(eig_vals_dpt) * OM *1e6
+l_local = 0
+omega_nl_arr = np.zeros(total_m)
+for i in range(len(nl_list)):
+    omega_nl_arr[l_local:l_local + 2*nl_list[i,1]+1] = \
+                np.ones(2*nl_list[i,1]+1)*omega_nl[i]
+    l_local += 2*nl_list[i,1]+1
+
+f_dpt = (omega_nl_arr + eig_vals_dpt/(2*omega_nl_arr)) * OM *1e6
 f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 
 #######################
 #generating plots for DPT and QDPT and comparing
 
-fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list)'''
+fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list,'M',True)
+
+#Extracting the a-coefficients
+
+a_dpt = np.zeros((len(nl_list),j_max+1))
+a_qdpt = np.zeros((len(nl_list),j_max+1))
+
+#taking only real parts of frequency matricesfn.a_coeff_GSO(del_omega_a,l,20)
+f_dpt = np.real(f_dpt)
+f_qdpt = np.real(f_qdpt)
+
+l_local = 0
+for i in range(len(nl_list)):
+    del_omega_dpt = f_dpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
+    del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
+    a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
+    a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
+    l_local += 2*nl_list[i,1] + 1'''
+
+
 
 '''plt.pcolormesh(np.log(np.abs(Z)))
 plt.gca().invert_yaxis()

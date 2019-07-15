@@ -284,12 +284,13 @@ def a_coeff_GSO(del_om,l,jmax):
 def find_omega(n,l):
     return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
 
-def plot_freqs(f_dpt,f_qdpt,nl_list):
+def plot_freqs(f_dpt,f_qdpt,nl_list,case,saveCond=False):
     OM = np.loadtxt('OM.dat')
     omega_list = np.loadtxt('muhz.dat')  #normlaised frequency list
     omega_nl = np.array([omega_list[find_nl(mode[0], mode[1])] for mode in nl_list])
 
-    plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+    dpi = 80
+    plt.figure(num=None, figsize=(8, 6), dpi=dpi, facecolor='w', edgecolor='k')
     plt.subplot(2,1,1)
 
     l_local = 2*nl_list[0,1]+1
@@ -336,4 +337,13 @@ def plot_freqs(f_dpt,f_qdpt,nl_list):
     plt.ylabel('$f_D - f_{QD}$ in $\mu$Hz',fontsize=14)
     plt.xlabel('Cumulative m',fontsize=12)
     plt.show()
+
+    fname = ''
+    for i in range(len(nl_list)):
+        fname = fname + str(nl_list[i,0]) + '_' + str(nl_list[i,1])
+        if(i!=len(nl_list)-1): fname = fname + '-'
+        else: fname = fname + case
+
+    if(saveCond == True):
+        plt.savefig('./figures/'+fname+'.eps',dpi=dpi)
 
