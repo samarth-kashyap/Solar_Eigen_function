@@ -16,6 +16,7 @@ class Hkernels:
         self.l = l
         self.n_ = n_
         self.l_ = l_
+        self.s = s
         r_full = np.loadtxt('r.dat')
         r_start, r_end = np.argmin(np.abs(r_full-r[0])),np.argmin(np.abs(r_full-r[-1]))+1
         self.r_range = r_start,r_end
@@ -76,36 +77,42 @@ class Hkernels:
 
         #EIGENFUCNTION DERIVATIVES
 
+        ##########################################################3
         #smoothing
 
         #interpolation params
-#        npts = len(r)
-#        r_new = r
+        npts = 3000
+        r_new = np.linspace(np.amin(self.r),np.amax(self.r),npts)
+        self.ss_i,__ = np.meshgrid(self.s,r_new, indexing = 'ij')
 
+        Ui,dUi,d2Ui = fn.smooth(self.Ui,self.r,window,order,npts)
+        Vi,dVi,d2Vi = fn.smooth(self.Vi,self.r,window,order,npts)
 
-#        Ui,dUi,d2Ui = fn.smooth(Ui,r,window,order,npts)
-#        Vi,dVi,d2Vi = fn.smooth(Vi,r,window,order,npts)
+        Ui_,dUi_,d2Ui_ = fn.smooth(self.Ui_,self.r,window,order,npts)
+        Vi_,dVi_,d2Vi_ = fn.smooth(self.Vi_,self.r,window,order,npts)
 
-#        Ui_,dUi_,d2Ui_ = fn.smooth(Ui_,r,window,order,npts)
-#        Vi_,dVi_,d2Vi_ = fn.smooth(Vi_,r,window,order,npts)
+        rho_sm, __, __ = fn.smooth(self.rho,self.r,window,order,npts)
+        #re-assigning with smoothened variables
+        r = r_new
+        rho = rho_sm
 
-#        rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-#        #re-assigning with smoothened variables
-#        #r = r_new
-#        rho = rho_sm
-
-        r = self.r
-        rho = self.rho
-        Ui = self.Ui 
-        Vi = self.Vi 
-        Ui_ = self.Ui_ 
-        Vi_ = self.Vi_ 
-
+        
+        ###############################################################
         #no smoothing
-        dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
-        dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
-        d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
-        tstamp('load eigfiles')
+
+        # r = self.r
+        # rho = self.rho
+        # Ui = self.Ui 
+        # Vi = self.Vi 
+        # Ui_ = self.Ui_ 
+        # Vi_ = self.Vi_ 
+
+        # dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
+        # dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
+        # d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
+        # tstamp('load eigfiles')
+
+        #################################################################3
 
         #making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
 
@@ -122,6 +129,8 @@ class Hkernels:
         r = np.tile(r,(len_s,1))
 
         tstamp()
+
+        print(np.shape(V),np.shape(V_),np.shape(dU_),np.shape(r))
 
         #B-- EXPRESSION
         Bmm = self.wig_red(3,-2,-1)*om(l,0)*om(l_,0)*om(l_,2)*om(l_,3) * V*V_

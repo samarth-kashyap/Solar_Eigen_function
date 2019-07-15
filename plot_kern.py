@@ -20,6 +20,10 @@ kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,r,False)
 Bmm, B0m,B00, Bpm,_,_ = kern.ret_kerns()
 tstamp('kernel calculation time')
 
+npts = 3000
+r_new = np.linspace(np.amin(r),np.amax(r),npts)
+r = r_new
+
 plt.plot(r,Bpm[0,0,0],'r-',label = '$\mathcal{B}^{+-}$')
 plt.plot(r,Bmm[0,0,0],'b-',label = '$\mathcal{B}^{--}$')
 plt.plot(r,B0m[0,0,0],'k-',label = '$\mathcal{B}^{0-}$')
