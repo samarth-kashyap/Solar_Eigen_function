@@ -113,7 +113,7 @@ def kron_delta(i,j):
         
 def getB_comps(s0,r,R1,R2,field_type):
     """function to get the components of B_field"""    
-    
+    gamma_s = np.sqrt((2*s0 + 1)/(4.0*np.pi))
     B_mu_t_r = np.zeros((3,2*s0+1,len(r)),dtype=complex)
     nperf = np.vectorize(math.erf)
     if(field_type=='mixed'):
@@ -150,7 +150,7 @@ def getB_comps(s0,r,R1,R2,field_type):
                                     * np.outer(np.array([-1j, 0., 1j]),\
                                             alpha[R1_ind:R2_ind])
                                             
-    return B_mu_t_r
+    return B_mu_t_r/gamma_s
 	
 def P(mu,l,m,N):
     """generalised associated legendre function"""

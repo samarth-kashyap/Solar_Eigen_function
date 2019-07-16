@@ -78,8 +78,7 @@ class Hkernels:
         #EIGENFUCNTION DERIVATIVES
 
         ##########################################################3
-        #smoothing
-
+        #smoothingR2 = 0.78
         #interpolation params
         # npts = 3000
         # r_new = np.linspace(np.amin(self.r),np.amax(self.r),npts)
@@ -316,7 +315,7 @@ class Hkernels:
         V = np.tile(Vi,(len_s,1))
         U_ = np.tile(Ui_,(len_s,1))
         V_ = np.tile(Vi_,(len_s,1))
-        tstamp('Tiling in Tkerns ends')
+        #tstamp('Tiling in Tkerns ends')
 
         wig_calc = np.vectorize(fn.wig)
 
@@ -327,6 +326,6 @@ class Hkernels:
         T_s_r = (1-(-1)**(l_+l+ss))*fn.omega(l_,0)*fn.omega(l,0) \
             *wig_calc(l_,ss,l,-1,0,1)*(U_*V+V_*U-U_*U-0.5*V*V_*(l*(l+1) + \
             l_*(l_+1)-ss*(ss+1)))/rr            
-        tstamp('Computing T_s_r ends')
+        #tstamp('Computing T_s_r ends')
 
         return T_s_r
