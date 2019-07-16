@@ -81,36 +81,36 @@ class Hkernels:
         #smoothing
 
         #interpolation params
-        # npts = 3000
-        # r_new = np.linspace(np.amin(self.r),np.amax(self.r),npts)
-        # self.ss_i,__ = np.meshgrid(self.s,r_new, indexing = 'ij')
+        npts = 3000
+        r_new = np.linspace(np.amin(self.r),np.amax(self.r),npts)
+        self.ss_i,__ = np.meshgrid(self.s,r_new, indexing = 'ij')
 
-        # Ui,dUi,d2Ui = fn.smooth(self.Ui,self.r,window,order,npts)
-        # Vi,dVi,d2Vi = fn.smooth(self.Vi,self.r,window,order,npts)
+        Ui,dUi,d2Ui = fn.smooth(self.Ui,self.r,window,order,npts)
+        Vi,dVi,d2Vi = fn.smooth(self.Vi,self.r,window,order,npts)
 
-        # Ui_,dUi_,d2Ui_ = fn.smooth(self.Ui_,self.r,window,order,npts)
-        # Vi_,dVi_,d2Vi_ = fn.smooth(self.Vi_,self.r,window,order,npts)
+        Ui_,dUi_,d2Ui_ = fn.smooth(self.Ui_,self.r,window,order,npts)
+        Vi_,dVi_,d2Vi_ = fn.smooth(self.Vi_,self.r,window,order,npts)
 
-        # rho_sm, __, __ = fn.smooth(self.rho,self.r,window,order,npts)
-        # #re-assigning with smoothened variables
-        # r = r_new
-        # rho = rho_sm
+        rho_sm, __, __ = fn.smooth(self.rho,self.r,window,order,npts)
+        #re-assigning with smoothened variables
+        r = r_new
+        rho = rho_sm
 
         
         ###############################################################
         #no smoothing
 
-        r = self.r
-        rho = self.rho
-        Ui = self.Ui 
-        Vi = self.Vi 
-        Ui_ = self.Ui_ 
-        Vi_ = self.Vi_ 
+        # r = self.r
+        # rho = self.rho
+        # Ui = self.Ui 
+        # Vi = self.Vi 
+        # Ui_ = self.Ui_ 
+        # Vi_ = self.Vi_ 
 
-        dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
-        dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
-        d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
-        tstamp('load eigfiles')
+        # dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
+        # dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
+        # d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
+        # tstamp('load eigfiles')
 
         #################################################################3
 
