@@ -23,11 +23,16 @@ r_start, r_end = 0.,1.
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 r = r[start_ind:end_ind]
 
+#max s values for DR and magnetic field to speed up supermatrix computation
+s_max_DR = 5
+s_max_H = 2     #axisymmteric magnetic field. B has only s = 1. 
+
 #for a-coefficients
 j_max = 10
 
-nl_list = np.array([[0,198],[0,200],[0,202]])
-#nl_list = np.array([[0,2],[0,3]])
+#nl_list = [[0, 65], [0, 61], [0, 63], [0, 67], [0, 69]]
+nl_list = [[0, 77], [0, 73], [0, 75], [0, 79], [0, 81]]
+nl_list = np.array(nl_list)
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list])
 omega_ref0 = np.mean(omega_nl)
@@ -37,19 +42,26 @@ omega_ref0 = np.mean(omega_nl)
 
 total_m = len(nl_list) + 2*np.sum(nl_list, axis = 0)[1]
 
-Z = np.empty((total_m, total_m))
+Z = np.zeros((total_m, total_m))
 Z_diag = np.identity(total_m)
 Z_dpt = np.zeros((total_m, total_m))
 mi_beg = 0
-'''for i in range(len(nl_list)):
+for i in range(len(nl_list)):
     mj_beg = 0
     for j in range(len(nl_list)): 
         tstamp()
         n_,l_ = nl_list[i]
         n,l = nl_list[j]
-        
+
         mi_end = mi_beg + (2*l_+1)
         mj_end = mj_beg + (2*l+1)
+        print('((%i,%i),(%i,%i))'%(n_,l_,n,l))
+
+        #implementing selection rule: delta_l <= s_max
+        if(np.abs(l-l_)>s_max_DR): 
+            mj_beg += 2*l+1
+            print('Skipping')
+            continue
         
 #        temp_matrix = submatrix.submatrix(n_,n,l_,l,r,45.,field_type)
         temp_matrix = submatrix.diffrot(n_,n,l_,l,r,omega_ref0)
@@ -61,8 +73,7 @@ mi_beg = 0
                       constant_values = 0)                
         Z[mi_beg:mi_end,mj_beg:mj_end] = temp_matrix
         
-        print('((%i,%i),(%i,%i))'%(n_,l_,n,l))
-        tstamp('done in:')
+        #tstamp('done in:')
         mj_beg += 2*l+1
                 
     Z_diag[mi_beg:mi_end,mi_beg:mi_end] *= -(omega_ref0**2 - omega_nl[i]**2)
@@ -111,9 +122,9 @@ for i in range(len(nl_list)):
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
     l_local += 2*nl_list[i,1] + 1
 
-sys.exit()'''
+sys.exit()
 
-#MAGNETIC PERTUBATION
+'''#MAGNETIC PERTUBATION
 Z = np.empty((total_m, total_m),dtype='complex128')
 Z_diag = np.identity(total_m,dtype='complex128')
 Z_dpt = np.zeros((total_m, total_m),dtype='complex128')
@@ -201,7 +212,7 @@ for i in range(len(nl_list)):
     del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
     a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
-    l_local += 2*nl_list[i,1] + 1
+    l_local += 2*nl_list[i,1] + 1'''
 
 
 
