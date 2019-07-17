@@ -246,7 +246,7 @@ def a_coeff(del_om, l, jmax, plot_switch = False):
 
         m = np.arange(-l,l+1,1)
         for i in range(jmax+1):
-            plt.plot(m,P_j[i],label='%i'%i)
+            plt.plot(m,P_j[i],label='j = %i'%i)
         plt.legend()
         plt.ylabel('$\mathcal{P}_{j}^{(%i)}$'%l)
         plt.xlabel('m')
