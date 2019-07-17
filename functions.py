@@ -237,13 +237,29 @@ def P_a(l,i):
     else: P_j = np.append(P_j,np.reshape(P,(1,2*l+1)),axis=0)
     return P
     
-def a_coeff(del_om, l, jmax):
+def a_coeff(del_om, l, jmax, plot_switch = False):
     """a[0] is actually a_1"""
+
+    #this part is just for plotting the basis P's
+    if(plot_switch):
+        for j in range(jmax+1): P_a(l,j)
+
+        m = np.arange(-l,l+1,1)
+        for i in range(jmax+1):
+            plt.plot(m,P_j[i],label='%i'%i)
+        plt.legend()
+        plt.ylabel('$\mathcal{P}_{j}^{(%i)}$'%l)
+        plt.xlabel('m')
+        plt.show()
+        return 0
+
+    #this is where the a-coeffs are computed
     a = np.zeros(jmax+1)
     for j in range(jmax+1):
         for m in np.arange(-l,l+1,1):
             a[j] += del_om[m+l] * P_a(l,j)
         a[j] *= (j+0.5) / l**3
+
     return a
 
 def a_coeff_matinv(del_om, l, jmax):
