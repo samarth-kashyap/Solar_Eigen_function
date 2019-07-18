@@ -31,7 +31,7 @@ s_max_H = 2     #axisymmteric magnetic field. B has only s = 1.
 j_max = 10
 
 #nl_list = [[0, 65], [0, 61], [0, 63], [0, 67], [0, 69]]
-nl_list = [[0, 77], [0, 73], [0, 75], [0, 79], [0, 81]]
+nl_list = [(0, 69), (0, 71), (0, 73), (0, 75), (0, 77), (0, 79), (0, 81), (0, 83), (0, 85)]
 nl_list = np.array(nl_list)
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list])
