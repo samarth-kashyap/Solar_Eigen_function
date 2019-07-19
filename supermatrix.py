@@ -32,6 +32,7 @@ j_max = 10
 
 #nl_list = [[0, 65], [0, 61], [0, 63], [0, 67], [0, 69]]
 nl_list = [(0, 69), (0, 71), (0, 73), (0, 75), (0, 77), (0, 79), (0, 81), (0, 83), (0, 85)]
+# nl_list = [(0, 75), (0, 77), (0, 79)]
 nl_list = np.array(nl_list)
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list])
@@ -45,7 +46,7 @@ total_m = len(nl_list) + 2*np.sum(nl_list, axis = 0)[1]
 Z = np.zeros((total_m, total_m))
 Z_diag = np.identity(total_m)
 Z_dpt = np.zeros((total_m, total_m))
-mi_beg = 0
+'''mi_beg = 0
 for i in range(len(nl_list)):
     mj_beg = 0
     for j in range(len(nl_list)): 
@@ -105,6 +106,9 @@ for i in range(len(nl_list)):
 f_dpt = (omega_nl_arr + eig_vals_dpt/(2*omega_nl_arr)) * OM *1e6
 f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 
+np.savetxt('./bdary_modes_analysis/%i.dat'%(len(nl_list)),f_dpt-f_qdpt)
+sys.exit()
+
 #generating plots for DPT and QDPT and comparing
 
 fn.plot_freqs(f_dpt,f_qdpt,nl_list,'DR',True)
@@ -122,10 +126,10 @@ for i in range(len(nl_list)):
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
     l_local += 2*nl_list[i,1] + 1
 
-sys.exit()
+sys.exit()'''
 
-'''#MAGNETIC PERTUBATION
-Z = np.empty((total_m, total_m),dtype='complex128')
+#MAGNETIC PERTUBATION
+Z = np.zeros((total_m, total_m),dtype='complex128')
 Z_diag = np.identity(total_m,dtype='complex128')
 Z_dpt = np.zeros((total_m, total_m),dtype='complex128')
 f_DR = np.zeros(total_m)
@@ -138,6 +142,13 @@ for i in range(len(nl_list)):
        
         mi_end = mi_beg + (2*l_+1)
         mj_end = mj_beg + (2*l+1)
+        print('((%i,%i),(%i,%i))'%(n_,l_,n,l))
+
+        #implementing selection rule: delta_l <= s_max
+        if(np.abs(l-l_)>s_max_H): 
+            mj_beg += 2*l+1
+            print('Skipping')
+            continue
        
         temp_matrix = submatrix.lorentz_diagonal(n_,n,l_,l,r,field_type)
        
@@ -147,22 +158,19 @@ for i in range(len(nl_list)):
                       constant_values = 0)         
         Z[mi_beg:mi_end,mj_beg:mj_end] = temp_matrix                             
        
-        print('((%i,%i),(%i,%i))'%(n_,l_,n,l))
        
         mj_beg += 2*l+1
        
     tstamp('omega_nlm starts')
-    domega_nlm_sq = np.diag(submatrix.diffrot(n_,n_,l_,l_,r,omega_ref0))
+    domega_nlm_sq = submatrix.diffrot(n_,n_,l_,l_,r,omega_nl[i])
     domega_nlm_sq = domega_nlm_sq.astype('complex128')
-    omega_nlm_sq = domega_nlm_sq + np.identity(mi_end-mi_beg) *omega_nl[i]**2
+    omega_nlm_sq = domega_nlm_sq +  omega_nl[i]**2
     tstamp('omega_nlm ends')
     
-    omega_nlm_sq = omega_nlm_sq.astype('complex128')
-    f_DR[mi_beg:mi_end] = np.sqrt(np.real(np.diag(omega_nlm_sq)))
+    f_DR[mi_beg:mi_end] = np.sqrt(np.real(omega_nlm_sq))
         
-    omega_ref = np.identity(mi_end-mi_beg)*omega_ref0
-    Z_diag[mi_beg:mi_end,mi_beg:mi_end] += -(omega_ref**2 - omega_nlm_sq)
-    Z_dpt[mi_beg:mi_end,mi_beg:mi_end] = Z[mi_beg:mi_end,mi_beg:mi_end]\
+    Z_diag[mi_beg:mi_end,mi_beg:mi_end] *= np.diag(omega_nlm_sq - omega_ref0**2)
+    Z_dpt[mi_beg:mi_end,mi_beg:mi_end] = Z[mi_beg:mi_end,mi_beg:mi_end]
 
     mi_beg += 2*l_+1
 
@@ -212,7 +220,7 @@ for i in range(len(nl_list)):
     del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
     a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
-    l_local += 2*nl_list[i,1] + 1'''
+    l_local += 2*nl_list[i,1] + 1
 
 
 
