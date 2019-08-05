@@ -203,35 +203,43 @@ class Hkernels:
 
         #EIGENFUCNTION DERIVATIVES
 
+        ###################################################################
         #smoothing
 
         #interpolation params
-#        npts = len(r)
-#        r_new = r
+
+        npts = 300      #should be less than the len(r) in r.dat
+        r_new = np.linspace(np.amin(self.r),np.amax(self.r),npts)
+        self.ss_i,__ = np.meshgrid(self.s,r_new, indexing = 'ij')
+
+        Ui,dUi,d2Ui = fn.smooth(self.Ui,self.r,window,order,npts)
+        Vi,dVi,d2Vi = fn.smooth(self.Vi,self.r,window,order,npts)
+
+        Ui_,dUi_,d2Ui_ = fn.smooth(self.Ui_,self.r,window,order,npts)
+        Vi_,dVi_,d2Vi_ = fn.smooth(self.Vi_,self.r,window,order,npts)
+
+        rho_sm, __, __ = fn.smooth(self.rho,self.r,window,order,npts)
+        #re-assigning with smoothened variables
+        r = r_new
+        rho = rho_sm
 
 
-#        Ui,dUi,d2Ui = fn.smooth(Ui,r,window,order,npts)
-#        Vi,dVi,d2Vi = fn.smooth(Vi,r,window,order,npts)
+        ######################################################################
+        # #no smoothing
 
-#        Ui_,dUi_,d2Ui_ = fn.smooth(Ui_,r,window,order,npts)
-#        Vi_,dVi_,d2Vi_ = fn.smooth(Vi_,r,window,order,npts)
+        # r = self.r
+        # rho = self.rho
+        # Ui = self.Ui 
+        # Vi = self.Vi 
+        # Ui_ = self.Ui_ 
+        # Vi_ = self.Vi_ 
 
-#        rho_sm, __, __ = fn.smooth(rho,r,window,order,npts)
-#        #re-assigning with smoothened variables
-#        #r = r_new
-#        rho = rho_sm
+        # dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
+        # dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
+        # d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
 
-        r = self.r
-        rho = self.rho
-        Ui = self.Ui 
-        Vi = self.Vi 
-        Ui_ = self.Ui_ 
-        Vi_ = self.Vi_ 
+        #########################################################################
 
-        #no smoothing
-        dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
-        dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
-        d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
         tstamp('load eigfiles')
 
         #making U,U_,V,V_,dU,dU_,dV,dV_,d2U,d2U_,d2V,d2V_ of same shape
