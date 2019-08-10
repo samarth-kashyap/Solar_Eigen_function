@@ -46,7 +46,7 @@ total_m = len(nl_list) + 2*np.sum(nl_list, axis = 0)[1]
 Z = np.zeros((total_m, total_m))
 Z_diag = np.identity(total_m)
 Z_dpt = np.zeros((total_m, total_m))
-'''mi_beg = 0
+mi_beg = 0
 for i in range(len(nl_list)):
     mj_beg = 0
     for j in range(len(nl_list)): 
@@ -126,9 +126,9 @@ for i in range(len(nl_list)):
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
     l_local += 2*nl_list[i,1] + 1
 
-sys.exit()'''
+sys.exit()
 
-#MAGNETIC PERTUBATION
+'''#MAGNETIC PERTUBATION
 Z = np.zeros((total_m, total_m),dtype='complex128')
 Z_diag = np.identity(total_m,dtype='complex128')
 Z_dpt = np.zeros((total_m, total_m),dtype='complex128')
@@ -220,7 +220,7 @@ for i in range(len(nl_list)):
     del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
     a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
-    l_local += 2*nl_list[i,1] + 1
+    l_local += 2*nl_list[i,1] + 1'''
 
 
 
