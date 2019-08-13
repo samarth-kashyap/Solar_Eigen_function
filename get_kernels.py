@@ -178,7 +178,7 @@ class Hkernels:
 
         return Bmm,B0m,B00,Bpm,Bp0,Bpp
         
-    def ret_kerns_axis_symm(self):
+    def ret_kerns_axis_symm(self,a_coeffkerns = False):
         n,l,m,n_,l_ = self.n, self.l, self.mm, self.n_, self.l_
         m_ = m
         r_start , r_end = self.r_range
@@ -197,8 +197,13 @@ class Hkernels:
         tstamp()
         om = np.vectorize(fn.omega)
         parity_fac = (-1)**(l+l_+self.ss_o) #parity of selected modes
-        prefac = 1./(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
+        if(a_coeffkerns == True):
+             prefac = 1./(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
+                    / (4.* np.pi)) * self.wig_red_o(-l,0,l) / l 
+        else:
+            prefac = 1./(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
                     / (4.* np.pi)) * self.wig_red_o(-m,0,m)
+
         tstamp('prefac computation')
 
         #EIGENFUCNTION DERIVATIVES

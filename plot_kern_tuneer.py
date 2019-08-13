@@ -9,7 +9,7 @@ kernclock = timing.stopclock()
 tstamp = kernclock.lap
 
 r = np.loadtxt('r.dat')
-start_ind = fn.nearest_index(r,0.5)
+start_ind = fn.nearest_index(r,0.9)
 end_ind = fn.nearest_index(r,1.)
 r = r[start_ind:end_ind+1]
 OM = np.loadtxt('OM.dat')
@@ -22,17 +22,32 @@ m = np.array([0])
 m_ = np.array([0])
 s = np.array([2])
 
-plot_fac = OM**2 * 1e12 * (4.*np.pi/3) * 1e-10 #unit = muHz^2 G^(-2) V_sol^(-1)
+#condition about whether or not to scale by rho
+multiplyrho = True 
+
+plot_fac = OM**2 * 1e12 * (1./(4.*np.pi/3)) * 1e-10 #unit = muHz^2 G^(-2) V_sol^(-1)
 
 #kern = gkerns.Hkernels(n1,l1,m,n1,l1,m,s,r)
-Bmm1, B0m1,B001, Bpm1,_,_ = np.array(gkerns.Hkernels(n1,l1,m,n1,l1,m,s,r).ret_kerns_axis_symm())*plot_fac
-Bmm2, B0m2,B002, Bpm2,_,_ = np.array(gkerns.Hkernels(n2,l2,m,n2,l2,m,s,r).ret_kerns_axis_symm())*plot_fac
-Bmm3, B0m3,B003, Bpm3,_,_ = np.array(gkerns.Hkernels(n3,l3,m,n3,l3,m,s,r).ret_kerns_axis_symm())*plot_fac
+Bmm1, B0m1,B001, Bpm1,_,_ = np.array(gkerns.Hkernels(n1,l1,m,n1,l1,m,s,r)\
+                        .ret_kerns_axis_symm(a_coeffkerns = True))*plot_fac
+Bmm2, B0m2,B002, Bpm2,_,_ = np.array(gkerns.Hkernels(n2,l2,m,n2,l2,m,s,r).\
+                        ret_kerns_axis_symm(a_coeffkerns = True))*plot_fac
+Bmm3, B0m3,B003, Bpm3,_,_ = np.array(gkerns.Hkernels(n3,l3,m,n3,l3,m,s,r).\
+                        ret_kerns_axis_symm(a_coeffkerns = True))*plot_fac
 tstamp('kernel calculation time')
 
-npts = 100   #check the npts in get_kernels
+npts = 300   #check the npts in get_kernels
 r_new = np.linspace(np.amin(r),np.amax(r),npts)
 r = r_new
+
+rho_i = np.loadtxt('rho.dat')
+rho_i = rho_i[start_ind:end_ind+1]
+rho = np.linspace(rho_i[0],rho_i[-1],npts)
+
+if(multiplyrho==True):
+    Bmm1, B0m1,B001, Bpm1 = rho*Bmm1, rho*B0m1,rho*B001, rho*Bpm1
+    Bmm2, B0m2,B002, Bpm2 = rho*Bmm2, rho*B0m2,rho*B002, rho*Bpm2
+    Bmm3, B0m3,B003, Bpm3 = rho*Bmm3, rho*B0m3,rho*B003, rho*Bpm3
 
 dpi = 80
 plt.figure(num=None, figsize=(10, 8), dpi=dpi, facecolor='w', edgecolor='k')
