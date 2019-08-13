@@ -198,7 +198,7 @@ class Hkernels:
         om = np.vectorize(fn.omega)
         parity_fac = (-1)**(l+l_+self.ss_o) #parity of selected modes
         if(a_coeffkerns == True):
-             prefac = 1./(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
+            prefac = ((-1.)**l)/(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
                     / (4.* np.pi)) * self.wig_red_o(-l,0,l) / l 
         else:
             prefac = 1./(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
