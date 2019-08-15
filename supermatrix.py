@@ -14,6 +14,7 @@ tstamp = clock1.lap
 #R_sol = 6.956e10 cm
 #B_0 = 10e5 G
 #OM = np.sqrt(4*np.pi*R_sol*B_0**2/M_sol)
+#rho_0 = M_sol/(4pi R_sol^3/3) = 1.41 ~ 1g/cc (for kernel calculation)
 
 OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in Hz (cgs))
 

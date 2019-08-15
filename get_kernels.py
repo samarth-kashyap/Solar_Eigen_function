@@ -227,7 +227,7 @@ class Hkernels:
         #re-assigning with smoothened variables
         r = r_new
         rho = rho_sm
-
+        
 
         ######################################################################
         # #no smoothing
@@ -308,7 +308,11 @@ class Hkernels:
         Bpp = parity_fac[:,:,np.newaxis]*Bmm
         Bp0 = parity_fac[:,:,np.newaxis]*B0m
 
-        return Bmm,B0m,B00,Bpm,Bp0,Bpp
+
+        if(a_coeffkerns == True): 
+            return rho,Bmm,B0m,B00,Bpm,Bp0,Bpp
+        else:
+            return Bmm,B0m,B00,Bpm,Bp0,Bpp
         
 
         
