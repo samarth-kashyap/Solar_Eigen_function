@@ -57,15 +57,22 @@ def lorentz(n_,n,l_,l,r,beta =0., field_type = 'dipolar'):
 
     return Lambda
 
-def lorentz_diagonal(n_,n,l_,l,r, field_type = 'dipolar'):   
+def lorentz_diagonal(n_,n,l_,l,r,field_type = 'dipolar',smoothen = False): 
     m = np.arange(-min(l,l_),min(l,l_)+1,1)    #-l<=m<=l
     s = np.array([0,1,2])
     s0 = 1
+    r_new = r
+
     #transition radii for mixed field type
     R1 = 0.75
     R2 = 0.78
-    B_mu_r = fn.getB_comps(s0,r,R1,R2,field_type)[:,s0,:] #choosing t = 0 comp
-    get_h = hcomps.getHcomps(s,m,m,s0,np.array([s0]),r,B_mu_r)
+
+    if(smoothen == True):
+        npts = 300      #should be less than the len(r) in r.dat
+        r_new = np.linspace(np.amin(r),np.amax(r),npts)
+
+    B_mu_r = fn.getB_comps(s0,r_new,R1,R2,field_type)[:,s0,:] #choosing t = 0 comp
+    get_h = hcomps.getHcomps(s,m,m,s0,np.array([s0]),r_new,B_mu_r)
     tstamp()
 
     H_super = get_h.ret_hcomps_axis_symm()  #- sign due to i in B 
@@ -81,7 +88,7 @@ def lorentz_diagonal(n_,n,l_,l,r, field_type = 'dipolar'):
     hpp = H_super[2,2]
 
     kern = gkerns.Hkernels(n_,l_,m,n,l,m,s,r,True)
-    Bmm,B0m,B00,Bpm,Bp0,Bpp = kern.ret_kerns_axis_symm()
+    Bmm,B0m,B00,Bpm,Bp0,Bpp = kern.ret_kerns_axis_symm(smoothen = smoothen)
     #sys.exit()
 
     #find integrand by summing all component
@@ -90,6 +97,9 @@ def lorentz_diagonal(n_,n,l_,l,r, field_type = 'dipolar'):
 
     #summing over s before carrying out radial integral
     Lambda_r = np.sum(Lambda_sr,axis=1)
+
+    if(smoothen==True):
+        r = r_new
 
     #radial integral
     Lambda = scipy.integrate.trapz(Lambda_r*(r**2)[np.newaxis,:],x=r,axis=1)

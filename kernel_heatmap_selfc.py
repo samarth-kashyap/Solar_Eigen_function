@@ -24,11 +24,11 @@ omega_list = np.loadtxt('muhz.dat')
 #self coupling
 m = np.array([0])
 m_ = np.array([0])
-s = np.array([2])
+s = np.array([8])
 
 nl_list = np.loadtxt('nl.dat')
 nl_arr = nl_list[nl_list[:,0]==0]
-nl_arr = nl_arr[nl_arr[:,1]>s[0]]
+nl_arr = nl_arr[nl_arr[:,1]>2]
 
 multiplyrho = True
 
@@ -37,7 +37,7 @@ plot_fac = OM**2 * 1e12 * 1e-10 #unit = muHz^2 G^(-2) V_sol^(-1)
 #rearranging so that we can iterate for all l's over a fixed n's
 for i in range(1,33):   #max n goes upto 32
     nl_arr_temp = nl_list[nl_list[:,0]==i]
-    nl_arr = np.append(nl_arr,nl_arr_temp[nl_arr_temp[:,1]>s[0]],axis=0)
+    nl_arr = np.append(nl_arr,nl_arr_temp[nl_arr_temp[:,1]>2],axis=0)
 
 
 nl_arr = nl_arr.astype(int)
@@ -62,7 +62,7 @@ for i in range(len(nl_arr)):
 
     omega_nl = omega_list[fn.find_nl(n, l)]
 
-    print(n,l)
+    print(s,n,l)
     __, Bmm, B0m,B00, Bpm,_,_ = np.array(gkerns.Hkernels(n,l,m,n,l,m,s,r)\
                         .ret_kerns_axis_symm(a_coeffkerns = True))*plot_fac/(-2*omega_nl)
 

@@ -16,9 +16,9 @@ end_ind = fn.nearest_index(r,r_end)
 r = r[start_ind:end_ind+1]
 OM = np.loadtxt('OM.dat')
 
-n1,l1 = 4,3
+n1,l1 = 3,150
 n2,l2 = 1,10
-n3,l3 = 0,60
+n3,l3 = 0,77
 
 omega_list = np.loadtxt('muhz.dat')
 omega_nl1 = omega_list[fn.find_nl(n1, l1)]
@@ -30,24 +30,25 @@ m_ = np.array([0])
 s = np.array([2])
 
 #condition about whether or not to scale by rho
-multiplyrho = True
+multiplyrho = False
+smoothen = True
 
 # plot_fac = OM**2 * 1e12 * (4.*np.pi/3) * 1e-10 #unit = muHz G^(-2) V_sol^(-1)
 plot_fac = OM**2 * 1e12 * 1e-10 #unit = muHz G^(-2)
 
 #extracting rho in an unclean fashion
 rho,__,__,__,__,__,__ = np.array(gkerns.Hkernels(n1,l1,m,n1,l1,m,s,r)\
-                        .ret_kerns_axis_symm(a_coeffkerns = True))
+                        .ret_kerns_axis_symm(smoothen,a_coeffkerns = True))
 
 #Kernels for a-coefficients for Lorentz stress
 
 # kern = gkerns.Hkernels(n1,l1,m,n1,l1,m,s,r)
 __, Bmm1, B0m1,B001, Bpm1,_,_ = np.array(gkerns.Hkernels(n1,l1,m,n1,l1,m,s,r)\
-                        .ret_kerns_axis_symm(a_coeffkerns = True))*plot_fac/(-2*omega_nl1)
+                        .ret_kerns_axis_symm(smoothen,a_coeffkerns = True))*plot_fac/(-2*omega_nl1)
 __, Bmm2, B0m2,B002, Bpm2,_,_ = np.array(gkerns.Hkernels(n2,l2,m,n2,l2,m,s,r).\
-                        ret_kerns_axis_symm(a_coeffkerns = True))*plot_fac/(-2*omega_nl2)
+                        ret_kerns_axis_symm(smoothen,a_coeffkerns = True))*plot_fac/(-2*omega_nl2)
 __, Bmm3, B0m3,B003, Bpm3,_,_ = np.array(gkerns.Hkernels(n3,l3,m,n3,l3,m,s,r).\
-                        ret_kerns_axis_symm(a_coeffkerns = True))*plot_fac/(-2*omega_nl3)
+                        ret_kerns_axis_symm(smoothen,a_coeffkerns = True))*plot_fac/(-2*omega_nl3)
 
 
 #############################################################################

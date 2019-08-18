@@ -178,7 +178,7 @@ class Hkernels:
 
         return Bmm,B0m,B00,Bpm,Bp0,Bpp
         
-    def ret_kerns_axis_symm(self,a_coeffkerns = False):
+    def ret_kerns_axis_symm(self,smoothen = False, a_coeffkerns = False):
         n,l,m,n_,l_ = self.n, self.l, self.mm, self.n_, self.l_
         m_ = m
         r_start , r_end = self.r_range
@@ -213,35 +213,39 @@ class Hkernels:
 
         #interpolation params
 
-        npts = 300      #should be less than the len(r) in r.dat
-        r_new = np.linspace(np.amin(self.r),np.amax(self.r),npts)
-        self.ss_i,__ = np.meshgrid(self.s,r_new, indexing = 'ij')
+        if(smoothen == True):
 
-        Ui,dUi,d2Ui = fn.smooth(self.Ui,self.r,window,order,npts)
-        Vi,dVi,d2Vi = fn.smooth(self.Vi,self.r,window,order,npts)
+            npts = 300      #should be less than the len(r) in r.dat
+            r_new = np.linspace(np.amin(self.r),np.amax(self.r),npts)
+            self.ss_i,__ = np.meshgrid(self.s,r_new, indexing = 'ij')
 
-        Ui_,dUi_,d2Ui_ = fn.smooth(self.Ui_,self.r,window,order,npts)
-        Vi_,dVi_,d2Vi_ = fn.smooth(self.Vi_,self.r,window,order,npts)
+            Ui,dUi,d2Ui = fn.smooth(self.Ui,self.r,window,order,npts)
+            Vi,dVi,d2Vi = fn.smooth(self.Vi,self.r,window,order,npts)
 
-        rho_sm, __, __ = fn.smooth(self.rho,self.r,window,order,npts)
-        #re-assigning with smoothened variables
-        r = r_new
-        rho = rho_sm
+            Ui_,dUi_,d2Ui_ = fn.smooth(self.Ui_,self.r,window,order,npts)
+            Vi_,dVi_,d2Vi_ = fn.smooth(self.Vi_,self.r,window,order,npts)
+
+            rho_sm, __, __ = fn.smooth(self.rho,self.r,window,order,npts)
+            #re-assigning with smoothened variables
+            r = r_new
+            rho = rho_sm
         
 
         ######################################################################
-        # #no smoothing
+        #no smoothing
 
-        # r = self.r
-        # rho = self.rho
-        # Ui = self.Ui 
-        # Vi = self.Vi 
-        # Ui_ = self.Ui_ 
-        # Vi_ = self.Vi_ 
+        else:
 
-        # dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
-        # dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
-        # d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
+            r = self.r
+            rho = self.rho
+            Ui = self.Ui 
+            Vi = self.Vi 
+            Ui_ = self.Ui_ 
+            Vi_ = self.Vi_ 
+
+            dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
+            dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
+            d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
 
         #########################################################################
 
