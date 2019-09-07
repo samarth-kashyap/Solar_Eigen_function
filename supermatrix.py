@@ -37,11 +37,12 @@ s_max_H = 2     #axisymmteric magnetic field. B has only s = 1.
 j_max = 10
 
 #if we want to use smoothened kernels
-smoothen = True
+smoothen = False
 #nl_list = [[0, 65], [0, 61], [0, 63], [0, 67], [0, 69]]
 #nl_list = [(0, 69), (0, 71), (0, 73), (0, 75), (0, 77), (0, 79), (0, 81), (0, 83), (0, 85)]
-#nl_list = [(0, 75), (0, 77), (0, 79)]
-nl_list = [(1,10)]
+nl_list = [(0, 75), (0, 77), (0, 79)]
+# nl_list = [(1, 5), (1, 7), (1, 9)]
+# nl_list = [(1,10)]
 nl_list = np.array(nl_list)
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list])
@@ -214,7 +215,7 @@ f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 #######################
 #generating plots for DPT and QDPT and comparing
 
-fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list,'M',False,f_DR*1e6*OM)
+fn.plot_freqs(np.real(f_dpt),np.real(f_qdpt),nl_list,'M',True,f_DR*1e6*OM)
 
 #Extracting the a-coefficients
 
@@ -236,7 +237,18 @@ for i in range(len(nl_list)):
 #Saving first two a_coefficients
 
 a_s = np.array([a_dpt[0,0],a_dpt[0,2]])
-np.savetxt('./a_coeffs/%i%i%i_a_%i_%i.dat'%(A,B,C,nl_list[0,0],nl_list[0,1]),a_s)
+
+#Saving supermatrix for computing coupling strength
+
+fname = ''
+for i in range(len(nl_list)):
+    fname = fname + str(nl_list[i,0]) + '_' + str(nl_list[i,1])
+    if(i!=len(nl_list)-1): fname = fname + '-'
+
+np.savetxt('./Coupling_Strength/Z_%s.dat'%fname,np.real(Z))
+np.savetxt('./Coupling_Strength/Z_diag_%s.dat'%fname,np.real(Z_diag))
+
+# np.savetxt('./a_coeffs/%i%i%i_a_%i_%i.dat'%(A,B,C,nl_list[0,0],nl_list[0,1]),a_s)
 
 '''plt.pcolormesh(np.log(np.abs(Z)))
 plt.gca().invert_yaxis()

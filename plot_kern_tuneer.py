@@ -16,9 +16,13 @@ end_ind = fn.nearest_index(r,r_end)
 r = r[start_ind:end_ind+1]
 OM = np.loadtxt('OM.dat')
 
-n1,l1 = 3,150
-n2,l2 = 1,10
-n3,l3 = 0,77
+# n1,l1 = 4,3
+# n2,l2 = 1,10
+# n3,l3 = 0,60
+
+n1,l1 = 15,102
+n2,l2 = 15,50
+n3,l3 = 15,10
 
 omega_list = np.loadtxt('muhz.dat')
 omega_nl1 = omega_list[fn.find_nl(n1, l1)]
@@ -30,7 +34,7 @@ m_ = np.array([0])
 s = np.array([2])
 
 #condition about whether or not to scale by rho
-multiplyrho = False
+multiplyrho = True
 smoothen = True
 
 # plot_fac = OM**2 * 1e12 * (4.*np.pi/3) * 1e-10 #unit = muHz G^(-2) V_sol^(-1)
@@ -92,7 +96,7 @@ plt.xlim(r_start,r_end)
 plt.legend()
 plt.grid(True)
 # plt.ylabel('$\mathcal{B}^{--}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{B}^{--}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.ylabel('$\\rho\mathcal{A}^{--}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
             fontsize = 14)
 
 plt.subplot(222)
@@ -104,7 +108,7 @@ plt.xlim(r_start,r_end)
 plt.legend()
 plt.grid(True)
 # plt.ylabel('$\mathcal{B}^{0-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{B}^{0-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.ylabel('$\\rho\mathcal{A}^{0-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
             fontsize = 14)
 
 plt.subplot(223)
@@ -116,7 +120,7 @@ plt.xlim(r_start,r_end)
 plt.legend()
 plt.grid(True)
 # plt.ylabel('$\mathcal{B}^{00}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{B}^{00}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.ylabel('$\\rho\mathcal{A}^{00}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
             fontsize = 14)
 
 plt.subplot(224)
@@ -128,7 +132,7 @@ plt.xlim(r_start,r_end)
 plt.legend()
 plt.grid(True)
 # plt.ylabel('$\mathcal{B}^{+-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{B}^{+-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.ylabel('$\\rho\mathcal{A}^{+-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
             fontsize = 14)
 
 plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
