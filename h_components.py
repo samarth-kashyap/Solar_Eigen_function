@@ -58,11 +58,11 @@ class getHcomps:
         HH = HH.astype('complex128')
         HH = np.sum(HH, axis=4) #summing over t0
 
-        #tilting HH     
-        for s_iter in range(s_max+1):
-            d = fn.d_rotate_matrix_padded(self.beta,s_iter,s_max)
-            temp = HH[:,:,s_iter,np.newaxis,:,:] * d[np.newaxis,np.newaxis,:,:,np.newaxis]
-            HH[:,:,s_iter,:,:] = np.sum(temp ,axis = 3)
+        # #tilting HH     
+        # for s_iter in range(s_max+1):
+        #     d = fn.d_rotate_matrix_padded(self.beta,s_iter,s_max)
+        #     temp = HH[:,:,s_iter,np.newaxis,:,:] * d[np.newaxis,np.newaxis,:,:,np.newaxis]
+        #     HH[:,:,s_iter,:,:] = np.sum(temp ,axis = 3)
 
         
         H_super = np.zeros((len(self.m_),len(self.m),len(self.mu), \

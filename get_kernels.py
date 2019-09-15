@@ -44,12 +44,12 @@ class Hkernels:
         
     def wig_red_o(self,m1,m2,m3):
         '''3j symbol with upper row fixed (outer)'''
-        wig_vect = np.vectorize(fn.wig)
+        wig_vect = np.vectorize(fn.wig,otypes=[float])
         return wig_vect(self.l_,self.ss_o,self.l,m1,m2,m3)
 
     def wig_red(self,m1,m2,m3):
         '''3j symbol with upper row fixed (inner)'''
-        wig_vect = np.vectorize(fn.wig)
+        wig_vect = np.vectorize(fn.wig,otypes=[float])
         return wig_vect(self.l_,self.ss_i,self.l,m1,m2,m3)
 
     def ret_kerns(self):
@@ -69,11 +69,12 @@ class Hkernels:
 
 
         tstamp()
-        om = np.vectorize(fn.omega)
+        om = np.vectorize(fn.omega,otypes=[float])
         parity_fac = (-1)**(l+l_+self.ss_o) #parity of selected modes
         prefac = 1./(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
                     / (4.* np.pi)) * self.wig_red_o(-m_,m_-m,m)
-        tstamp('prefac computation')
+
+        # tstamp('prefac computation')
 
         #EIGENFUCNTION DERIVATIVES
 
@@ -109,7 +110,7 @@ class Hkernels:
         dUi, dVi = np.gradient(Ui,r), np.gradient(Vi,r)
         dUi_, dVi_ = np.gradient(Ui_,r), np.gradient(Vi_,r)
         d2Ui_,d2Vi_ = np.gradient(dUi_,r), np.gradient(dVi_,r)
-        tstamp('load eigfiles')
+        # tstamp('load eigfiles')
 
         #################################################################3
 
@@ -129,15 +130,20 @@ class Hkernels:
 
         tstamp()
 
-        print(np.shape(V),np.shape(V_),np.shape(dU_),np.shape(r))
+        # print(np.shape(V),np.shape(V_),np.shape(dU_),np.shape(r))
 
         #B-- EXPRESSION
         Bmm = self.wig_red(3,-2,-1)*om(l,0)*om(l_,0)*om(l_,2)*om(l_,3) * V*V_
         Bmm += self.wig_red(0,-2,2)*om(l,0)*om(l,2) * r*V*dU_
         Bmm += self.wig_red(1,-2,1)*om(l_,0)*om(l,0) * (-U*U_ + U*V_ + om(l_,2)**2 * V*V_ - r*U*dV_)
-        Bmm += self.wig_red(2,-2,0)*om(l_,0)*om(l_,2) * (U*V_ + r*dU*V_ - r*U*dV_)        
+        Bmm += self.wig_red(2,-2,0)*om(l_,0)*om(l_,2) * (U*V_ + r*dU*V_ - r*U*dV_)  
+        
+        np.save('prefac.npy',prefac)
+
         Bmm = (((-1)**np.abs(1+m_))*prefac)[:,:,:,np.newaxis] \
                  * (Bmm/r**2)[np.newaxis,:,:]
+    
+
         #tstamp('Bmm done')
 
         #B0- EXPRESSION
@@ -147,6 +153,7 @@ class Hkernels:
         B0m -= self.wig_red(1,-1,0)*om(l_,0) * (-2*U*U_ + om(l_,0)**2*V*U_ + om(l,0)**2*(-V*V_ + r*V*dV_) + U*(2*V_ + r*(dU_ - 2*dV_ + r*d2V_)))
         B0m = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (B0m/r**2)[np.newaxis,:,:]
+
         #tstamp('B0m done')
         
 #        print(np.shape(self.wig_red(-1,-0,1)))
@@ -165,12 +172,10 @@ class Hkernels:
         Bpm += self.wig_red(0,0,0)*r*r * (-dU*dU_ + U*d2U_)
         Bpm = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
                 * (Bpm/r**2)[np.newaxis,:,:]
+
         #tstamp('Bpm done')
 
-        Bmm = Bmm.astype('float64')
-        B0m = B0m.astype('float64')
-        B00 = B00.astype('float64')
-        Bpm = Bpm.astype('float64')
+        # print(prefac.dtype,parity_fac.dtype,Bmm.dtype,B0m.dtype,B00.dtype,Bpm.dtype)
 
         #constructing the other two components of the kernel
         Bpp = parity_fac[:,:,:,np.newaxis]*Bmm
@@ -195,7 +200,7 @@ class Hkernels:
             print("Mode not found. Exiting."); exit()
 
         tstamp()
-        om = np.vectorize(fn.omega)
+        om = np.vectorize(fn.omega,otypes=[float])
         parity_fac = (-1)**(l+l_+self.ss_o) #parity of selected modes
         if(a_coeffkerns == True):
             prefac = ((-1.)**l)/(4.* np.pi) * np.sqrt((2*l_+1.) * (2*self.ss_o+1.) * (2*l+1.) \
@@ -303,11 +308,6 @@ class Hkernels:
                 * (Bpm/r**2)[np.newaxis,:]
         #tstamp('Bpm done')
 
-        Bmm = Bmm.astype('float64')
-        B0m = B0m.astype('float64')
-        B00 = B00.astype('float64')
-        Bpm = Bpm.astype('float64')
-
         #constructing the other two components of the kernel
         Bpp = parity_fac[:,:,np.newaxis]*Bmm
         Bp0 = parity_fac[:,:,np.newaxis]*B0m
@@ -338,7 +338,7 @@ class Hkernels:
         V_ = np.tile(Vi_,(len_s,1))
         #tstamp('Tiling in Tkerns ends')
 
-        wig_calc = np.vectorize(fn.wig)
+        wig_calc = np.vectorize(fn.wig,otypes=[float])
 
         ss,rr = np.meshgrid(s,r,indexing='ij')
         

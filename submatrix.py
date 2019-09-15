@@ -105,6 +105,52 @@ def lorentz_diagonal(n_,n,l_,l,r,field_type = 'dipolar',smoothen = False):
     Lambda = scipy.integrate.trapz(Lambda_r*(r**2)[np.newaxis,:],x=r,axis=1)
     
     return Lambda
+
+def lorentz_all_st_equalB(n_,n,l_,l,r,s = np.array([0,1,2]),t = np.array([0])):
+    m = np.arange(-l,l+1)
+    m_ = np.arange(-l_,l_+1)
+    mm_,mm = np.meshgrid(m_,m,indexing='ij')
+
+    kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,r,False)   
+
+    Bmm,B0m,B00,Bpm,Bp0,Bpp = kern.ret_kerns()
+
+    Bmm_t = np.zeros(Bmm.shape)
+    B0m_t = np.zeros(B0m.shape)
+    B00_t = np.zeros(B00.shape)
+    Bpm_t = np.zeros(Bpm.shape)
+    Bp0_t = np.zeros(Bp0.shape)
+    Bpp_t = np.zeros(Bpp.shape)
+    for i in t:
+        Bmm_t[mm_-mm==i] += Bmm[mm_-mm==i]
+        B0m_t[mm_-mm==i] += B0m[mm_-mm==i]
+        B00_t[mm_-mm==i] += B00[mm_-mm==i]
+        Bpm_t[mm_-mm==i] += Bpm[mm_-mm==i]
+        Bp0_t[mm_-mm==i] += Bp0[mm_-mm==i]
+        Bpp_t[mm_-mm==i] += Bpp[mm_-mm==i]
+
+
+    #Construct h_{st}^{\mu\nu}(r) which is the same for all s,t,\mu,\nu
+
+    b_r = 1e-4/r**3  #10G on surface
+    #1e5 Gauss at tachocline
+    b_r += np.exp(-0.5*((r-0.7)/0.01)**2)
+    #1e7 Gauss at core
+    b_r += 100*np.exp(-0.5*(r/0.1)**2)
+    h_r = b_r*b_r
+
+    Lambda = np.zeros((6,len(m_),len(m),len(s)))
+
+    #Integrating over r but still retaining dimension of s
+    Lambda[0] = scipy.integrate.trapz(Bmm_t*(h_r*(r**2)),x=r,axis=3)
+    Lambda[1] = scipy.integrate.trapz(B0m_t*(h_r*(r**2)),x=r,axis=3)
+    Lambda[2] = scipy.integrate.trapz(B00_t*(h_r*(r**2)),x=r,axis=3)
+    Lambda[3] = scipy.integrate.trapz(Bpm_t*(h_r*(r**2)),x=r,axis=3)
+    Lambda[4] = scipy.integrate.trapz(Bp0_t*(h_r*(r**2)),x=r,axis=3)
+    Lambda[5] = scipy.integrate.trapz(Bpp_t*(h_r*(r**2)),x=r,axis=3)
+
+    return Lambda
+
     
 def diffrot(n_,n,l_,l,r,omega_ref,s=np.array([1,3,5])):
     wig_calc = np.vectorize(fn.wig)
