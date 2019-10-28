@@ -3,7 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import functions as fn
 from os import getcwd
-import get_kernels as gkerns
+import get_kernels_herm as gkerns
+
+plt.rcParams['xtick.labelsize'] = 14
+plt.rcParams['ytick.labelsize'] = 14
 
 kernclock = timing.stopclock()
 tstamp = kernclock.lap
@@ -16,13 +19,13 @@ end_ind = fn.nearest_index(r,r_end)
 r = r[start_ind:end_ind+1]
 OM = np.loadtxt('OM.dat')
 
-# n1,l1 = 4,3
-# n2,l2 = 1,10
-# n3,l3 = 0,60
+n1,l1 = 4,3
+n2,l2 = 1,10
+n3,l3 = 0,60
 
-n1,l1 = 15,102
-n2,l2 = 15,50
-n3,l3 = 15,10
+# n1,l1 = 15,102
+# n2,l2 = 15,50
+# n3,l3 = 15,10
 
 omega_list = np.loadtxt('muhz.dat')
 omega_nl1 = omega_list[fn.find_nl(n1, l1)]
@@ -85,59 +88,121 @@ if(multiplyrho==True):
     #M_sol/(4pi/3 * R_sol = 1 g/cc)
 
 dpi = 80
-plt.figure(num=None, figsize=(11, 8), dpi=dpi, facecolor='w', edgecolor='k')
+fig = plt.figure(num=None, figsize=(11, 8), dpi=dpi, facecolor='w', edgecolor='k')
+
+# #Making background dark
+# fig.patch.set_facecolor('black')
+# plt.style.use('dark_background')
+# Color keywords were: 'gold', 'red', '--w'
 
 plt.subplot(221)
-plt.plot(r,Bmm1[0,0], label = '('+str(n1)+','+str(l1)+')')
-plt.plot(r,Bmm2[0,0], label = '('+str(n2)+','+str(l2)+')')
-plt.plot(r,Bmm3[0,0], label = '('+str(n3)+','+str(l3)+')')
-plt.xlabel('$r/R_{\odot}$',fontsize=14)
-plt.xlim(r_start,r_end)
+plt.plot(Bmm1[0,0],r, label = '('+str(n1)+','+str(l1)+')')
+plt.plot(Bmm2[0,0],r, label = '('+str(n2)+','+str(l2)+')')
+plt.plot(Bmm3[0,0],r, label = '('+str(n3)+','+str(l3)+')')
+plt.ylabel('$r/R_{\odot}$',fontsize=14)
+plt.ylim(r_start,r_end)
 plt.legend()
-plt.grid(True)
+plt.grid(True,alpha = 0.2)
 # plt.ylabel('$\mathcal{B}^{--}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{A}^{--}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.xlabel('$\\rho\mathcal{A}^{--}_{20}$',\
             fontsize = 14)
 
 plt.subplot(222)
-plt.plot(r,B0m1[0,0], label = '('+str(n1)+','+str(l1)+')')
-plt.plot(r,B0m2[0,0], label = '('+str(n2)+','+str(l2)+')')
-plt.plot(r,B0m3[0,0], label = '('+str(n3)+','+str(l3)+')')
-plt.xlabel('$r/R_{\odot}$',fontsize=14)
-plt.xlim(r_start,r_end)
+plt.plot(B0m1[0,0],r, label = '('+str(n1)+','+str(l1)+')')
+plt.plot(B0m2[0,0],r, label = '('+str(n2)+','+str(l2)+')')
+plt.plot(B0m3[0,0],r, label = '('+str(n3)+','+str(l3)+')')
+plt.ylabel('$r/R_{\odot}$',fontsize=14)
+plt.ylim(r_start,r_end)
 plt.legend()
-plt.grid(True)
+plt.grid(True,alpha=0.2)
 # plt.ylabel('$\mathcal{B}^{0-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{A}^{0-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.xlabel('$\\rho\mathcal{A}^{0-}_{20}$',\
             fontsize = 14)
 
 plt.subplot(223)
-plt.plot(r,B001[0,0], label = '('+str(n1)+','+str(l1)+')')
-plt.plot(r,B002[0,0], label = '('+str(n2)+','+str(l2)+')')
-plt.plot(r,B003[0,0], label = '('+str(n3)+','+str(l3)+')')
-plt.xlabel('$r/R_{\odot}$',fontsize=14)
-plt.xlim(r_start,r_end)
+plt.plot(B001[0,0],r, label = '('+str(n1)+','+str(l1)+')')
+plt.plot(B002[0,0],r, label = '('+str(n2)+','+str(l2)+')')
+plt.plot(B003[0,0],r, label = '('+str(n3)+','+str(l3)+')')
+plt.ylabel('$r/R_{\odot}$',fontsize=14)
+plt.ylim(r_start,r_end)
 plt.legend()
-plt.grid(True)
+plt.grid(True,alpha=0.2)
 # plt.ylabel('$\mathcal{B}^{00}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{A}^{00}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.xlabel('$\\rho\mathcal{A}^{00}_{20}$',\
             fontsize = 14)
 
 plt.subplot(224)
-plt.plot(r,Bpm1[0,0], label = '('+str(n1)+','+str(l1)+')')
-plt.plot(r,Bpm2[0,0], label = '('+str(n2)+','+str(l2)+')')
-plt.plot(r,Bpm3[0,0], label = '('+str(n3)+','+str(l3)+')')
-plt.xlabel('$r/R_{\odot}$',fontsize=14)
-plt.xlim(r_start,r_end)
+plt.plot(Bpm1[0,0],r, label = '('+str(n1)+','+str(l1)+')')
+plt.plot(Bpm2[0,0],r, label = '('+str(n2)+','+str(l2)+')')
+plt.plot(Bpm3[0,0],r, label = '('+str(n3)+','+str(l3)+')')
+plt.ylabel('$r/R_{\odot}$',fontsize=14)
+plt.ylim(r_start,r_end)
 plt.legend()
-plt.grid(True)
+plt.grid(True,alpha=0.2)
 # plt.ylabel('$\mathcal{B}^{+-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
-plt.ylabel('$\\rho\mathcal{A}^{+-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+plt.xlabel('$\\rho\mathcal{A}^{+-}_{20}$',\
             fontsize = 14)
+
+
+# Unrotated plots
+# plt.subplot(221)
+# plt.plot(Bmm1[0,0],r, label = '('+str(n1)+','+str(l1)+')')
+# plt.plot(Bmm2[0,0],r, label = '('+str(n2)+','+str(l2)+')')
+# plt.plot(Bmm3[0,0],r, label = '('+str(n3)+','+str(l3)+')')
+# plt.xlabel('$r/R_{\odot}$',fontsize=14)
+# #plt.xlim(r_start,r_end)
+# plt.legend()
+# plt.grid(True)
+# # plt.ylabel('$\mathcal{B}^{--}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
+# plt.ylabel('$\\rho\mathcal{A}^{--}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+#             fontsize = 14)
+
+# plt.subplot(222)
+# plt.plot(r,B0m1[0,0], label = '('+str(n1)+','+str(l1)+')')
+# plt.plot(r,B0m2[0,0], label = '('+str(n2)+','+str(l2)+')')
+# plt.plot(r,B0m3[0,0], label = '('+str(n3)+','+str(l3)+')')
+# plt.xlabel('$r/R_{\odot}$',fontsize=14)
+# plt.xlim(r_start,r_end)
+# plt.legend()
+# plt.grid(True)
+# # plt.ylabel('$\mathcal{B}^{0-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
+# plt.ylabel('$\\rho\mathcal{A}^{0-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+#             fontsize = 14)
+
+# plt.subplot(223)
+# plt.plot(r,B001[0,0], label = '('+str(n1)+','+str(l1)+')')
+# plt.plot(r,B002[0,0], label = '('+str(n2)+','+str(l2)+')')
+# plt.plot(r,B003[0,0], label = '('+str(n3)+','+str(l3)+')')
+# plt.xlabel('$r/R_{\odot}$',fontsize=14)
+# plt.xlim(r_start,r_end)
+# plt.legend()
+# plt.grid(True)
+# # plt.ylabel('$\mathcal{B}^{00}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
+# plt.ylabel('$\\rho\mathcal{A}^{00}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+#             fontsize = 14)
+
+# plt.subplot(224)
+# plt.plot(r,Bpm1[0,0], label = '('+str(n1)+','+str(l1)+')')
+# plt.plot(r,Bpm2[0,0], label = '('+str(n2)+','+str(l2)+')')
+# plt.plot(r,Bpm3[0,0], label = '('+str(n3)+','+str(l3)+')')
+# plt.xlabel('$r/R_{\odot}$',fontsize=14)
+# plt.xlim(r_start,r_end)
+# plt.legend()
+# plt.grid(True)
+# # plt.ylabel('$\mathcal{B}^{+-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
+# plt.ylabel('$\\rho\mathcal{A}^{+-}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+#             fontsize = 14)
+
+
+fig.add_subplot(111, frameon=False)
+plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
 plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
                     wspace=0.35)
 
-plt.savefig('./kern2.pdf')
+plt.title('$\\rho\mathcal{A}^{\mu\\nu}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
+            fontsize = 18, pad = 20)
+
+plt.savefig('./kern2.png',dpi=200)
 
 plt.show()
