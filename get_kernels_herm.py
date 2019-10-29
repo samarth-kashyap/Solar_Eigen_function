@@ -176,7 +176,7 @@ class Hkernels:
 
         #B00 EXPRESSION
         B00 = (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*om0_*om0*(2*(-1. + om0_**2)*V_*V - V_*(3*r*dU - 4*r*dV) - 2*r*U*dV_ - 2*r**2*dV_*dV)
-        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*om0*om0_*(2*(-1. + om**2)*V*V_ - V*(3*r*dU_ - 4*r*dV_) - 2*r*U_*dV - 2*r**2*dV*dV_)
+        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*om0*om0_*(2*(-1. + om0**2)*V*V_ - V*(3*r*dU_ - 4*r*dV_) - 2*r*U_*dV - 2*r**2*dV*dV_)
         B00 += self.wig_red(0,0,0)*(-26*om0_**2*U*V_ + 12*om0_**2*om0**2*V_*V + 2*om0_**2*r*U*dV_ - 2*r*dU_*U + r**2*dU_*dU + r**2*U*d2U_ + 14*U*U_)
         B00 += self.wig_red(0,0,0)*(-26*om0**2*U_*V + 12*om0**2*om0_**2*V*V_ + 2*om0**2*r*U_*dV - 2*r*dU*U_ + r**2*dU*dU_ + r**2*U_*d2U + 14*U_*U)
 
