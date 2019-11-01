@@ -9,8 +9,9 @@ import random
 plt.ion()
 
 #Modes whose splitting function is to be computed
-n,l = 2,100
-n_,l_ = 2,101
+# n,l = 4,7
+n,l = 3,8
+n_,l_ = 4,7
 
 #adjusting the radius
 r = np.loadtxt('r.dat')
@@ -19,7 +20,7 @@ start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 r = r[start_ind:end_ind]
 
 #Lorentz stress components' order
-s = np.array([1,3])
+s = np.array([1,2,3])
 smax = np.amax(s)       #value of max s in B
 t_smax = np.arange(-smax,smax+1)
 s_H_max = 2*smax         #triangle law 0 <= s_H <= 2s;    s_H_max is max value of s for H 
@@ -38,13 +39,20 @@ def B0_st_profile(r):
     beta += np.exp(-0.5*((r-0.7)/0.01)**2)
     #1e7 Gauss at core
     beta += 100*np.exp(-0.5*(r/0.1)**2)
+
+    #Saving the profile of B_radial_Strength used
+    plt.semilogy(r,beta)
+    plt.savefig('Splitting_functions/B_field_profile.png',dpi=100)
+    plt.close()
     return beta
 
 #function to return the B-component of all s,t satisfying realness of B
 def ret_Bcomps(s,r):
     B0_st = B0_st_profile(r) * (1 + random.random() * 1.0j)
-    #Implementing the solenoidal condition
+    #Computing array to impose the solenoidal condition
     gradr_B0st = (np.gradient(r**2*B0_st,r)/r)[np.newaxis,:]/om(s,0)[:,np.newaxis]      #shape s x r
+
+    #To compute a new random field every time
     rand_factors = np.zeros((len(s),2*smax+1))
     one_factors = np.zeros((len(s),2*smax+1))
     for s0 in range(len(s)):
@@ -53,9 +61,20 @@ def ret_Bcomps(s,r):
         rand_factors[s0,smax:smax+scurrent+1] = np.array([random.random() for i in range(scurrent+1)]) #shape s x t
         one_factors[s0,smax:smax+scurrent+1] = np.array([1.0 for i in range(scurrent+1)]) #shape s x t
 
+    #To use the same stored random field
+#     rand_factors = np.loadtxt('rand_factors.npy')
+#     one_factors = np.loadtxt('one_factors.npy')
+    #Saving the profile of random numbers in s x t space
+#     plt.pcolormesh(rand_factors)
+#     plt.savefig('Splitting_functions/random_st.png',dpi=100)
+#     plt.close()
+
+    #Inserting randomness in the various components
     B0_st = B0_st[np.newaxis,:]*rand_factors[:,:,np.newaxis]     #shape s x t x r
     gradr_B0st = gradr_B0st[:,np.newaxis,:]*rand_factors[:,:,np.newaxis]
     Bp_st = rand_factors[:,:,np.newaxis]*gradr_B0st    #shape s x t x r
+
+    #Implementing the solenoidal condition
     Bm_st = gradr_B0st - Bp_st
 
     #Now we have the positive half of t axis filled for all mu and s satisfying div.B = 0
@@ -136,20 +155,33 @@ def ret_Hcomps(s0,t0):
 
     return H_st_mat
 
+#matrix to store H_munu_st_r
+H_str_total = np.zeros((3,3,len(s_H_arr),2*s_H_max+1,len(r)),dtype='complex128')
 
 for s0 in range(len(s_H_arr)):     
     scurrent = s_H_arr[s0]
     for t0 in range(-scurrent,scurrent+1):
             Htotal_str = ret_Hcomps(scurrent,t0)
-            Hmm_str[s0,t0+s_H_max,:] = Htotal_str[0,0,:]
-            H0m_str[s0,t0+s_H_max,:] = Htotal_str[0,1,:]
-            H00_str[s0,t0+s_H_max,:] = Htotal_str[1,1,:]
-            Hpm_str[s0,t0+s_H_max,:] = Htotal_str[2,0,:]
-            H0p_str[s0,t0+s_H_max,:] = Htotal_str[1,2,:]
-            Hpp_str[s0,t0+s_H_max,:] = Htotal_str[2,2,:]
+            H_str_total[:,:,s0,t0+s_H_max,:] = Htotal_str
+
+            Hmm_str[s0,t0+s_H_max,:] = H_str_total[0,0,s0,t0+s_H_max,:]
+            H0m_str[s0,t0+s_H_max,:] = H_str_total[1,0,s0,t0+s_H_max,:]
+            H00_str[s0,t0+s_H_max,:] = H_str_total[1,1,s0,t0+s_H_max,:]
+            Hpm_str[s0,t0+s_H_max,:] = H_str_total[2,0,s0,t0+s_H_max,:]
+            H0p_str[s0,t0+s_H_max,:] = H_str_total[1,2,s0,t0+s_H_max,:]
+            Hpp_str[s0,t0+s_H_max,:] = H_str_total[2,2,s0,t0+s_H_max,:]
+
     print(scurrent)
 
-#plotting on Mollweide projection
+#to check the realness of H, which should naturally follow from the realness of B
+def isHreal():
+    diff_arr = np.zeros((3,3,len(s_H_arr),2*s_H_max+1,len(r)),dtype='complex128')
+
+    diff_arr += H_str_total - (-1)**(np.abs(t_sHmax))[np.newaxis,np.newaxis,np.newaxis,:,np.newaxis]*np.conj(H_str_total[2::-1,2::-1,:,2*s_H_max::-1,:])
+
+    print(np.amax(np.abs(diff_arr.real)),np.amax(np.abs(diff_arr.imag)))
+
+#mesh creation for plotting 
 theta = np.linspace(-np.pi/2,np.pi/2,360)
 phi = np.linspace(-np.pi,np.pi,720)
 
@@ -159,25 +191,24 @@ phph,thth = np.meshgrid(phi,theta)
 Lambda_str = Hpp_str*Bpp[:,np.newaxis,:] + H00_str*B00[:,np.newaxis,:] + Hmm_str*Bmm[:,np.newaxis,:] \
         + 2*Hpm_str*Bpm[:,np.newaxis,:] + 2*H0m_str*B0m[:,np.newaxis,:] + 2*H0p_str*Bp0[:,np.newaxis,:]
 
-# Lambda_str = H00_str*B00[:,np.newaxis,:] 
-
 #radial integral
 Lambda_st = scipy.integrate.trapz(Lambda_str*(r**2),x=r,axis=2)
 
-z = np.zeros(np.shape(thth),dtype='complex128')
+sf = np.zeros(np.shape(thth),dtype='complex128') #variable to store the splitting functions
 
 for s0 in range(0,len(s_H_arr)):
     scurrent = s_H_arr[s0]
     for t0 in range(-scurrent,scurrent+1):
-        z += Lambda_st[s0,t0+s_H_max]*sp.sph_harm(t0,scurrent,phph+np.pi,thth+np.pi/2.0)
+        sf += Lambda_st[s0,t0+s_H_max]*sp.sph_harm(t0,scurrent,phph+np.pi,thth+np.pi/2.0)
 
 #Plotting the real part which shall be an even function of phi
 figr = plt.figure()
 axr = figr.add_subplot(111, projection='aitoff')
-imr = axr.pcolormesh(phph,thth,np.real(z), cmap=plt.cm.jet)
+imr = axr.pcolormesh(phph,thth,np.real(sf), cmap=plt.cm.jet)
+plt.savefig('Splitting_functions/SF_real2.png',dpi=400)
 
 #Plotting the imaginary part which shall be an odd function of phi
 figi = plt.figure()
 axi = figi.add_subplot(111, projection='aitoff')
-imi = axi.pcolormesh(phph,thth,np.imag(z), cmap=plt.cm.jet)
+imi = axi.pcolormesh(phph,thth,np.imag(sf), cmap=plt.cm.jet)
 
