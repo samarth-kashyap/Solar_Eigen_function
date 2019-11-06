@@ -151,6 +151,72 @@ def getB_comps(s0,r,R1,R2,field_type):
                                             alpha[R1_ind:R2_ind])
                                             
     return B_mu_t_r/gamma_s
+
+def ret_real_same_H_munu_st(t,r):
+    #Construct h_{st}^{\mu\nu}(r) which is the same for all s,t,\mu,\nu
+    t0_index = np.argmin(np.abs(t))
+    #The radial profile for B
+    b_r = 1e-4/r**3  #10G on surface
+    #1e5 Gauss at tachocline
+    b_r += np.exp(-0.5*((r-0.7)/0.01)**2)
+    #1e7 Gauss at core
+    b_r += 100*np.exp(-0.5*(r/0.1)**2)
+
+    h_r = b_r*b_r
+
+    H_munu_t = np.zeros((6,len(t),len(r)),dtype='complex128') #H--,H0-,H00,H+-,H0+,H++
+
+    H_munu_t[0,:,:] = h_r * (1 + 1j)
+    H_munu_t[1,:,:] = h_r * (1 + 1j)
+    H_munu_t[2,:t0_index,:] = h_r * (1 + 1j)
+    H_munu_t[2,t0_index,:] = h_r    #keeping H00_s0 real as that has to be the case
+    H_munu_t[3,:t0_index,:] = h_r * (1 + 1j)
+    H_munu_t[3,t0_index,:] = h_r    #keeping H+-_s0 real as that has to be the case
+
+    H_munu_t[5,:,:] = (-1)**(np.abs(t))[:,np.newaxis] * np.conj(H_munu_t[0,len(t)-1::-1,:])
+    H_munu_t[4,:,:] = (-1)**(np.abs(t))[:,np.newaxis] * np.conj(H_munu_t[1,len(t)-1::-1,:])
+    H_munu_t[2:,t0_index+1:,:] = (-1)**(np.abs(t))[t0_index+1:,np.newaxis] * np.conj(H_munu_t[2,t0_index-1::-1,:])
+    H_munu_t[3:,t0_index+1:,:] = (-1)**(np.abs(t))[t0_index+1:,np.newaxis] * np.conj(H_munu_t[3,t0_index-1::-1,:])
+
+    return H_munu_t
+
+#to check the realness of H for a certain s, which should naturally follow from the realness of B
+def is_H_s_real(H,r,has_s = False):
+    #H must come in either the shape: mu x nu x s x t x r or mu x nu x t x r
+    # or munu x s x t x r or munu x t x r
+    len_t = H.shape[-2] #gets the dimension of t
+    t = np.arange(-(len_t-1)/2,1+(len_t-1)/2)
+    t = t.astype('int')
+    if(has_s == True):
+        len_s = H.shape[-3]
+        H_str_total = np.zeros((3,3,len_s,len_t,len(r)))
+    
+    else: 
+        len_s = 1
+        H_str_total = np.zeros((3,3,1,len_t,len(r)),dtype='complex128')
+        H = np.expand_dims(H,axis=-3)
+
+    # H = H--,H0-,H00,H+-,H0+,H++
+    if(H.shape[0] == 6):
+        #filling in one half of the matrix
+        H_str_total[0,0] = H[0] #--
+        H_str_total[0,1] = H[1] #-0
+        H_str_total[0,2] = H[3] #-+
+        H_str_total[1,1] = H[2] #00
+        H_str_total[1,2] = H[4] #0+
+        H_str_total[2,2] = H[5] #++
+
+        H_str_total[1,0] = H_str_total[0,1] #-0
+        H_str_total[2,0] = H_str_total[0,2] #-0
+        H_str_total[2,1] = H_str_total[1,2] #-0
+
+    else: H_str_total = H
+
+    diff_arr = np.zeros((3,3,len_s,len_t,len(r)),dtype='complex128')    #matrix to contain the offset from realness
+
+    diff_arr += H_str_total - (-1)**(np.abs(t))[np.newaxis,np.newaxis,np.newaxis,:,np.newaxis]*np.conj(H_str_total[2::-1,2::-1,:,len_t-1::-1,:])
+
+    print(np.amax(np.abs(diff_arr.real)),np.amax(np.abs(diff_arr.imag)))
 	
 def P(mu,l,m,N):
     """generalised associated legendre function"""
