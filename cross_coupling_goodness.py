@@ -97,33 +97,34 @@ for l0 in range(l_min,l_max):
 
         mi_beg += 2*l_+1
 
+    Herm_res = Z_large - np.conj(np.transpose(Z_large,(0,2,1,3)))
+    if(np.amax(np.abs(Herm_res.real)) and np.amax(np.abs(Herm_res.imag)) > 1e-12): print('Supermatrix is not Hermitian')
+
+    #The sum of previous l's before l0
+    prev_l_sum = np.sum(nl_list[:np.amax(s),1])
+    k = 2*prev_l_sum+np.amax(s)
+
+
     #finding the relative cross-coupling contributions for a particular munu and s
     for munu in range(4):
         for s0 in s:
 
             Z = Z_large[munu,:,:,s0]
-            Z_dpt = Z_dpt_large[munu,:,:,s0]
 
-            #Need to do this only for the central mode!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            eig_vals_dpt,eig_vts_dpt = np.linalg.eig(Z_dpt) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            #Arranging the DPT eigenvalues
-            m_ind_arr = np.zeros(np.shape(eig_vals_dpt),dtype=int)
-
-            for i in range(len(eig_vals_dpt)):
-                m_ind_arr[i] = np.argmax(np.abs(eig_vts_dpt[i]))
-
-            eig_vals_dpt_arranged = eig_vals_dpt[m_ind_arr]
+            #Need to do this only for the central mode for DPT
+            Z_dpt = Z_dpt_large[munu,k:k+2*l0+1,k:k+2*l0+1,s0]
+            eig_vals_dpt,eig_vts_dpt = np.linalg.eig(Z_dpt) 
 
             #inserting the diagonal component of the supermatrix
             Z += Z_diag   
-            eig_vals_qdpt,eig_vts_qdpt = np.linalg.eig(Z)
-            #Arranging the QDPT eigenvalues
-            m_ind_arr = np.zeros(np.shape(eig_vals_qdpt),dtype=int)
+            eig_vals_qdpt,eig_vts_qdpt = np.linalg.eigh(Z)
+            # #Arranging the QDPT eigenvalues
+            # m_ind_arr = np.zeros(np.shape(eig_vals_qdpt),dtype=int)
 
-            for i in range(len(eig_vals_qdpt)):
-                m_ind_arr[i] = np.argmax(np.abs(eig_vts_qdpt[i]))
+            # for i in range(len(eig_vals_qdpt)):
+            #     m_ind_arr[i] = np.argmax(np.abs(eig_vts_qdpt[i]))
 
-            eig_vals_qdpt_arranged = eig_vals_qdpt[m_ind_arr]
+            # eig_vals_qdpt_arranged = eig_vals_qdpt[m_ind_arr]
 
             #######################
             #Extracting frequencies
@@ -141,11 +142,6 @@ for l0 in range(l_min,l_max):
             #Computing the magnitude of shift due to DPT
 
             f_shift_dpt_abs = np.abs(f_dpt.real - omega_nl_arr*OM*1e6)
-
-            #The sum of previous l's before l0
-
-            prev_l_sum = np.sum(nl_list[:np.amax(s),1])
-            k = 2*prev_l_sum+np.amax(s)
 
             #The relative contribution to shift due to QDPT for central mode
 

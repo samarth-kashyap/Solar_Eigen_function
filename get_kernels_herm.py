@@ -162,7 +162,7 @@ class Hkernels:
         #B0- EXPRESSION
         B0m = self.wig_red(1,-1,0)*om0_*(4*om0**2*V_*V + 8*U*U_ - 5*om0**2*U_*V - 3*r*om0**2*V*dV_ + 2*r**2*dU*dV_ - r*om0**2*V_*dV + \
                 r**2*V_*d2U + (-6.-2.*om0_**2 + om0**2)*U*V_ + r*U*(4*dV_ - r*d2V_))
-        B0m += self.wig_red(0,-1,1)*om0*(4*om0_**2*V*V_ + 8*U_*U - 5*om0_**2*U*V_ - 3*r*om0_**2*V_*dV + 2*r**2*dU_*dV - r*om0**2*V*dV_ + \
+        B0m += self.wig_red(0,-1,1)*om0*(4*om0_**2*V*V_ + 8*U_*U - 5*om0_**2*U*V_ - 3*r*om0_**2*V_*dV + 2*r**2*dU_*dV - r*om0_**2*V*dV_ + \
                 r**2*V*d2U_ + (-6. -2.*om0**2 + om0_**2)*U_*V + r*U_*(4*dV - r*d2V))
         B0m += self.wig_red(-1,-1,2)*om0*om0_*om2*(U*V_ + V*U_ - 4*V*V_ + 3*r*dV_*V + r*V_*dV)
         B0m += self.wig_red(2,-1,-1)*om0_*om0*om2_*(U_*V + V_*U - 4*V_*V + 3*r*dV*V_ + r*V*dV_)
