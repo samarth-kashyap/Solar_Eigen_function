@@ -167,6 +167,7 @@ def lorentz_all_st_equalB(n_,n,l_,l,r,s = np.array([0,1,2]),t = np.array([0]),sm
 
     #Clubbing the components together that have to exist simultaneously due to the realness of H
 
+    Lambda = np.sum(Lambda,axis=3)  #summing up over the s-dimension
     return Lambda
 
     
