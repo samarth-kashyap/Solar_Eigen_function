@@ -10,12 +10,15 @@ plt.ion()
 
 clock1 = timing.stopclock()
 tstamp = clock1.lap
+
+####################################################################
 #all quantities in cgs
 #M_sol = 1.989e33 g
 #R_sol = 6.956e10 cm
 #B_0 = 10e5 G
 #OM = np.sqrt(4*np.pi*R_sol*B_0**2/M_sol)
 #rho_0 = M_sol/(4pi R_sol^3/3) = 1.41 ~ 1g/cc (for kernel calculation)
+#####################################################################
 
 OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in Hz (cgs))
 
@@ -29,9 +32,12 @@ nl_all = np.loadtxt('nl.dat')
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 
 #the frequency window around each mode
-f_window = 100.0 #in muHz
+f_window = 50.0 #in muHz
 
-s = np.array([0,1,2])
+#tolerance of offset of QDPT wet DPT beyond which cross-coupling is important
+tol_percent = 5.0   #in percent. tol = 5.0 means 5% tolerance or QPDT rms has to be within 95% of DPT rms.
+
+s = np.array([0,1,2,3,4,5,6])
 t = np.arange(-np.amax(s),np.amax(s)+1)
 # t = np.array([0])
 # n0 = 6  #choosing the branch
@@ -41,16 +47,16 @@ t = np.arange(-np.amax(s),np.amax(s)+1)
 l_max = 30
 
 #max s values for DR and magnetic field to speed up supermatrix computation
-s_max_H = np.max(s)     #axisymmteric magnetic field. B has only s = 1. 
+s_max_H = np.max(s)    
 
 #if we want to use smoothened kernels
 smoothen = False
 
 #4 components of munu as we ar clubbing together (-- with ++) and (0- with 0+)
-qdpt_contrib_rel = np.zeros((4,300))
+qdpt_contrib_rel = np.zeros((30,300,4))
 # qdpt_contrib = np.zeros((4,300))
 
-for n0 in range(0,20):
+for n0 in range(0,9):
     nl_list_n0 = nl_all[nl_all[:,0]==n0]
     l_n0 = nl_list_n0[:,1]
 
@@ -95,9 +101,19 @@ for n0 in range(0,20):
                     print('Skipping')
                     continue
                 
+                #Checking if mode pair coupling has been already computed
                 if(os.path.exists('Simulation_submatrices/%i_%i_%i_%i.npy'%(n_,l_,n,l))):
                     print('Computed mode exists')
                     Z_large[:,mi_beg:mi_end,mj_beg:mj_end] = np.load('Simulation_submatrices/%i_%i_%i_%i.npy'%(n_,l_,n,l))
+
+                #Checking if the flipped modes have been calculated.
+                elif(os.path.exists('Simulation_submatrices/%i_%i_%i_%i.npy'%(n,l,n_,l_))):
+                    print('Computed flipped mode exists')
+                    Z_CT = np.load('Simulation_submatrices/%i_%i_%i_%i.npy'%(n,l,n_,l_))
+                    #Performing a hermitian tranpose
+                    Z_large[:,mi_beg:mi_end,mj_beg:mj_end] = np.conjugate(np.transpose(Z_CT,(0,2,1)))
+
+                #Only if none of the above exists, then we compute them
                 else:
                     Z_large[:,mi_beg:mi_end,mj_beg:mj_end] = submatrix.lorentz_all_st_equalB(n_,n,l_,l,r,s,t)  
                     np.save('Simulation_submatrices/%i_%i_%i_%i.npy'%(n_,l_,n,l),Z_large[:,mi_beg:mi_end,mj_beg:mj_end])                       
@@ -113,54 +129,106 @@ for n0 in range(0,20):
         Herm_res = Z_large - np.conj(np.transpose(Z_large,(0,2,1)))
         if(np.amax(np.abs(Herm_res.real)) > 1e-12 or np.amax(np.abs(Herm_res.imag)) > 1e-12): print('Supermatrix is not Hermitian')
 
-    # Zmunu_dpt = np.load('Simulation_submatrices/%i_%i_%i_%i.npy'%(n0,l0,n0,l0)) #File should exist at this point 
-    # #finding the relative cross-coupling contributions for a particular munu and s
-    # for munu in range(4):
-    #     title ='Clean'  #Initializing the case as clean. Assuming that the modes are well spaced after splitting
-    #     Z = Z_large[munu,:,:]   #Isolating the component of H whose splitting we want to find.
 
-    #     #Need to do this only for the central mode for DPT
-    #     Z_dpt = Zmunu_dpt[munu,:,:]  
 
-    #     eig_vals_dpt,eig_vts_dpt = np.linalg.eig(Z_dpt)     #Finding the frequency shifts only due to an isolated multiplet
+        #Analyzing the supermatrix to find the relative contribution of QDPT over DPT
 
-    #     #inserting the diagonal component of the supermatrix
-    #     Z += Z_diag   #Adding the diagonal for QDPT
-    #     eig_vals_qdpt,eig_vts_qdpt = np.linalg.eigh(Z)
+        Zmunu_dpt = np.load('Simulation_submatrices/%i_%i_%i_%i.npy'%(n0,l0,n0,l0)) #File should exist at this point 
+        #finding the relative cross-coupling contributions for a particular munu 
+        for munu in range(4):
+            title ='Clean'  #Initializing the case as clean. Assuming that the modes are well spaced after splitting
+            Z = Z_large[munu,:,:]   #Isolating the component of H whose splitting we want to find.
 
-    #     #Initializing variables for analyzing mode spacing after splitting.
-    #     evals_qdpt_diff_abssorted = np.diff(np.sort(np.abs(eig_vals_qdpt)))
-    #     cent_mode_SD = np.sqrt(np.var(evals_qdpt_diff_abssorted[:2*l0]))
-    #     freq_jump = evals_qdpt_diff_abssorted[2*l0]/(2*omega_ref0)
+            #Need to do this only for the central mode for DPT
+            Z_dpt = Zmunu_dpt[munu,:,:]  
 
-    #     #Checking if we should already discard some modes which come too close or overlap.
-    #     if(freq_jump <= nearest_omega_jump/4 or cent_mode_SD/freq_jump > 0.3):
-    #         qdpt_contrib_rel[munu,l0] = 100.0
-    #         title ='Unclean'    #Marking them unclean to label the plots
-            
+            eig_vals_dpt,eig_vts_dpt = np.linalg.eigh(Z_dpt)     #Finding the frequency shifts only due to an isolated multiplet
 
-    #     #######################
-    #     #Extracting frequencies
+            #inserting the diagonal component of the supermatrix
+            Z += Z_diag   #Adding the diagonal for QDPT
+            eig_vals_qdpt,eig_vts_qdpt = np.linalg.eigh(Z)
 
-    #     l_local = 0
-    #     omega_nl_arr = np.zeros(total_m)
-    #     for i in range(len(nl_list)):
-    #         omega_nl_arr[l_local:l_local + 2*nl_list[i,1]+1] = \
-    #                     np.ones(2*nl_list[i,1]+1)*omega_nl[i]
-    #         l_local += 2*nl_list[i,1]+1
+            #Initializing variables for analyzing mode spacing after splitting.
+            evals_qdpt_diff_abssorted = np.diff(np.sort(np.abs(eig_vals_qdpt)))
+            cent_mode_SD = np.sqrt(np.var(evals_qdpt_diff_abssorted[:2*l0]/(2*omega_ref0)))
+            freq_jump = evals_qdpt_diff_abssorted[2*l0]/(2*omega_ref0)
 
-    #     f_dpt = (omega_nl0 + eig_vals_dpt/(2*omega_nl0)) * OM *1e6
-    #     f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt) * OM *1e6
 
-    #     plt.subplot(211)
-    #     plt.plot(np.sort(np.abs(eig_vals_qdpt)),'.')
-    #     plt.title('%s'%title)
+            #######################
+            #Extracting frequencies
 
-    #     plt.subplot(212)
-    #     plt.plot(evals_qdpt_diff_abssorted,'.')
+            l_local = 0
+            omega_nl_arr = np.zeros(total_m)
+            for i in range(len(nl_list)):
+                omega_nl_arr[l_local:l_local + 2*nl_list[i,1]+1] = \
+                            np.ones(2*nl_list[i,1]+1)*omega_nl[i]
+                l_local += 2*nl_list[i,1]+1
 
-    #     plt.savefig('./Cross_coupling_goodness/l_%i_munu_%i'%(l0,munu))
+            f_dpt = (omega_nl0 + eig_vals_dpt/(2*omega_nl0)) * OM *1e6
+            f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt) * OM *1e6
 
-    #     plt.close()
+            # plt.subplot(211)
+            # plt.plot(np.sort(np.abs(eig_vals_qdpt)),'.')
+            # plt.title('%s'%title)
 
-            
+            # plt.subplot(212)
+            # plt.plot(evals_qdpt_diff_abssorted,'.')
+
+            # plt.savefig('./Cross_coupling_goodness/l_%i_munu_%i'%(l0,munu))
+            # plt.close()
+
+
+
+            #Checking if we should already discard some modes which come too close or overlap.
+            if(freq_jump <= nearest_omega_jump/4 or cent_mode_SD/freq_jump > 0.3):
+                qdpt_contrib_rel[n0,l0,munu] = 100.0    #set a high value
+                title ='Unclean'    #Marking them unclean to label the plots
+
+                plt.figure()
+                plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
+                plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
+                plt.savefig('./Coupled_modes/%i_%i_%i.png'%(n0,l0,munu))
+                plt.close()
+
+                continue    #abandon further analysis
+                
+
+            #######################
+            #Comparing QDPT and DPT
+
+            domega_QDPT = np.linalg.norm(np.sort(np.abs(eig_vals_qdpt))[:2*l0+1])
+            domega_DPT = np.linalg.norm(eig_vals_dpt)
+
+            rel_offset_percent = np.abs((domega_QDPT-domega_DPT)/domega_DPT) * 100.0
+
+            # if(rel_offset_percent <= tol_percent): 
+            qdpt_contrib_rel[n0,l0,munu] = rel_offset_percent  
+
+                
+
+
+
+l0 = 30
+l = np.arange(0,l0)
+
+for munu in range(4): 
+    plt.figure()
+    for n0 in range(9):
+        nl_list = nl_all[nl_all[:,0]==n0][:l0]
+        nl_list = nl_list.astype('int64')
+
+        omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list]) #important to have nl_list as integer type
+
+        vmin = 0
+        vmax = np.amax(qdpt_contrib_rel[:,:l0, munu])
+        plt.scatter(l,omega_nl*OM*1e6,c=qdpt_contrib_rel[n0,:l0, munu],vmin=vmin,vmax=90)
+    plt.colorbar()
+    if(munu==0): plt.title('$\mathcal{B}^{--}$')
+    elif(munu==1): plt.title('$\mathcal{B}^{0-}$')
+    elif(munu==2): plt.title('$\mathcal{B}^{00}$')
+    else: plt.title('$\mathcal{B}^{+-}$')
+
+    plt.xlabel('$\ell$')
+    plt.ylabel('frequency (in $\mu$ Hz)')
+    plt.savefig('Cross_coupling_goodness/Bmunu_%i.png'%munu)
+
