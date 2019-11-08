@@ -72,7 +72,24 @@ def find_nl(n,l):
 
 def find_mode(nl):
 	"""returns (n,l) for given nl"""
-	return int(nl_list[nl][0]), int(nl_list[nl][1])
+	return np.array([int(nl_list[nl][0]), int(nl_list[nl][1])])
+
+#to identify modes nearest to the given frequency within smax distance in \ell
+def nearest_freq_modes(l0,smax,om0,dom):
+    #om0 in normalized units and dom in muHz
+    OM = np.loadtxt('OM.dat')
+    omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM
+    nl_ind = np.argsort(np.abs(omega_list-om0))
+    om_sorted = np.sort(np.abs(omega_list-om0)) * OM * 1e6
+    max_ind = np.argmin(np.abs(om_sorted - dom))
+    nl_ind = nl_ind[:max_ind]
+
+    #list of all n,l closer than dom
+    nl_close_dom = nl_list[nl_ind]
+    nl_close_coupled = nl_close_dom[np.abs(nl_close_dom[:,1] - l0) <= smax]
+
+    print(nl_close_coupled)
+    return nl_close_coupled
 
 def load_eig(n,l,eig_dir):
 	"""returns U,V for mode n,l stored in directory eig_dir"""
