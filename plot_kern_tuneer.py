@@ -203,6 +203,6 @@ plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
 plt.title('$\\rho\mathcal{A}^{\mu\\nu}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
             fontsize = 18, pad = 20)
 
-plt.savefig('./kern2.png',dpi=200)
+plt.savefig('./kern2_new.png',dpi=200)
 
 plt.show()
