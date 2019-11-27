@@ -40,9 +40,9 @@ j_max = 10
 smoothen = False
 #nl_list = [[0, 65], [0, 61], [0, 63], [0, 67], [0, 69]]
 #nl_list = [(0, 69), (0, 71), (0, 73), (0, 75), (0, 77), (0, 79), (0, 81), (0, 83), (0, 85)]
-nl_list = [(0, 75), (0, 77), (0, 79)]
+# nl_list = [(0, 75), (0, 77), (0, 79)]
 # nl_list = [(1, 5), (1, 7), (1, 9)]
-# nl_list = [(1,10)]
+nl_list = [(5,110)]
 nl_list = np.array(nl_list)
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list])
@@ -176,9 +176,16 @@ for i in range(len(nl_list)):
     tstamp('omega_nlm starts')
     domega_nlm_sq = submatrix.diffrot(n_,n_,l_,l_,r,omega_nl[i])
     domega_nlm_sq = domega_nlm_sq.astype('complex128')
+
+    ##############################################################
+    #Not considering Differential Rotation. Setting the domega_nlm_sq to 0
+    #Comment this out while considering Differential Rotation
+    domega_nlm_sq *= 0.0
+    ############################################################## 
+
     omega_nlm_sq = domega_nlm_sq +  omega_nl[i]**2
     tstamp('omega_nlm ends')
-    
+
     f_DR[mi_beg:mi_end] = np.sqrt(np.real(omega_nlm_sq))
         
     Z_diag[mi_beg:mi_end,mi_beg:mi_end] *= np.diag(omega_nlm_sq - omega_ref0**2)
@@ -226,29 +233,29 @@ a_qdpt = np.zeros((len(nl_list),j_max+1))
 f_dpt = np.real(f_dpt)
 f_qdpt = np.real(f_qdpt)
 
-# l_local = 0
-# for i in range(len(nl_list)):
-#     del_omega_dpt = f_dpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
-#     del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
-#     a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
-#     a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
-#     l_local += 2*nl_list[i,1] + 1
+l_local = 0
+for i in range(len(nl_list)):
+    del_omega_dpt = f_dpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
+    del_omega_qdpt = f_qdpt[l_local:l_local+2*nl_list[i,1]+1] - omega_nl[i]*1e6*OM
+    a_dpt[i,:] = fn.a_coeff_GSO(del_omega_dpt,nl_list[i,1],j_max) 
+    a_qdpt[i,:] = fn.a_coeff_GSO(del_omega_qdpt,nl_list[i,1],j_max)
+    l_local += 2*nl_list[i,1] + 1
 
-# #Saving first two a_coefficients
+#Saving first two a_coefficients
 
-# a_s = np.array([a_dpt[0,0],a_dpt[0,2]])
+a_s = np.array([a_dpt[0,0],a_dpt[0,2]])
 
-# #Saving supermatrix for computing coupling strength
+#Saving supermatrix for computing coupling strength
 
-# fname = ''
-# for i in range(len(nl_list)):
-#     fname = fname + str(nl_list[i,0]) + '_' + str(nl_list[i,1])
-#     if(i!=len(nl_list)-1): fname = fname + '-'
+fname = ''
+for i in range(len(nl_list)):
+    fname = fname + str(nl_list[i,0]) + '_' + str(nl_list[i,1])
+    if(i!=len(nl_list)-1): fname = fname + '-'
 
-# np.savetxt('./Coupling_Strength/Z_%s.dat'%fname,np.real(Z))
-# np.savetxt('./Coupling_Strength/Z_diag_%s.dat'%fname,np.real(Z_diag))
+np.savetxt('./Coupling_Strength/Z_%s.dat'%fname,np.real(Z))
+np.savetxt('./Coupling_Strength/Z_diag_%s.dat'%fname,np.real(Z_diag))
 
-# np.savetxt('./a_coeffs/%i%i%i_a_%i_%i.dat'%(A,B,C,nl_list[0,0],nl_list[0,1]),a_s)
+np.savetxt('./a_coeffs/%i%i%i_a_%i_%i.dat'%(A,B,C,nl_list[0,0],nl_list[0,1]),a_s)
 
 '''plt.pcolormesh(np.log(np.abs(Z)))
 plt.gca().invert_yaxis()

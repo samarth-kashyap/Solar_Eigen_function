@@ -135,6 +135,9 @@ def getB_comps(s0,r,R1,R2,field_type,forplot=False):
     # R1 = 0.73
     # R2 = 0.90
 
+    R_tacho = 0.7
+    R_tor_out = 0.93
+
     gamma_s = np.sqrt((2*s0 + 1)/(4.0*np.pi))
     B_mu_t_r = np.zeros((3,2*s0+1,len(r)),dtype=complex)
     nperf = np.vectorize(math.erf)
@@ -148,13 +151,13 @@ def getB_comps(s0,r,R1,R2,field_type,forplot=False):
     beta = lambda r: gamma_s*1e-4/r**3  #10G on surface. Gamma factor so as to get 10 G at surface
 
     #1e5 Gauss at tachocline
-    R_tacho_ind = np.argmin(np.abs(r-0.7))
-    R_tor_out_ind = np.argmin(np.abs(r-0.96))
-    alpha = np.exp(-0.5*((r-0.7)/0.01)**2)
-    alpha[R_tacho_ind:] += 0.0008*np.exp(-(r[R_tacho_ind:]-(R1+R2)/2.)/0.07)    #This was tuned by hand
-    alpha[R_tor_out_ind:] *= np.exp(-1e3*(r[R_tor_out_ind:]-0.96)**2)    #This was tuned by hand
+    R_tacho_ind = np.argmin(np.abs(r-R_tacho))
+    R_tor_out_ind = np.argmin(np.abs(r-R_tor_out))
+    alpha = np.exp(-0.5*((r-R_tacho)/0.01)**2)
+    alpha[R_tacho_ind:] += 0.0008*np.exp(-(r[R_tacho_ind:]-(R1+R2)/2.)/0.05)    #This was tuned by hand
+    alpha[R_tor_out_ind:] *= np.exp(-1e3*(r[R_tor_out_ind:]-R_tor_out)**2)    #This was tuned by hand
     #1e7 Gauss at core
-    alpha += 100*np.exp(-0.5*(r/0.1)**2)   
+    alpha += 100*np.exp(-0.5*(r/0.15)**2)   
 
     alpha *= gamma_s  #So as to get 1e5 at tachocline
     
@@ -193,12 +196,14 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(1,1,1)
 
-    rect1a = plt.Rectangle((0,1e-3),0.73,1e11, color='green', alpha=0.1)
+    rect1a = plt.Rectangle((0,1e-3),0.67,1e11, color='green', alpha=0.1)
     rect2a = plt.Rectangle((0.73,1e-3),0.22,1e11, color='k', alpha=0.2)
     rect3a = plt.Rectangle((0.95,1e-3),0.05,1e11, color='blue', alpha=0.1)
+    rect4a = plt.Rectangle((0.67,1e-3),0.06,1e11, color='red', alpha=0.4)
 
-    plt.semilogy(r,B_tor*1e5,'r',label='Toroidal')
-    plt.semilogy(r,B_pol*1e5,'b-.',label='Non-toroidal/Dipolar')
+    # plt.semilogy(r,B_tor*1e5,c=(0.9,0.2,0.2),label='Toroidal')
+    plt.semilogy(r,B_tor*1e5,color='green',label='Toroidal')
+    plt.semilogy(r,B_pol*1e5,'-.', c=(0.2,0.2,0.8), label='Non-toroidal/Dipolar')
     plt.semilogy(r[::4],B_mag[::4]*1e5,'k--', markersize=10,label='Total')
     plt.ylim(bottom=1e-3)
     plt.xlim([0,1])
@@ -206,21 +211,24 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
     ax1.add_patch(rect1a)
     ax1.add_patch(rect2a)
     ax1.add_patch(rect3a)
+    ax1.add_patch(rect4a)
     plt.grid(True,alpha=0.3)
     plt.xlabel('$r/R_{\odot}$')
     plt.ylabel('Magnetic field strength in Gauss')
-    plt.text(0.4,1e8,'I')
-    plt.text(0.83,1e8,'II')
-    plt.text(0.96,1e8,'III')
+    plt.text(0.4,1.1e8,'I')
+    plt.text(0.69,1.1e8,'II')
+    plt.text(0.83,1.1e8,'M')
+    plt.text(0.96,1.1e8,'III')
 
     plt.savefig('Field_profile/B_mag.pdf',dpi=200)
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(2,1,1)
 
-    rect1b = plt.Rectangle((0,-13),0.73,15, color='green', alpha=0.1)
+    rect1b = plt.Rectangle((0,-13),0.67,15, color='green', alpha=0.1)
     rect2b = plt.Rectangle((0.73,-13),0.22,15, color='k', alpha=0.2)
     rect3b = plt.Rectangle((0.95,-13),0.05,15, color='blue', alpha=0.1)
+    rect4b = plt.Rectangle((0.67,-13),0.06,15, color='red', alpha=0.4)
 
     plt.plot(r,b,'k',label='$b(r)$')
     plt.plot(r,a,'k--',label='$a(r) = b(r) - r \dot{b}(r)$')
@@ -231,27 +239,31 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
     ax2.add_patch(rect1b)
     ax2.add_patch(rect2b)
     ax2.add_patch(rect3b)
+    ax2.add_patch(rect4b)
     # plt.xlabel('$r/R_{\odot}$')
     plt.ylabel('(a)')
     plt.text(0.4,2.1,'I')
-    plt.text(0.83,2.1,'II')
+    plt.text(0.69,2.1,'II')
+    plt.text(0.83,2.1,'M')
     plt.text(0.96,2.1,'III')
 
     # fig3 = plt.figure()
     ax3 = fig2.add_subplot(2,1,2)
 
-    rect1c = plt.Rectangle((0,1e-9),0.73,1e11, color='green', alpha=0.1)
-    rect2c = plt.Rectangle((0.73,1e-9),0.22,1e11, color='k', alpha=0.2)
-    rect3c = plt.Rectangle((0.95,1e-9),0.05,1e11, color='blue', alpha=0.1)
+    rect1c = plt.Rectangle((0,1e-3),0.67,1e11, color='green', alpha=0.1)
+    rect2c = plt.Rectangle((0.73,1e-3),0.22,1e11, color='k', alpha=0.2)
+    rect3c = plt.Rectangle((0.95,1e-3),0.05,1e11, color='blue', alpha=0.1)
+    rect4c = plt.Rectangle((0.67,1e-3),0.06,1e11, color='red', alpha=0.4)
 
     plt.semilogy(r,alpha*1e5,'k',label='$\\alpha(r)$')
-    plt.semilogy(r,b*beta*1e5,'k--',label='$b(r)\\beta(r)$')
-    plt.semilogy(r,a*beta*1e5,'k', linestyle=(0,(1,1)),label='$a(r)\\beta(r)$')
-    plt.ylim(bottom=1e-9)
+    plt.semilogy(r,np.abs(b*beta)*1e5,'k--',label='$b(r)\\beta(r)$')
+    plt.semilogy(r,np.abs(a*beta)*1e5,'k', linestyle=(0,(1,1)),label='$|a(r)|\\beta(r)$')
+    plt.ylim(bottom=1e-3)
     plt.xlim([0,1])
     ax3.add_patch(rect1c)
     ax3.add_patch(rect2c)
     ax3.add_patch(rect3c)
+    ax3.add_patch(rect4c)
     plt.legend()
     plt.grid(True,alpha=0.3)
     plt.xlabel('$r/R_{\odot}$')

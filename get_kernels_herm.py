@@ -178,7 +178,7 @@ class Hkernels:
         #B00 EXPRESSION
         B00 = self.wig_red(0,0,0)*2.*(-2.*r*U*dU_ - 2.*r*U_*dU + om0**2*r*V*dU_ + om0_**2*r*V_*dU - 5.*om0_**2*V_*U \
                 - 5.*om0**2*V*U_ + 4.*om0**2*om0_**2*V_*V + om0_**2*r*U*dV_ + om0**2*r*U_*dV + 6.*U_*U)
-        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*(-om0_*om0)*(-U_*V-U*V_+2.*V_*V+r*V*dU_\
+        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*(-1.*om0_*om0)*(-U_*V-U*V_+2.*V_*V+r*V*dU_\
                 +r*V_*dU-2.*r*V*dV_-2*r*V_*dV+r*U*dV_+r*U_*dV+2*r**2 *dV_*dV)
 
         B00 = (0.5*((-1)**np.abs(m_))*prefac)[:,:,:,np.newaxis] \
@@ -336,7 +336,7 @@ class Hkernels:
         #B00 EXPRESSION
         B00 = self.wig_red(0,0,0)*2.*(-2.*r*U*dU_ - 2.*r*U_*dU + om0**2*r*V*dU_ + om0_**2*r*V_*dU - 5.*om0_**2*V_*U \
                 - 5.*om0**2*V*U_ + 4.*om0**2*om0_**2*V_*V + om0_**2*r*U*dV_ + om0**2*r*U_*dV + 6.*U_*U)
-        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*(-om0_*om0)*(-U_*V-U*V_+2.*V_*V+r*V*dU_\
+        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*(-1.*om0_*om0)*(-U_*V-U*V_+2.*V_*V+r*V*dU_\
                 +r*V_*dU-2.*r*V*dV_-2*r*V_*dV+r*U*dV_+r*U_*dV+2*r**2 *dV_*dV)
 
         B00 = (0.5*((-1)**np.abs(m_))*prefac)[:,:,np.newaxis] \
@@ -488,7 +488,7 @@ class Hkernels:
         #B00 EXPRESSION
         B00 = self.wig_red(0,0,0)*2.*(-2.*r*U*dU_ - 2.*r*U_*dU + om0**2*r*V*dU_ + om0_**2*r*V_*dU - 5.*om0_**2*V_*U \
                 - 5.*om0**2*V*U_ + 4.*om0**2*om0_**2*V_*V + om0_**2*r*U*dV_ + om0**2*r*U_*dV + 6.*U_*U)
-        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*(-om0_*om0)*(-U_*V-U*V_+2.*V_*V+r*V*dU_\
+        B00 += (self.wig_red(-1,0,1) + self.wig_red(1,0,-1))*(-1.*om0_*om0)*(-U_*V-U*V_+2.*V_*V+r*V*dU_\
                 +r*V_*dU-2.*r*V*dV_-2*r*V_*dV+r*U*dV_+r*U_*dV+2*r**2 *dV_*dV)
 
         B00 = (0.5*((-1)**np.abs(0))*prefac)[:,np.newaxis] * (B00/r**2)
