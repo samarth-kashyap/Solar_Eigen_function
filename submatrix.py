@@ -106,7 +106,7 @@ def lorentz_diagonal(n_,n,l_,l,r,field_type = 'dipolar',smoothen = False):
     
     return Lambda
 
-def lorentz_all_st_equalB(n_,n,l_,l,r,s = np.array([0,1,2]),t = np.array([0]),smoothing=False):
+def lorentz_all_st_equalB(n_,n,l_,l,r,b_r,s = np.array([0,1,2]),t = np.array([0]),smoothing=False):
     m = np.arange(-l,l+1)
     m_ = np.arange(-l_,l_+1)
     mm_,mm = np.meshgrid(m_,m,indexing='ij')
@@ -127,7 +127,12 @@ def lorentz_all_st_equalB(n_,n,l_,l,r,s = np.array([0,1,2]),t = np.array([0]),sm
     #All h_munu_st have the same radial profile
     #Constructing real H profile
 
-    H_munu_t_r = fn.ret_real_same_H_munu_st(t,r)
+    if(smoothing == True):
+        npts = 300   #check the npts in get_kernels
+        r_new = np.linspace(np.amin(r),np.amax(r),npts)
+        r = r_new
+
+    H_munu_t_r = fn.ret_real_same_H_munu_st(t,r,b_r)
 
     #To store the necessary t's for a given component
     Hmm_t = np.zeros(np.shape(Bmm),dtype='complex128')

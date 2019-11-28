@@ -41,7 +41,7 @@ s = np.array([2])
 
 #condition about whether or not to scale by rho
 multiplyrho = True
-smoothen = True
+smoothen = False
 
 # plot_fac = OM**2 * 1e12 * (4.*np.pi/3) * 1e-10 #unit = muHz G^(-2) V_sol^(-1)
 plot_fac = OM**2 * 1e12 * 1e-10 #unit = muHz G^(-2)

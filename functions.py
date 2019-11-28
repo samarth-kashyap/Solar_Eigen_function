@@ -271,15 +271,17 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
 
     plt.savefig('Field_profile/b_2.pdf',dpi=200)
 
-def ret_real_same_H_munu_st(t,r):
+def ret_real_same_H_munu_st(t,r,b_r):
     #Construct h_{st}^{\mu\nu}(r) which is the same for all s,t,\mu,\nu
     t0_index = np.argmin(np.abs(t))
     #The radial profile for B
-    b_r = 1e-4/r**3  #10G on surface
-    #1e5 Gauss at tachocline
-    b_r += np.exp(-0.5*((r-0.7)/0.01)**2)
-    #1e7 Gauss at core
-    b_r += 100*np.exp(-0.5*(r/0.1)**2)
+    # b_r = 1e-4/r**3  #10G on surface
+    # #1e5 Gauss at tachocline
+    # b_r += np.exp(-0.5*((r-0.7)/0.01)**2)
+    # #1e7 Gauss at core
+    # b_r += 100*np.exp(-0.5*(r/0.1)**2)
+
+    # b_r = np.load('Field_profile/B_mag_profile.npy')    #Contains profile currently in get_Bcomps
 
     h_r = b_r*b_r
 

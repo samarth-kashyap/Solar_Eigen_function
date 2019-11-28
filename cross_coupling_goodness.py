@@ -51,7 +51,16 @@ nmax = 20
 s_max_H = np.max(s)    
 
 #if we want to use smoothened kernels
-smoothen = True
+smoothen = False
+
+#radial profile of magnetic field
+b_r = np.load('Field_profile/B_mag_profile.npy')
+
+if(smoothen):
+    npts = 300  #this has to be changed in corresponding places in other files
+    r_new = np.linspace(np.amin(r),np.amax(r),npts)
+    b_r_smooth,__,__ = fn.smooth(b_r,r,45,3,npts)
+    b_r = b_r_smooth
 
 #4 components of munu as we ar clubbing together (-- with ++) and (0- with 0+)
 qdpt_contrib_rel = np.zeros((30,300,4))
@@ -118,7 +127,7 @@ for n0 in range(0,nmax+1):
 
                 #Only if none of the above exists, then we compute them
                 else:
-                    Z_large[:,mi_beg:mi_end,mj_beg:mj_end] = submatrix.lorentz_all_st_equalB(n_,n,l_,l,r,s,t)  
+                    Z_large[:,mi_beg:mi_end,mj_beg:mj_end] = submatrix.lorentz_all_st_equalB(n_,n,l_,l,r,b_r,s,t,smoothen)  
                     np.save('Simulation_submatrices/%i_%i_%i_%i.npy'%(n_,l_,n,l),Z_large[:,mi_beg:mi_end,mj_beg:mj_end])                       
             
                 mj_beg += 2*l+1
@@ -197,53 +206,53 @@ for n0 in range(0,nmax+1):
             if(freq_jump <= nearest_omega_jump/4 or cent_mode_SD/freq_jump > 0.3):
                 qdpt_contrib_rel[n0,l0,munu] = 100.0    #set a high value
                 # qdpt_dev_nhz[n0,l0,munu] = 2000.0
-                title ='Unclean'    #Marking them unclean to label the plots
+                # title ='Unclean'    #Marking them unclean to label the plots
 
-                plt.figure()
-                # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
-                # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
+                # plt.figure()
+                # # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
+                # # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
 
-                plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
-                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-                plt.plot(ell,f_dpt,'.--',label='DPT')
+                # plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
+                # plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                # plt.plot(ell,f_dpt,'.--',label='DPT')
 
-                plt.savefig('./Coupled_modes/BAD_%i_%i_%i.png'%(n0,l0,munu))
-                plt.close()
+                # plt.savefig('./Coupled_modes/BAD_%i_%i_%i.png'%(n0,l0,munu))
+                # plt.close()
 
-                #Plotting the full window to see closeness to adjacent modes
+                # #Plotting the full window to see closeness to adjacent modes
 
-                plt.figure()
+                # plt.figure()
 
-                plt.plot(f_qdpt,'.',label='QDPT')
-                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-                plt.plot(ell,f_dpt,'.--',label='DPT')
+                # plt.plot(f_qdpt,'.',label='QDPT')
+                # plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                # plt.plot(ell,f_dpt,'.--',label='DPT')
 
-                plt.savefig('./Coupled_modes_full/BAD_%i_%i_%i.png'%(n0,l0,munu))
-                plt.close()
+                # plt.savefig('./Coupled_modes_full/BAD_%i_%i_%i.png'%(n0,l0,munu))
+                # plt.close()
 
                 continue    #abandon further analysis
 
-            else:
+            # else:
 
-                plt.figure()
-                # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
-                # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
+                # plt.figure()
+                # # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
+                # # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
 
-                plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
-                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-                plt.plot(ell,f_dpt,'.--',label='DPT')
+                # plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
+                # plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                # plt.plot(ell,f_dpt,'.--',label='DPT')
 
-                plt.savefig('./Coupled_modes/GOOD_%i_%i_%i.png'%(n0,l0,munu))
-                plt.close()
+                # plt.savefig('./Coupled_modes/GOOD_%i_%i_%i.png'%(n0,l0,munu))
+                # plt.close()
 
-                plt.figure()
+                # plt.figure()
 
-                plt.plot(f_qdpt,'.',label='QDPT')
-                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-                plt.plot(ell,f_dpt,'.--',label='DPT')
+                # plt.plot(f_qdpt,'.',label='QDPT')
+                # plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                # plt.plot(ell,f_dpt,'.--',label='DPT')
 
-                plt.savefig('./Coupled_modes_full/GOOD_%i_%i_%i.png'%(n0,l0,munu))
-                plt.close()
+                # plt.savefig('./Coupled_modes_full/GOOD_%i_%i_%i.png'%(n0,l0,munu))
+                # plt.close()
                 
 
             #######################
@@ -270,12 +279,23 @@ for n0 in range(0,nmax+1):
 
 # qdpt_dev_nhz = np.ma.masked_greater(qdpt_dev_nhz,100)
 qdpt_contrib_rel = np.ma.masked_invalid(qdpt_contrib_rel)
+qdpt_contrib_rel = np.ma.masked_greater(qdpt_contrib_rel,50)
 
-# l0 = 30
-# l = np.arange(0,l0)
+
+colors = qdpt_contrib_rel[:nmax+1,:l_max+1,:]
+size = qdpt_contrib_rel[:nmax+1,:l_max+1,:]
+
+size[size<10.0] = 10.0    #Setting the minimum limit to 1.0 => Correspond to 5% or less change
+
+
+
+vmin = 0  #To make the smallest dots look gray
+vmax = np.amax(colors)
+
+fig,ax = plt.subplots(2,2, figsize=(10, 10), sharex=True, sharey=True, dpi=200, facecolor='w', edgecolor='k')
 
 for munu in range(4): 
-    plt.figure()
+    # plt.subplot()
     # for n0 in range(nmax+1):
     #     nl_list = nl_all[nl_all[:,0]==n0][:l0]
     #     nl_list = nl_list.astype('int64')
@@ -297,20 +317,41 @@ for munu in range(4):
 
         omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list]) #important to have nl_list as integer type
 
-        vmin = 0
-        vmax = np.amax(qdpt_contrib_rel[:,:l_max+1,munu])
-        plt.scatter(l,omega_nl*OM*1e6,c=qdpt_contrib_rel[n0,l[0]:l[-1]+1,munu],vmin=vmin,vmax=vmax)
+        # ax[int(munu/2),munu%2].scatter(l,omega_nl*OM*1e6/1e3,s=size,c=qdpt_contrib_rel[n0,l[0]:l[-1]+1,munu],cmap='hot',vmin=vmin,vmax=vmax)
+        if(n0==0): im = ax[int(munu/2),munu%2].scatter(l,omega_nl*OM*1e6/1e3,s=size[n0,l[0]:l[-1]+1,munu], \
+                        c=colors[n0,l[0]:l[-1]+1,munu], linewidth=0.2, edgecolor='k',cmap='binary',vmin=vmin,vmax=vmax)
+        else: ax[int(munu/2),munu%2].scatter(l,omega_nl*OM*1e6/1e3,s=size[n0,l[0]:l[-1]+1,munu], \
+                        c=colors[n0,l[0]:l[-1]+1,munu], linewidth=0.2, edgecolor='k',cmap='binary',vmin=vmin,vmax=vmax)
+    
+    # fig.colorbar(im,ax=ax[int(munu/2),munu%2])
+
+    if(munu==0): ax[int(munu/2),munu%2].text(0,3.9,'$h^{--}, h^{++}$',fontsize=8)
+    elif(munu==1): ax[int(munu/2),munu%2].text(0,3.9,'$h^{0-}, h^{0+}$',fontsize=8)
+    elif(munu==2): ax[int(munu/2),munu%2].text(0,3.9,'$h^{00}$',fontsize=8)
+    else: ax[int(munu/2),munu%2].text(0,3.9,'$h^{+-}$',fontsize=8)
 
 
-    if(munu==0): plt.title('$\mathcal{B}^{--}$')
-    elif(munu==1): plt.title('$\mathcal{B}^{0-}$')
-    elif(munu==2): plt.title('$\mathcal{B}^{00}$')
-    else: plt.title('$\mathcal{B}^{+-}$')
+    ax[int(munu/2),munu%2].set_ylim([0.480,4.400])
+    ax[int(munu/2),munu%2].grid(True,alpha=0.2)
+    # plt.colorbar()
 
-    plt.ylim([480,4300])
-    plt.colorbar()
+    # ax[int(munu/2),munu%2].set_xlabel('$\ell$')
+    # ax[int(munu/2),munu%2].set_ylabel('frequency (in mHz)')
 
-    plt.xlabel('$\ell$')
-    plt.ylabel('frequency (in $\mu$ Hz)')
-    plt.savefig('Cross_coupling_goodness/Bmunu_avg_%i.png'%munu)
+fig.add_subplot(111, frameon=False)
+plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.05,
+                        wspace=0.03)
+
+plt.title('$\\frac{L_2^{QDPT}-L_2^{DPT}}{L_2^{DPT}} \\times 100$%',\
+                fontsize = 16, pad = 12)
+
+plt.xlabel('$\ell$',fontsize=16)
+plt.ylabel('Unperturbed frequency $\omega_0$ in mHz',fontsize=16)
+
+cb_ax = fig.add_axes([0.96, 0.08, 0.01, 0.84])
+cbar = fig.colorbar(im, cax=cb_ax)
+
+plt.savefig('Cross_coupling_goodness/All_munu.pdf')
 
