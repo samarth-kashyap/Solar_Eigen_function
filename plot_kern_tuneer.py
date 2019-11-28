@@ -74,9 +74,10 @@ __, Bmm3, B0m3,B003, Bpm3,_,_ = np.array(gkerns.Hkernels(n3,l3,m,n3,l3,m,s,r).\
 
 tstamp('kernel calculation time')
 
-npts = 300   #check the npts in get_kernels
-r_new = np.linspace(np.amin(r),np.amax(r),npts)
-r = r_new
+if(smoothen == True):
+    npts = 300   #check the npts in get_kernels
+    r_new = np.linspace(np.amin(r),np.amax(r),npts)
+    r = r_new
 
 # rho_i = np.loadtxt('rho.dat')
 # rho_i = rho_i[start_ind:end_ind+1]
@@ -169,12 +170,15 @@ else:   #if it contains an argument, kernels shall be zoomed in to show depth se
 
     fig,ax = plt.subplots(2,4, figsize=(14, 12), dpi=dpi, facecolor='w', edgecolor='k')
 
+    x_lim_max = np.amax(np.array([np.amax(np.abs(Bmm1[:,:,r_end_ind:])),np.amax(np.abs(Bmm2[:,:,r_end_ind:])),np.amax(np.abs(Bmm3[:,:,r_end_ind:]))]))
+    x_lim_max *= 1.1
 
     ax[0,0].plot(Bmm1[0,0],r, label = '('+str(n1)+','+str(l1)+')')
     ax[0,0].plot(Bmm2[0,0],r, label = '('+str(n2)+','+str(l2)+')')
     ax[0,0].plot(Bmm3[0,0],r, label = '('+str(n3)+','+str(l3)+')')
     ax[0,0].set_ylabel('$r/R_{\odot}$',fontsize=14)
     ax[0,0].set_ylim(r_start_clip,r_end)
+    ax[0,0].set_xlim(-x_lim_max,x_lim_max)
     ax[0,0].legend()
     ax[0,0].grid(True,alpha = 0.2)
     # plt.ylabel('$\mathcal{B}^{--}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
@@ -197,11 +201,15 @@ else:   #if it contains an argument, kernels shall be zoomed in to show depth se
     ax[1,0].set_xlabel('$\\rho\mathcal{A}^{--}_{20}$',\
                 fontsize = 14)
 
+    x_lim_max = np.amax(np.array([np.amax(np.abs(B0m1[:,:,r_end_ind:])),np.amax(np.abs(B0m2[:,:,r_end_ind:])),np.amax(np.abs(B0m3[:,:,r_end_ind:]))]))
+    x_lim_max *= 1.1
+
     ax[0,1].plot(B0m1[0,0],r, label = '('+str(n1)+','+str(l1)+')')
     ax[0,1].plot(B0m2[0,0],r, label = '('+str(n2)+','+str(l2)+')')
     ax[0,1].plot(B0m3[0,0],r, label = '('+str(n3)+','+str(l3)+')')
     ax[0,1].set_ylabel('$r/R_{\odot}$',fontsize=14)
     ax[0,1].set_ylim(r_start_clip,r_end)
+    ax[0,1].set_xlim(-x_lim_max,x_lim_max)
     ax[0,1].legend()
     ax[0,1].grid(True,alpha=0.2)
     # ax[0,1].ylabel('$\mathcal{B}^{0-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
@@ -223,11 +231,15 @@ else:   #if it contains an argument, kernels shall be zoomed in to show depth se
     ax[1,1].set_xlabel('$\\rho\mathcal{A}^{0-}_{20}$',\
                 fontsize = 14)
 
+    x_lim_max = np.amax(np.array([np.amax(np.abs(B001[:,:,r_end_ind:])),np.amax(np.abs(B002[:,:,r_end_ind:])),np.amax(np.abs(B003[:,:,r_end_ind:]))]))
+    x_lim_max *= 1.1
+
     ax[0,2].plot(B001[0,0],r, label = '('+str(n1)+','+str(l1)+')')
     ax[0,2].plot(B002[0,0],r, label = '('+str(n2)+','+str(l2)+')')
     ax[0,2].plot(B003[0,0],r, label = '('+str(n3)+','+str(l3)+')')
     ax[0,2].set_ylabel('$r/R_{\odot}$',fontsize=14)
     ax[0,2].set_ylim(r_start_clip,r_end)
+    ax[0,2].set_xlim(-x_lim_max,x_lim_max)
     ax[0,2].legend()
     ax[0,2].grid(True,alpha=0.2)
     # ax[0,2].ylabel('$\mathcal{B}^{00}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
@@ -249,11 +261,15 @@ else:   #if it contains an argument, kernels shall be zoomed in to show depth se
     ax[1,2].set_xlabel('$\\rho\mathcal{A}^{00}_{20}$',\
                 fontsize = 14)
 
+    x_lim_max = np.amax(np.array([np.amax(np.abs(Bpm1[:,:,r_end_ind:])),np.amax(np.abs(Bpm2[:,:,r_end_ind:])),np.amax(np.abs(Bpm3[:,:,r_end_ind:]))]))
+    x_lim_max *= 1.1
+
     ax[0,3].plot(Bpm1[0,0],r, label = '('+str(n1)+','+str(l1)+')')
     ax[0,3].plot(Bpm2[0,0],r, label = '('+str(n2)+','+str(l2)+')')
     ax[0,3].plot(Bpm3[0,0],r, label = '('+str(n3)+','+str(l3)+')')
     ax[0,3].set_ylabel('$r/R_{\odot}$',fontsize=14)
     ax[0,3].set_ylim(r_start_clip,r_end)
+    ax[0,3].set_xlim(-x_lim_max,x_lim_max)
     ax[0,3].legend()
     ax[0,3].grid(True,alpha=0.2)
     # ax[0,3].ylabel('$\mathcal{B}^{+-}_{20}$ in $(\mu Hz^2 G^{-2}V_{\odot}^{-1})$')
@@ -286,7 +302,7 @@ else:   #if it contains an argument, kernels shall be zoomed in to show depth se
     plt.title('$\\rho\mathcal{A}^{\mu\\nu}_{20}$ in $(\mu Hz G^{-2}M_{\odot}V_{\odot}^{-1})$',\
                 fontsize = 18, pad = 20)
 
-    plt.savefig('./kern_depth_sens.pdf',dpi=200)
+    plt.savefig('./kern_depth_sens_nosmooth.pdf',dpi=200)
 
     plt.show()
 

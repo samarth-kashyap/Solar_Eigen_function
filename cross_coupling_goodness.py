@@ -24,7 +24,7 @@ OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in H
 
 field_type = 'mixed'
 r = np.loadtxt('r.dat')
-r_start, r_end = 0.,1.
+r_start, r_end = 0.68,1.
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 r = r[start_ind:end_ind]
 
@@ -37,7 +37,7 @@ f_window = 50.0 #in muHz
 #tolerance of offset of QDPT wet DPT beyond which cross-coupling is important
 tol_percent = 5.0   #in percent. tol = 5.0 means 5% tolerance or QPDT rms has to be within 95% of DPT rms.
 
-s = np.array([0,1,2])
+s = np.array([0,1,2,3,4,5,6])
 t = np.arange(-np.amax(s),np.amax(s)+1)
 # t = np.array([0])
 # n0 = 6  #choosing the branch
@@ -45,19 +45,20 @@ t = np.arange(-np.amax(s),np.amax(s)+1)
 # l_max = int(np.amax(l_n0) - np.amax(s))
 # l_max = int(np.amax(l_n0))
 l_max = 30
+nmax = 20
 
-#max s values for DR and magnetic field to speed up supermatrix computation
+#max s values for magnetic field to speed up supermatrix computation
 s_max_H = np.max(s)    
 
 #if we want to use smoothened kernels
-smoothen = False
+smoothen = True
 
 #4 components of munu as we ar clubbing together (-- with ++) and (0- with 0+)
-# qdpt_contrib_rel = np.zeros((30,300,4))
-qdpt_dev_nhz = np.zeros((30,300,4))
+qdpt_contrib_rel = np.zeros((30,300,4))
+# qdpt_dev_nhz = np.zeros((30,300,4))
 # qdpt_contrib = np.zeros((4,300))
 
-for n0 in range(0,20):
+for n0 in range(0,nmax+1):
     nl_list_n0 = nl_all[nl_all[:,0]==n0]
     l_n0 = nl_list_n0[:,1]
 
@@ -78,7 +79,7 @@ for n0 in range(0,20):
         nl_list = nl_list.astype('int64')   #making the modes integers for future convenience
         
         omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list]) #important to have nl_list as integer type
-        nearest_omega_jump = np.amin(np.sort(np.abs(omega_nl-omega_nl0))[1])
+        nearest_omega_jump = np.sort(np.abs(omega_nl-omega_nl0))[1]
 
         total_m = len(nl_list) + 2*np.sum(nl_list, axis = 0)[1] #total length of supermatrix
 
@@ -108,7 +109,7 @@ for n0 in range(0,20):
                     print('Computed mode exists')
                     Z_large[:,mi_beg:mi_end,mj_beg:mj_end] = np.load('Simulation_submatrices/%i_%i_%i_%i.npy'%(n_,l_,n,l))
 
-                #Checking if the flipped modes have been calculated.
+                # Checking if the flipped modes have been calculated.
                 elif(os.path.exists('Simulation_submatrices/%i_%i_%i_%i.npy'%(n,l,n_,l_))):
                     print('Computed flipped mode exists')
                     Z_CT = np.load('Simulation_submatrices/%i_%i_%i_%i.npy'%(n,l,n_,l_))
@@ -183,6 +184,8 @@ for n0 in range(0,20):
 
             omega_nl_sorted = np.sort(omega_nl)
             sort_ind = np.argsort(omega_nl)
+
+            #To locate the central mode in the sorted eigenvalues
             l0_location = np.argmin(np.abs(omega_nl_sorted - omega_nl0))
             nl_sorted = nl_list[sort_ind]
             l_local_start = 2*np.sum(nl_sorted[:l0_location,1]) + l0_location
@@ -191,86 +194,121 @@ for n0 in range(0,20):
             ell = np.arange(l_local_start,l_local_end)
 
             #Checking if we should already discard some modes which come too close or overlap.
-            # if(freq_jump <= nearest_omega_jump/4 or cent_mode_SD/freq_jump > 0.3):
-            #     # qdpt_contrib_rel[n0,l0,munu] = 100.0    #set a high value
-            #     qdpt_dev_nhz[n0,l0,munu] = 2000.0
-            #     title ='Unclean'    #Marking them unclean to label the plots
+            if(freq_jump <= nearest_omega_jump/4 or cent_mode_SD/freq_jump > 0.3):
+                qdpt_contrib_rel[n0,l0,munu] = 100.0    #set a high value
+                # qdpt_dev_nhz[n0,l0,munu] = 2000.0
+                title ='Unclean'    #Marking them unclean to label the plots
 
-            #     plt.figure()
-            #     # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
-            #     # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
+                plt.figure()
+                # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
+                # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
 
-            #     plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
-            #     plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-            #     plt.plot(ell,f_dpt,'.--',label='DPT')
+                plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
+                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                plt.plot(ell,f_dpt,'.--',label='DPT')
 
-            #     plt.savefig('./Coupled_modes/BAD_%i_%i_%i.png'%(n0,l0,munu))
-            #     plt.close()
+                plt.savefig('./Coupled_modes/BAD_%i_%i_%i.png'%(n0,l0,munu))
+                plt.close()
 
-            #     continue    #abandon further analysis
+                #Plotting the full window to see closeness to adjacent modes
 
-            # else:
+                plt.figure()
 
-            #     plt.figure()
-            #     # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
-            #     # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
+                plt.plot(f_qdpt,'.',label='QDPT')
+                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                plt.plot(ell,f_dpt,'.--',label='DPT')
 
-            #     plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
-            #     plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-            #     plt.plot(ell,f_dpt,'.--',label='DPT')
+                plt.savefig('./Coupled_modes_full/BAD_%i_%i_%i.png'%(n0,l0,munu))
+                plt.close()
 
-            #     plt.savefig('./Coupled_modes/GOOD_%i_%i_%i.png'%(n0,l0,munu))
-            #     plt.close()
+                continue    #abandon further analysis
+
+            else:
+
+                plt.figure()
+                # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
+                # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
+
+                plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
+                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                plt.plot(ell,f_dpt,'.--',label='DPT')
+
+                plt.savefig('./Coupled_modes/GOOD_%i_%i_%i.png'%(n0,l0,munu))
+                plt.close()
+
+                plt.figure()
+
+                plt.plot(f_qdpt,'.',label='QDPT')
+                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                plt.plot(ell,f_dpt,'.--',label='DPT')
+
+                plt.savefig('./Coupled_modes_full/GOOD_%i_%i_%i.png'%(n0,l0,munu))
+                plt.close()
                 
 
             #######################
             #Comparing QDPT and DPT
 
-            # domega_QDPT = np.linalg.norm(np.sort(np.abs(eig_vals_qdpt))[:2*l0+1])
-            # domega_DPT = np.linalg.norm(eig_vals_dpt)
+            domega_QDPT = np.linalg.norm(np.sort(np.abs(eig_vals_qdpt))[:2*l0+1])
+            domega_DPT = np.linalg.norm(eig_vals_dpt)
 
-            # rel_offset_percent = np.abs((domega_QDPT-domega_DPT)/domega_DPT) * 100.0
+            rel_offset_percent = np.abs((domega_QDPT-domega_DPT)/domega_DPT) * 100.0
 
 
 
             # if(rel_offset_percent <= tol_percent): 
-            # qdpt_contrib_rel[n0,l0,munu] = rel_offset_percent  
+            qdpt_contrib_rel[n0,l0,munu] = rel_offset_percent  
             
 
-            freq_diff_nHz = 1000*(f_qdpt[l_local_start:l_local_end] - f_dpt)    #frequency offset in nHz
+            # freq_diff_nHz = 1000*(f_qdpt[l_local_start:l_local_end] - f_dpt)    #frequency offset in nHz
 
-            qdpt_dev_nhz[n0,l0,munu] = np.average(np.abs(freq_diff_nHz))
+            # qdpt_dev_nhz[n0,l0,munu] = np.average(np.abs(freq_diff_nHz))
 
 
 
                 
 
-qdpt_dev_nhz = np.ma.masked_greater(qdpt_dev_nhz,100)
+# qdpt_dev_nhz = np.ma.masked_greater(qdpt_dev_nhz,100)
+qdpt_contrib_rel = np.ma.masked_invalid(qdpt_contrib_rel)
 
-l0 = 30
-l = np.arange(0,l0)
+# l0 = 30
+# l = np.arange(0,l0)
 
 for munu in range(4): 
     plt.figure()
-    for n0 in range(20):
-        nl_list = nl_all[nl_all[:,0]==n0][:l0]
+    # for n0 in range(nmax+1):
+    #     nl_list = nl_all[nl_all[:,0]==n0][:l0]
+    #     nl_list = nl_list.astype('int64')
+
+    #     omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list]) #important to have nl_list as integer type
+
+    #     vmin = 0
+    #     vmax = np.amax(qdpt_contrib_rel[:,:l0, munu])
+    #     # vmax = np.amax(qdpt_dev_nhz[:,:l0, munu])
+    #     plt.scatter(l,omega_nl*OM*1e6,c=qdpt_contrib_rel[n0,:l0, munu],vmin=vmin,vmax=vmax)
+    #     # plt.scatter(l,omega_nl*OM*1e6,c=qdpt_dev_nhz[n0,:l0, munu],vmin=vmin,vmax=vmax)
+
+    for n0 in range(nmax+1):
+        nl_list = nl_all[nl_all[:,0]==n0]
         nl_list = nl_list.astype('int64')
+
+        nl_list = nl_list[nl_list[:,1]<l_max+1] #choosing to plot till l_max computed
+        l = nl_list[:,1]    #isolating the \ell's
 
         omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list]) #important to have nl_list as integer type
 
         vmin = 0
-        # vmax = np.amax(qdpt_contrib_rel[:,:l0, munu])
-        vmax = np.amax(qdpt_dev_nhz[:,:l0, munu])
-        # plt.scatter(l,omega_nl*OM*1e6,c=qdpt_contrib_rel[n0,:l0, munu],vmin=vmin,vmax=90)
-        plt.scatter(l,omega_nl*OM*1e6,c=qdpt_dev_nhz[n0,:l0, munu],vmin=vmin,vmax=vmax)
+        vmax = np.amax(qdpt_contrib_rel[:,:l_max+1,munu])
+        plt.scatter(l,omega_nl*OM*1e6,c=qdpt_contrib_rel[n0,l[0]:l[-1]+1,munu],vmin=vmin,vmax=vmax)
 
-    plt.colorbar()
+
     if(munu==0): plt.title('$\mathcal{B}^{--}$')
     elif(munu==1): plt.title('$\mathcal{B}^{0-}$')
     elif(munu==2): plt.title('$\mathcal{B}^{00}$')
     else: plt.title('$\mathcal{B}^{+-}$')
 
     plt.ylim([480,4300])
+    plt.colorbar()
 
     plt.xlabel('$\ell$')
     plt.ylabel('frequency (in $\mu$ Hz)')

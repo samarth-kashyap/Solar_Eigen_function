@@ -111,7 +111,7 @@ def lorentz_all_st_equalB(n_,n,l_,l,r,s = np.array([0,1,2]),t = np.array([0]),sm
     m_ = np.arange(-l_,l_+1)
     mm_,mm = np.meshgrid(m_,m,indexing='ij')
 
-    kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,r,False)   
+    kern = gkerns.Hkernels(n_,l_,m_,n,l,m,s,r,False)  #False because we don't assume axisymmetric field 
 
     #Obtaining the mode-a =symmetric kernels
     Bmm,B0m,B00,Bpm,Bp0,Bpp = kern.ret_kerns(smoothing)

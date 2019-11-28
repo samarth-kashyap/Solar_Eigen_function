@@ -80,7 +80,7 @@ def nearest_freq_modes(l0,smax,om0,dom):
     #om0 in normalized units and dom in muHz
     OM = np.loadtxt('OM.dat')
     omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM
-    nl_ind = np.argsort(np.abs(omega_list-om0))
+    nl_ind = np.argsort(np.abs(omega_list-om0)) #puts central mode first
     om_sorted = np.sort(np.abs(omega_list-om0)) * OM * 1e6
     max_ind = np.argmin(np.abs(om_sorted - dom))
     nl_ind = nl_ind[:max_ind]
@@ -132,7 +132,7 @@ def kron_delta(i,j):
 def getB_comps(s0,r,R1,R2,field_type,forplot=False):
     """function to get the components of B_field"""    
     #The following allows transition region from 0.73 to 0.95
-    # R1 = 0.73
+    # R1 = 0.76
     # R2 = 0.90
 
     R_tacho = 0.7
