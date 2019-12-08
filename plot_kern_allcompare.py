@@ -6,10 +6,10 @@ from os import getcwd
 import get_kernels_herm as gkerns
 plt.ion()
 
-plt.rcParams['xtick.labelsize'] = 3
-plt.rcParams['ytick.labelsize'] = 3
+plt.rcParams['xtick.labelsize'] = 20
+plt.rcParams['ytick.labelsize'] = 20
 
-lw = 0.5
+lw = 1.0
 
 kernclock = timing.stopclock()
 tstamp = kernclock.lap
@@ -43,15 +43,15 @@ rho,__,__,__,__,__,__ = np.array(gkerns.Hkernels(1,10,0,1,10,0,s,r)\
 dpi = 80
 # fig = plt.figure(num=None, figsize=(11, 8), dpi=dpi, facecolor='w', edgecolor='k')
 
-nstart = 1
+nstart = 2
 
-ntotal = 5
-ltotal = 11
-fig, ax = plt.subplots(ntotal,ltotal,figsize=(11,8))
+ntotal = 4
+ltotal = 6
+fig, ax = plt.subplots(ntotal,ltotal,figsize=(6,10))
 for ncount in range(ntotal):
     for lcount in range(ltotal):
         n = nstart + ncount
-        l = 10 + 10*lcount
+        l = 10 + 20*lcount
         omega_nl = omega_list[fn.find_nl(n, l)]
 
         # plot_fac = OM**2 * 1e12 * (4.*np.pi/3) * 1e-10 #unit = muHz G^(-2) V_sol^(-1)
@@ -91,40 +91,43 @@ for ncount in range(ntotal):
 
         if(ncount == 0 and lcount ==0):
             lmm, = ax[ncount,lcount].plot(Bmm[0,0],rplot,linewidth = lw)
-            l0m, = ax[ncount,lcount].plot(B0m[0,0],rplot,linewidth = lw)
-            l00, = ax[ncount,lcount].plot(B00[0,0],rplot,linewidth = lw)
-            lpm, = ax[ncount,lcount].plot(Bpm[0,0],rplot,linewidth = lw)
+            l0m, = ax[ncount,lcount].plot(B0m[0,0],rplot,'k',linewidth = lw)
+            l00, = ax[ncount,lcount].plot(B00[0,0],rplot,'green',linewidth = lw)
+            lpm, = ax[ncount,lcount].plot(Bpm[0,0],rplot,color='chocolate',linewidth = lw)
 
         else:
             ax[ncount,lcount].plot(Bmm[0,0],rplot,linewidth = lw)
-            ax[ncount,lcount].plot(B0m[0,0],rplot,linewidth = lw)
-            ax[ncount,lcount].plot(B00[0,0],rplot,linewidth = lw)
-            ax[ncount,lcount].plot(Bpm[0,0],rplot,linewidth = lw)
+            ax[ncount,lcount].plot(B0m[0,0],rplot,'k',linewidth = lw)
+            ax[ncount,lcount].plot(B00[0,0],rplot,'green',linewidth = lw)
+            ax[ncount,lcount].plot(Bpm[0,0],rplot,color='chocolate',linewidth = lw)
         ax[ncount,lcount].set_xlim([-2e-7,2e-7])
         ax[ncount,lcount].set_ylim([0.89,1])
         fig.patch.set_visible(False)
         ax[ncount,lcount].axis('off')
-        ax[ncount,lcount].title.set_text('${}_{%i}\mathrm{S}_{%i}$'%(n,l))
+        # ax[ncount,lcount].title.set_text('${}_{%i}\mathrm{S}_{%i}$'%(n,l))
+        ax[ncount,lcount].set_title('${}_{%i}\mathrm{S}_{%i}$'%(n,l),fontsize=18)
 
     
         if(lcount == 0): 
-            ax[ncount,lcount].text(-4e-7,0.9,'$0.9R_{\odot} -$',fontsize=8)            
+            ax[ncount,lcount].text(-4e-7,0.9,'$0.9R_{\odot} -$',fontsize=14)            
             # ax[ncount,lcount].text(-4e-7,0.7,'$0.7R_{\odot} -$',fontsize=8)
             
 
         if(lcount == ltotal-1): 
-            ax[ncount,lcount].text(2e-7,0.9,'$-   0.9R_{\odot}$',fontsize=8)
+            ax[ncount,lcount].text(2e-7,0.9,'$-   0.9R_{\odot}$',fontsize=14)
             # ax[ncount,lcount].text(2e-7,0.7,'$-   0.7R_{\odot}$',fontsize=8)
-        print(ncount,lcount)
+        print(n,l)
 
 fig.legend((lmm,l0m,l00,lpm),('$\\rho\mathcal{A}^{--}_{n\ell}$','$\\rho\mathcal{A}^{0-}_{n\ell}$', \
-        '$\\rho\mathcal{A}^{00}_{n\ell}$','$\\rho\mathcal{A}^{+-}_{n\ell}$'),'lower center',ncol=4)
+        '$\\rho\mathcal{A}^{00}_{n\ell}$','$\\rho\mathcal{A}^{+-}_{n\ell}$'),'lower center',ncol=4,fontsize=14)
 
 
 fig.add_subplot(111, frameon=False)
 plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
-plt.subplots_adjust(top=0.92, bottom=0.08, left=0.08, right=0.95, hspace=0.5,
+plt.subplots_adjust(top=0.92, bottom=0.1, left=0.08, right=0.88, hspace=0.5,
                     wspace=0.02)
 
-plt.savefig('kerns_allcompare.pdf',dpi = 200)
+# plt.tight_layout()
+
+plt.savefig('kerns_allcompare_poster.pdf',dpi = 200)

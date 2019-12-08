@@ -234,25 +234,25 @@ for n0 in range(0,nmax+1):
 
             # else:
 
-                # plt.figure()
-                # # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
-                # # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
+                plt.figure()
+                # plt.plot(np.sort(np.abs(eig_vals_qdpt/(2*omega_ref0))),'.')
+                # plt.plot(np.sort(np.abs(omega_nl_arr-omega_ref0))) 
 
-                # plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
-                # plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-                # plt.plot(ell,f_dpt,'.--',label='DPT')
+                plt.plot(ell,f_qdpt[l_local_start:l_local_end],'.',label='QDPT')
+                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                plt.plot(ell,f_dpt,'.--',label='DPT')
 
-                # plt.savefig('./Coupled_modes/GOOD_%i_%i_%i.png'%(n0,l0,munu))
-                # plt.close()
+                plt.savefig('./Coupled_modes/GOOD_%i_%i_%i.png'%(n0,l0,munu))
+                plt.close()
 
-                # plt.figure()
+                plt.figure()
 
-                # plt.plot(f_qdpt,'.',label='QDPT')
-                # plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
-                # plt.plot(ell,f_dpt,'.--',label='DPT')
+                plt.plot(f_qdpt,'.',label='QDPT')
+                plt.plot(ell,np.sort(omega_nl_arr)[l_local_start:l_local_end]*OM*1e6,'.-',label='0')
+                plt.plot(ell,f_dpt,'.--',label='DPT')
 
-                # plt.savefig('./Coupled_modes_full/GOOD_%i_%i_%i.png'%(n0,l0,munu))
-                # plt.close()
+                plt.savefig('./Coupled_modes_full/GOOD_%i_%i_%i.png'%(n0,l0,munu))
+                plt.close()
                 
 
             #######################
@@ -285,14 +285,14 @@ qdpt_contrib_rel = np.ma.masked_greater(qdpt_contrib_rel,50)
 colors = qdpt_contrib_rel[:nmax+1,:l_max+1,:]
 size = qdpt_contrib_rel[:nmax+1,:l_max+1,:]
 
-size[size<10.0] = 10.0    #Setting the minimum limit to 1.0 => Correspond to 5% or less change
+size[size<10.0] = 10.0    #Setting the minimum limit to 10.0 => Correspond to 10% or less change
 
 
 
 vmin = 0  #To make the smallest dots look gray
 vmax = np.amax(colors)
 
-fig,ax = plt.subplots(2,2, figsize=(10, 10), sharex=True, sharey=True, dpi=200, facecolor='w', edgecolor='k')
+fig,ax = plt.subplots(2,2, figsize=(16, 10), sharex=True, sharey=True, dpi=200, facecolor='w', edgecolor='k')
 
 for munu in range(4): 
     # plt.subplot()
@@ -325,10 +325,10 @@ for munu in range(4):
     
     # fig.colorbar(im,ax=ax[int(munu/2),munu%2])
 
-    if(munu==0): ax[int(munu/2),munu%2].text(0,3.9,'$h^{--}, h^{++}$',fontsize=8)
-    elif(munu==1): ax[int(munu/2),munu%2].text(0,3.9,'$h^{0-}, h^{0+}$',fontsize=8)
-    elif(munu==2): ax[int(munu/2),munu%2].text(0,3.9,'$h^{00}$',fontsize=8)
-    else: ax[int(munu/2),munu%2].text(0,3.9,'$h^{+-}$',fontsize=8)
+    if(munu==0): ax[int(munu/2),munu%2].text(0,3.9,'$(a) \quad h^{--}, h^{++}$',fontsize=12)
+    elif(munu==1): ax[int(munu/2),munu%2].text(0,3.9,'$(b) \quad h^{0-}, h^{0+}$',fontsize=12)
+    elif(munu==2): ax[int(munu/2),munu%2].text(0,3.9,'$(c) \quad h^{00}$',fontsize=12)
+    else: ax[int(munu/2),munu%2].text(0,3.9,'$(d) \quad h^{+-}$',fontsize=12)
 
 
     ax[int(munu/2),munu%2].set_ylim([0.480,4.400])
@@ -353,5 +353,5 @@ plt.ylabel('Unperturbed frequency $\omega_0$ in mHz',fontsize=16)
 cb_ax = fig.add_axes([0.96, 0.08, 0.01, 0.84])
 cbar = fig.colorbar(im, cax=cb_ax)
 
-plt.savefig('Cross_coupling_goodness/All_munu.pdf')
+plt.savefig('Cross_coupling_goodness/All_munu_poster.pdf')
 

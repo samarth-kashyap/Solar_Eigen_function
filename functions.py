@@ -188,6 +188,11 @@ def getB_comps(s0,r,R1,R2,field_type,forplot=False):
     else: return B_mu_t_r/gamma_s
 
 def plot_Bprofiles(s0,r,R1,R2,field_type):
+    plt.rcParams['xtick.labelsize'] = 14
+    plt.rcParams['ytick.labelsize'] = 14
+    fs = 14
+    fs2 = 24
+
     B, alpha, beta, a, b, gamma_s = getB_comps(s0,r,R1,R2,field_type,True)
     B_mag = np.linalg.norm(B,axis=0)[1,:]
     B_tor = np.sqrt(2)*alpha/gamma_s / np.sqrt(2)
@@ -213,16 +218,25 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
     ax1.add_patch(rect3a)
     ax1.add_patch(rect4a)
     plt.grid(True,alpha=0.3)
-    plt.xlabel('$r/R_{\odot}$')
-    plt.ylabel('Magnetic field strength in Gauss')
-    plt.text(0.4,1.1e8,'I')
-    plt.text(0.69,1.1e8,'II')
-    plt.text(0.83,1.1e8,'M')
-    plt.text(0.96,1.1e8,'III')
+    plt.xlabel('$r/R_{\odot}$',fontsize=fs)
+    plt.ylabel('Magnetic field strength in Gauss',fontsize=fs)
+    plt.text(0.4,1.1e8,'I',fontsize=fs)
+    plt.text(0.69,1.1e8,'II',fontsize=fs)
+    plt.text(0.83,1.1e8,'M',fontsize=fs)
+    plt.text(0.96,1.1e8,'III',fontsize=fs)
 
-    plt.savefig('Field_profile/B_mag.pdf',dpi=200)
+    fig1.add_subplot(111, frameon=False)
+    plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
 
-    fig2 = plt.figure()
+    plt.subplots_adjust(top=0.96, bottom=0.11, left=0.13, right=0.97, hspace=0.14,
+                        wspace=0.1)
+
+    plt.savefig('Field_profile/B_mag_poster.pdf',dpi=200)
+
+    plt.rcParams['xtick.labelsize'] = 20
+    plt.rcParams['ytick.labelsize'] = 20
+
+    fig2 = plt.figure(figsize=(14,6))
     ax2 = fig2.add_subplot(2,1,1)
 
     rect1b = plt.Rectangle((0,-13),0.67,15, color='green', alpha=0.1)
@@ -232,7 +246,7 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
 
     plt.plot(r,b,'k',label='$b(r)$')
     plt.plot(r,a,'k--',label='$a(r) = b(r) - r \dot{b}(r)$')
-    plt.legend()
+    plt.legend(fontsize=fs)
     plt.ylim([-13,2])
     plt.xlim([0,1])
     plt.grid(True,alpha=0.3)
@@ -241,11 +255,11 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
     ax2.add_patch(rect3b)
     ax2.add_patch(rect4b)
     # plt.xlabel('$r/R_{\odot}$')
-    plt.ylabel('(a)')
-    plt.text(0.4,2.1,'I')
-    plt.text(0.69,2.1,'II')
-    plt.text(0.83,2.1,'M')
-    plt.text(0.96,2.1,'III')
+    plt.ylabel('(a)',fontsize=fs2)
+    plt.text(0.4,2.1,'I',fontsize=fs2)
+    plt.text(0.69,2.1,'II',fontsize=fs2)
+    plt.text(0.83,2.1,'M',fontsize=fs2)
+    plt.text(0.96,2.1,'III',fontsize=fs2)
 
     # fig3 = plt.figure()
     ax3 = fig2.add_subplot(2,1,2)
@@ -264,12 +278,18 @@ def plot_Bprofiles(s0,r,R1,R2,field_type):
     ax3.add_patch(rect2c)
     ax3.add_patch(rect3c)
     ax3.add_patch(rect4c)
-    plt.legend()
+    plt.legend(fontsize=fs)
     plt.grid(True,alpha=0.3)
-    plt.xlabel('$r/R_{\odot}$')
-    plt.ylabel('(b)')
+    plt.xlabel('$r/R_{\odot}$',fontsize=fs2)
+    plt.ylabel('(b)',fontsize=fs2)
 
-    plt.savefig('Field_profile/b_2.pdf',dpi=200)
+    fig2.add_subplot(111, frameon=False)
+    plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    plt.subplots_adjust(top=0.95, bottom=0.124, left=0.08, right=0.98, hspace=0.14,
+                        wspace=0.1)
+
+    plt.savefig('Field_profile/b_2_poster.pdf',dpi=200)
 
 def ret_real_same_H_munu_st(t,r,b_r):
     #Construct h_{st}^{\mu\nu}(r) which is the same for all s,t,\mu,\nu
