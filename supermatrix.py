@@ -20,14 +20,14 @@ OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in H
 
 field_type = 'mixed'
 r = np.loadtxt('r.dat')
-r_start, r_end = 0.,1.
+r_start, r_end = 0.68,1.
 start_ind, end_ind = [fn.nearest_index(r, pt) for pt in (r_start, r_end)]
 r = r[start_ind:end_ind]
 
 #1 = Low, 2 = High. A=Core, B=Tachocline, C=Surface
-A = 1
-B = 1
-C = 1
+A = 2
+B = 2
+C = 2
 
 #max s values for DR and magnetic field to speed up supermatrix computation
 s_max_DR = 5
@@ -37,12 +37,12 @@ s_max_H = 2     #axisymmteric magnetic field. B has only s = 1.
 j_max = 10
 
 #if we want to use smoothened kernels
-smoothen = False
+smoothen = True
 #nl_list = [[0, 65], [0, 61], [0, 63], [0, 67], [0, 69]]
 #nl_list = [(0, 69), (0, 71), (0, 73), (0, 75), (0, 77), (0, 79), (0, 81), (0, 83), (0, 85)]
-nl_list = [(0, 75), (0, 77), (0, 79)]
+# nl_list = [(0, 75), (0, 77), (0, 79)]
 # nl_list = [(1, 5), (1, 7), (1, 9)]
-# nl_list = [(1,10)]
+nl_list = [(2,10)]
 nl_list = np.array(nl_list)
 omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised frequency list
 omega_nl = np.array([omega_list[fn.find_nl(mode[0], mode[1])] for mode in nl_list])
@@ -116,7 +116,7 @@ total_m = len(nl_list) + 2*np.sum(nl_list, axis = 0)[1]
 # f_dpt = (omega_nl_arr + eig_vals_dpt/(2*omega_nl_arr)) * OM *1e6
 # f_qdpt = np.sqrt(omega_ref0**2 + eig_vals_qdpt_arranged) * OM *1e6
 
-# np.savetxt('./bdary_modes_analysis/%i.dat'%(len(nl_list)),f_dpt-f_qdpt)
+# # np.savetxt('./bdary_modes_analysis/%i.dat'%(len(nl_list)),f_dpt-f_qdpt)
 # sys.exit()
 
 # #generating plots for DPT and QDPT and comparing
@@ -176,9 +176,16 @@ for i in range(len(nl_list)):
     tstamp('omega_nlm starts')
     domega_nlm_sq = submatrix.diffrot(n_,n_,l_,l_,r,omega_nl[i])
     domega_nlm_sq = domega_nlm_sq.astype('complex128')
+
+    ##############################################################
+    #Not considering Differential Rotation. Setting the domega_nlm_sq to 0
+    #Comment this out while considering Differential Rotation
+    domega_nlm_sq *= 0.0
+    ############################################################## 
+
     omega_nlm_sq = domega_nlm_sq +  omega_nl[i]**2
     tstamp('omega_nlm ends')
-    
+
     f_DR[mi_beg:mi_end] = np.sqrt(np.real(omega_nlm_sq))
         
     Z_diag[mi_beg:mi_end,mi_beg:mi_end] *= np.diag(omega_nlm_sq - omega_ref0**2)
@@ -248,7 +255,7 @@ for i in range(len(nl_list)):
 np.savetxt('./Coupling_Strength/Z_%s.dat'%fname,np.real(Z))
 np.savetxt('./Coupling_Strength/Z_diag_%s.dat'%fname,np.real(Z_diag))
 
-# np.savetxt('./a_coeffs/%i%i%i_a_%i_%i.dat'%(A,B,C,nl_list[0,0],nl_list[0,1]),a_s)
+np.savetxt('./a_coeffs/%i%i%i_a_%i_%i.dat'%(A,B,C,nl_list[0,0],nl_list[0,1]),a_s)
 
 '''plt.pcolormesh(np.log(np.abs(Z)))
 plt.gca().invert_yaxis()
