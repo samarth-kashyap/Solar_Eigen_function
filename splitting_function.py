@@ -9,9 +9,18 @@ import random
 plt.ion()
 
 #Modes whose splitting function is to be computed
+n,l = 4,9
+# n,l = 4,19
 # n,l = 4,7
-n,l = 3,8
-n_,l_ = 4,7
+# n_,l_ = 3,8
+n_,l_ = 4,9
+
+
+#finding the central frequency with which we shall normalize the splitting function
+OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in Hz (cgs))
+omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM #normlaised for mode in nl_list]) frequency list
+#taking a geometric mean of the frequencies of coupling modes
+omega_0 = np.sqrt(omega_list[fn.find_nl(n,l)]*omega_list[fn.find_nl(n_,l_)])
 
 #adjusting the radius
 r = np.loadtxt('r.dat')
@@ -41,6 +50,7 @@ def B0_st_profile(r):
     beta += 100*np.exp(-0.5*(r/0.1)**2)
 
     #Saving the profile of B_radial_Strength used
+    plt.figure()
     plt.semilogy(r,beta)
     plt.savefig('Splitting_functions/B_field_profile.png',dpi=100)
     plt.close()
@@ -53,21 +63,23 @@ def ret_Bcomps(s,r):
     gradr_B0st = (np.gradient(r**2*B0_st,r)/r)[np.newaxis,:]/om(s,0)[:,np.newaxis]      #shape s x r
 
     #To compute a new random field every time
-    rand_factors = np.zeros((len(s),2*smax+1))
-    one_factors = np.zeros((len(s),2*smax+1))
-    for s0 in range(len(s)):
-        scurrent = s[s0]
-        #filling in only the positive half of t-axis for all s
-        rand_factors[s0,smax:smax+scurrent+1] = np.array([random.random() for i in range(scurrent+1)]) #shape s x t
-        one_factors[s0,smax:smax+scurrent+1] = np.array([1.0 for i in range(scurrent+1)]) #shape s x t
+    # rand_factors = np.zeros((len(s),2*smax+1))
+    # one_factors = np.zeros((len(s),2*smax+1))
+    # for s0 in range(len(s)):
+    #     scurrent = s[s0]
+    #     #filling in only the positive half of t-axis for all s
+    #     rand_factors[s0,smax:smax+scurrent+1] = np.array([random.random() for i in range(scurrent+1)]) #shape s x t
+    #     one_factors[s0,smax:smax+scurrent+1] = np.array([1.0 for i in range(scurrent+1)]) #shape s x t
+    # np.save('Splitting_functions/rand_factors.npy',rand_factors)
+    # np.save('Splitting_functions/one_factors.npy',one_factors)
 
     #To use the same stored random field
-#     rand_factors = np.loadtxt('rand_factors.npy')
-#     one_factors = np.loadtxt('one_factors.npy')
-    #Saving the profile of random numbers in s x t space
-#     plt.pcolormesh(rand_factors)
-#     plt.savefig('Splitting_functions/random_st.png',dpi=100)
-#     plt.close()
+    rand_factors = np.load('Splitting_functions/rand_factors.npy')
+    one_factors = np.load('Splitting_functions/one_factors.npy')
+    # Saving the profile of random numbers in s x t space
+    plt.pcolormesh(rand_factors)
+    plt.savefig('Splitting_functions/random_st.png',dpi=100)
+    plt.close()
 
     #Inserting randomness in the various components
     B0_st = B0_st[np.newaxis,:]*rand_factors[:,:,np.newaxis]     #shape s x t x r
@@ -201,14 +213,20 @@ for s0 in range(0,len(s_H_arr)):
     for t0 in range(-scurrent,scurrent+1):
         sf += Lambda_st[s0,t0+s_H_max]*sp.sph_harm(t0,scurrent,phph+np.pi,thth+np.pi/2.0)
 
+sf = sf/(2*omega_0**2)  #normalizing
+
 #Plotting the real part which shall be an even function of phi
 figr = plt.figure()
 axr = figr.add_subplot(111, projection='aitoff')
-imr = axr.pcolormesh(phph,thth,np.real(sf), cmap=plt.cm.jet)
+#plotting the percentage change in frequency
+imr = axr.pcolormesh(phph,thth,np.real(sf)*100, cmap=plt.cm.jet)
+figr.colorbar(imr,ax=axr)
 plt.savefig('Splitting_functions/SF_real2.png',dpi=400)
 
 #Plotting the imaginary part which shall be an odd function of phi
 figi = plt.figure()
 axi = figi.add_subplot(111, projection='aitoff')
-imi = axi.pcolormesh(phph,thth,np.imag(sf), cmap=plt.cm.jet)
+#plotting the percentage change in frequency
+imi = axi.pcolormesh(phph,thth,np.imag(sf)*100, cmap=plt.cm.jet)
+figi.colorbar(imi,ax=axi)
 

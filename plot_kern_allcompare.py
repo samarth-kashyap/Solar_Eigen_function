@@ -9,7 +9,7 @@ plt.ion()
 plt.rcParams['xtick.labelsize'] = 20
 plt.rcParams['ytick.labelsize'] = 20
 
-lw = 1.0
+lw = 0.5
 
 kernclock = timing.stopclock()
 tstamp = kernclock.lap
@@ -43,15 +43,15 @@ rho,__,__,__,__,__,__ = np.array(gkerns.Hkernels(1,10,0,1,10,0,s,r)\
 dpi = 80
 # fig = plt.figure(num=None, figsize=(11, 8), dpi=dpi, facecolor='w', edgecolor='k')
 
-nstart = 2
+nstart = 1
 
-ntotal = 4
-ltotal = 6
-fig, ax = plt.subplots(ntotal,ltotal,figsize=(6,10))
+ntotal = 5
+ltotal = 11
+fig, ax = plt.subplots(ntotal,ltotal,figsize=(10,10))
 for ncount in range(ntotal):
     for lcount in range(ltotal):
         n = nstart + ncount
-        l = 10 + 20*lcount
+        l = 10 + 10*lcount
         omega_nl = omega_list[fn.find_nl(n, l)]
 
         # plot_fac = OM**2 * 1e12 * (4.*np.pi/3) * 1e-10 #unit = muHz G^(-2) V_sol^(-1)
@@ -104,22 +104,22 @@ for ncount in range(ntotal):
         ax[ncount,lcount].set_ylim([0.89,1])
         fig.patch.set_visible(False)
         ax[ncount,lcount].axis('off')
-        # ax[ncount,lcount].title.set_text('${}_{%i}\mathrm{S}_{%i}$'%(n,l))
-        ax[ncount,lcount].set_title('${}_{%i}\mathrm{S}_{%i}$'%(n,l),fontsize=18)
+        ax[ncount,lcount].title.set_text('${}_{%i}\mathrm{S}_{%i}$'%(n,l))
+        # ax[ncount,lcount].set_title('${}_{%i}\mathrm{S}_{%i}$'%(n,l),fontsize=18)
 
     
         if(lcount == 0): 
-            ax[ncount,lcount].text(-4e-7,0.9,'$0.9R_{\odot} -$',fontsize=14)            
+            ax[ncount,lcount].text(-4e-7,0.9,'$0.9R_{\odot} -$',fontsize=8)            
             # ax[ncount,lcount].text(-4e-7,0.7,'$0.7R_{\odot} -$',fontsize=8)
             
 
         if(lcount == ltotal-1): 
-            ax[ncount,lcount].text(2e-7,0.9,'$-   0.9R_{\odot}$',fontsize=14)
+            ax[ncount,lcount].text(2e-7,0.9,'$-   0.9R_{\odot}$',fontsize=8)
             # ax[ncount,lcount].text(2e-7,0.7,'$-   0.7R_{\odot}$',fontsize=8)
         print(n,l)
 
-fig.legend((lmm,l0m,l00,lpm),('$\\rho\mathcal{A}^{--}_{n\ell}$','$\\rho\mathcal{A}^{0-}_{n\ell}$', \
-        '$\\rho\mathcal{A}^{00}_{n\ell}$','$\\rho\mathcal{A}^{+-}_{n\ell}$'),'lower center',ncol=4,fontsize=14)
+fig.legend((lmm,l0m,l00,lpm),('$\\rho\mathcal{A}^{--}_{2}$','$\\rho\mathcal{A}^{0-}_{2}$', \
+        '$\\rho\mathcal{A}^{00}_{2}$','$\\rho\mathcal{A}^{+-}_{2}$'),'lower center',ncol=4,fontsize=10)
 
 
 fig.add_subplot(111, frameon=False)
@@ -130,4 +130,4 @@ plt.subplots_adjust(top=0.92, bottom=0.1, left=0.08, right=0.88, hspace=0.5,
 
 # plt.tight_layout()
 
-plt.savefig('kerns_allcompare_poster.pdf',dpi = 200)
+plt.savefig('kerns_allcompare.pdf',dpi = 200)
