@@ -9,6 +9,7 @@ import scipy.special as special
 import sympy as sy
 from math import factorial as fac
 import matplotlib.pyplot as plt
+import matplotlib
 import math
 
 P_j = np.array([])
@@ -72,7 +73,24 @@ def find_nl(n,l):
 
 def find_mode(nl):
 	"""returns (n,l) for given nl"""
-	return int(nl_list[nl][0]), int(nl_list[nl][1])
+	return np.array([int(nl_list[nl][0]), int(nl_list[nl][1])])
+
+#to identify modes nearest to the given frequency within smax distance in \ell
+def nearest_freq_modes(l0,smax,om0,dom):
+    #om0 in normalized units and dom in muHz
+    OM = np.loadtxt('OM.dat')
+    omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM
+    nl_ind = np.argsort(np.abs(omega_list-om0)) #puts central mode first
+    om_sorted = np.sort(np.abs(omega_list-om0)) * OM * 1e6
+    max_ind = np.argmin(np.abs(om_sorted - dom))
+    nl_ind = nl_ind[:max_ind]
+
+    #list of all n,l closer than dom
+    nl_close_dom = nl_list[nl_ind]
+    nl_close_coupled = nl_close_dom[np.abs(nl_close_dom[:,1] - l0) <= smax]
+
+    print(nl_close_coupled)
+    return nl_close_coupled
 
 def load_eig(n,l,eig_dir):
 	"""returns U,V for mode n,l stored in directory eig_dir"""
@@ -111,46 +129,235 @@ def kron_delta(i,j):
     else:
         return 0.
         
-def getB_comps(s0,r,R1,R2,field_type):
+def getB_comps(s0,r,R1,R2,field_type,forplot=False):
     """function to get the components of B_field"""    
+    #The following allows transition region from 0.73 to 0.95
+    # R1 = 0.76
+    # R2 = 0.90
+
+    R_tacho = 0.7
+    R_tor_out = 0.93
+
     gamma_s = np.sqrt((2*s0 + 1)/(4.0*np.pi))
     B_mu_t_r = np.zeros((3,2*s0+1,len(r)),dtype=complex)
     nperf = np.vectorize(math.erf)
     if(field_type=='mixed'):
         R1_ind = np.argmin(np.abs(r-R1))
         R2_ind = np.argmin(np.abs(r-R2))
-        b = 0.5*(1+nperf(70*(r-(R1+R2)/2.0)))
+        width = np.abs((R1-R2)/4.)
+        b = 0.5*(1+nperf((r-(R1+R2)/2)/width))
         a = b - np.gradient(b,r)*r
     
-    beta = lambda r: 1e-4/r**3  #10G on surface
+    beta = lambda r: gamma_s*1e-4/r**3  #10G on surface. Gamma factor so as to get 10 G at surface
 
     #1e5 Gauss at tachocline
-    alpha = np.exp(-0.5*((r-0.7)/0.01)**2)
+    R_tacho_ind = np.argmin(np.abs(r-R_tacho))
+    R_tor_out_ind = np.argmin(np.abs(r-R_tor_out))
+    alpha = np.exp(-0.5*((r-R_tacho)/0.01)**2)
+    alpha[R_tacho_ind:] += 0.0008*np.exp(-(r[R_tacho_ind:]-(R1+R2)/2.)/0.05)    #This was tuned by hand
+    alpha[R_tor_out_ind:] *= np.exp(-1e3*(r[R_tor_out_ind:]-R_tor_out)**2)    #This was tuned by hand
     #1e7 Gauss at core
-    alpha += 100*np.exp(-0.5*(r/0.1)**2)
+    alpha += 100*np.exp(-0.5*(r/0.15)**2)   
+
+    alpha *= gamma_s  #So as to get 1e5 at tachocline
     
     if(field_type == 'dipolar'):
-        B_mu_t_r[:,s0,:] = omega(s0,0) * 1./np.sqrt(2.) \
-                                * np.outer(np.array([1., -2., 1.]),beta(r))
+        B_mu_t_r[:,s0,:] = omega(s0,0) \
+                                * np.outer(np.array([1., -2., 1.]),beta(r)) / 2.0   #normalizing to get accurate magnitude
     elif(field_type == 'toroidal'):
-            B_mu_t_r[:,s0,:] = omega(s0,0) * 1./np.sqrt(2.) \
-                                    * np.outer(np.array([-1j, 0. , 1j]),alpha[:])
+            B_mu_t_r[:,s0,:] = omega(s0,0) \
+                                    * np.outer(np.array([-1j, 0. , 1j]),alpha[:]) / np.sqrt(2.0)    #normalizing
     else:
-            B_mu_t_r[:,s0,:R1_ind] = omega(s0,0) * 1./np.sqrt(2.) \
+            B_mu_t_r[:,s0,:] = omega(s0,0) \
                                     * np.outer(np.array([-1j, 0. , 1j]),\
-                                            alpha[:R1_ind])
-            B_mu_t_r[:,s0,R2_ind:] = omega(s0,0) * 1./np.sqrt(2.) \
-                                    * np.outer(np.array([1., -2., 1.]),\
-                                            beta(r[R2_ind:]))
-            B_mu_t_r[:,s0,R1_ind:R2_ind] = omega(s0,0) * 1./np.sqrt(2.) \
+                                            alpha[:]) / np.sqrt(2.0)
+            B_mu_t_r[:,s0,:] += omega(s0,0) \
                                     * np.array([1., -2., 1.])[:,np.newaxis]*\
-                                            beta(r[R1_ind:R2_ind])*np.array([a[R1_ind:R2_ind],\
-                                            b[R1_ind:R2_ind],a[R1_ind:R2_ind]])
-            B_mu_t_r[:,s0,R1_ind:R2_ind] += omega(s0,0) * 1./np.sqrt(2.) \
-                                    * np.outer(np.array([-1j, 0., 1j]),\
-                                            alpha[R1_ind:R2_ind])
-                                            
-    return B_mu_t_r/gamma_s
+                                            beta(r[:])*np.array([a[:],\
+                                            b[:],a[:]]) / 2.0
+            # B_mu_t_r[:,s0,R1_ind:R2_ind] += omega(s0,0) \
+            #                         * np.array([1., -2., 1.])[:,np.newaxis]*\
+            #                                 beta(r[R1_ind:R2_ind])*np.array([a[R1_ind:R2_ind],\
+            #                                 b[R1_ind:R2_ind],a[R1_ind:R2_ind]])
+            # B_mu_t_r[:,s0,R1_ind:R2_ind] += omega(s0,0) \
+            #                         * np.outer(np.array([-1j, 0., 1j]),\
+            #                                 alpha[R1_ind:R2_ind])
+    if(forplot):
+        return B_mu_t_r/gamma_s, alpha, beta(r), a, b, gamma_s
+
+    else: return B_mu_t_r/gamma_s
+
+def plot_Bprofiles(s0,r,R1,R2,field_type):
+    plt.rcParams['xtick.labelsize'] = 14
+    plt.rcParams['ytick.labelsize'] = 14
+    fs = 14
+    fs2 = 24
+
+    B, alpha, beta, a, b, gamma_s = getB_comps(s0,r,R1,R2,field_type,True)
+    B_mag = np.linalg.norm(B,axis=0)[1,:]
+    B_tor = np.sqrt(2)*alpha/gamma_s / np.sqrt(2)
+    B_pol = np.sqrt(2*a**2 + 4*b**2)*beta/gamma_s / 2.0
+
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(1,1,1)
+
+    rect1a = plt.Rectangle((0,1e-3),0.67,1e11, color='green', alpha=0.1)
+    rect2a = plt.Rectangle((0.73,1e-3),0.22,1e11, color='k', alpha=0.2)
+    rect3a = plt.Rectangle((0.95,1e-3),0.05,1e11, color='blue', alpha=0.1)
+    rect4a = plt.Rectangle((0.67,1e-3),0.06,1e11, color='red', alpha=0.4)
+
+    # plt.semilogy(r,B_tor*1e5,c=(0.9,0.2,0.2),label='Toroidal')
+    plt.semilogy(r,B_tor*1e5,color='green',label='Toroidal')
+    plt.semilogy(r,B_pol*1e5,'-.', c=(0.2,0.2,0.8), label='Non-toroidal/Dipolar')
+    plt.semilogy(r[::4],B_mag[::4]*1e5,'k--', markersize=10,label='Total')
+    plt.ylim(bottom=1e-3)
+    plt.xlim([0,1])
+    plt.legend()
+    ax1.add_patch(rect1a)
+    ax1.add_patch(rect2a)
+    ax1.add_patch(rect3a)
+    ax1.add_patch(rect4a)
+    plt.grid(True,alpha=0.3)
+    plt.xlabel('$r/R_{\odot}$',fontsize=fs)
+    plt.ylabel('Magnetic field strength in Gauss',fontsize=fs)
+    plt.text(0.4,1.1e8,'I',fontsize=fs)
+    plt.text(0.69,1.1e8,'II',fontsize=fs)
+    plt.text(0.83,1.1e8,'M',fontsize=fs)
+    plt.text(0.96,1.1e8,'III',fontsize=fs)
+
+    fig1.add_subplot(111, frameon=False)
+    plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    plt.subplots_adjust(top=0.96, bottom=0.11, left=0.13, right=0.97, hspace=0.14,
+                        wspace=0.1)
+
+    plt.savefig('Field_profile/B_mag_poster.pdf',dpi=200)
+
+    plt.rcParams['xtick.labelsize'] = 20
+    plt.rcParams['ytick.labelsize'] = 20
+
+    fig2 = plt.figure(figsize=(14,6))
+    ax2 = fig2.add_subplot(2,1,1)
+
+    rect1b = plt.Rectangle((0,-13),0.67,15, color='green', alpha=0.1)
+    rect2b = plt.Rectangle((0.73,-13),0.22,15, color='k', alpha=0.2)
+    rect3b = plt.Rectangle((0.95,-13),0.05,15, color='blue', alpha=0.1)
+    rect4b = plt.Rectangle((0.67,-13),0.06,15, color='red', alpha=0.4)
+
+    plt.plot(r,b,'k',label='$b(r)$')
+    plt.plot(r,a,'k--',label='$a(r) = b(r) - r \dot{b}(r)$')
+    plt.legend(fontsize=fs)
+    plt.ylim([-13,2])
+    plt.xlim([0,1])
+    plt.grid(True,alpha=0.3)
+    ax2.add_patch(rect1b)
+    ax2.add_patch(rect2b)
+    ax2.add_patch(rect3b)
+    ax2.add_patch(rect4b)
+    # plt.xlabel('$r/R_{\odot}$')
+    plt.ylabel('(a)',fontsize=fs2)
+    plt.text(0.4,2.1,'I',fontsize=fs2)
+    plt.text(0.69,2.1,'II',fontsize=fs2)
+    plt.text(0.83,2.1,'M',fontsize=fs2)
+    plt.text(0.96,2.1,'III',fontsize=fs2)
+
+    # fig3 = plt.figure()
+    ax3 = fig2.add_subplot(2,1,2)
+
+    rect1c = plt.Rectangle((0,1e-3),0.67,1e11, color='green', alpha=0.1)
+    rect2c = plt.Rectangle((0.73,1e-3),0.22,1e11, color='k', alpha=0.2)
+    rect3c = plt.Rectangle((0.95,1e-3),0.05,1e11, color='blue', alpha=0.1)
+    rect4c = plt.Rectangle((0.67,1e-3),0.06,1e11, color='red', alpha=0.4)
+
+    plt.semilogy(r,alpha*1e5,'k',label='$\\alpha(r)$')
+    plt.semilogy(r,np.abs(b*beta)*1e5,'k--',label='$b(r)\\beta(r)$')
+    plt.semilogy(r,np.abs(a*beta)*1e5,'k', linestyle=(0,(1,1)),label='$|a(r)|\\beta(r)$')
+    plt.ylim(bottom=1e-3)
+    plt.xlim([0,1])
+    ax3.add_patch(rect1c)
+    ax3.add_patch(rect2c)
+    ax3.add_patch(rect3c)
+    ax3.add_patch(rect4c)
+    plt.legend(fontsize=fs)
+    plt.grid(True,alpha=0.3)
+    plt.xlabel('$r/R_{\odot}$',fontsize=fs2)
+    plt.ylabel('(b)',fontsize=fs2)
+
+    fig2.add_subplot(111, frameon=False)
+    plt.tick_params(labelcolor='none', top=False, bottom=False, left=False, right=False)
+
+    plt.subplots_adjust(top=0.95, bottom=0.124, left=0.08, right=0.98, hspace=0.14,
+                        wspace=0.1)
+
+    plt.savefig('Field_profile/b_2_poster.pdf',dpi=200)
+
+def ret_real_same_H_munu_st(t,r,b_r):
+    #Construct h_{st}^{\mu\nu}(r) which is the same for all s,t,\mu,\nu
+    t0_index = np.argmin(np.abs(t))
+    #The radial profile for B
+    # b_r = 1e-4/r**3  #10G on surface
+    # #1e5 Gauss at tachocline
+    # b_r += np.exp(-0.5*((r-0.7)/0.01)**2)
+    # #1e7 Gauss at core
+    # b_r += 100*np.exp(-0.5*(r/0.1)**2)
+
+    # b_r = np.load('Field_profile/B_mag_profile.npy')    #Contains profile currently in get_Bcomps
+
+    h_r = b_r*b_r
+
+    H_munu_t = np.zeros((6,len(t),len(r)),dtype='complex128') #H--,H0-,H00,H+-,H0+,H++
+
+    H_munu_t[0,:,:] = h_r * (1 + 1j)
+    H_munu_t[1,:,:] = h_r * (1 + 1j)
+    H_munu_t[2,:t0_index,:] = h_r * (1 + 1j)
+    H_munu_t[2,t0_index,:] = h_r    #keeping H00_s0 real as that has to be the case
+    H_munu_t[3,:t0_index,:] = h_r * (1 + 1j)
+    H_munu_t[3,t0_index,:] = h_r    #keeping H+-_s0 real as that has to be the case
+
+    H_munu_t[5,:,:] = (-1)**(np.abs(t))[:,np.newaxis] * np.conj(H_munu_t[0,len(t)-1::-1,:])
+    H_munu_t[4,:,:] = (-1)**(np.abs(t))[:,np.newaxis] * np.conj(H_munu_t[1,len(t)-1::-1,:])
+    H_munu_t[2:,t0_index+1:,:] = (-1)**(np.abs(t))[t0_index+1:,np.newaxis] * np.conj(H_munu_t[2,t0_index-1::-1,:])
+    H_munu_t[3:,t0_index+1:,:] = (-1)**(np.abs(t))[t0_index+1:,np.newaxis] * np.conj(H_munu_t[3,t0_index-1::-1,:])
+
+    return H_munu_t
+
+#to check the realness of H for a certain s, which should naturally follow from the realness of B
+def is_H_s_real(H,r,has_s = False):
+    #H must come in either the shape: mu x nu x s x t x r or mu x nu x t x r
+    # or munu x s x t x r or munu x t x r
+    len_t = H.shape[-2] #gets the dimension of t
+    t = np.arange(-(len_t-1)/2,1+(len_t-1)/2)
+    t = t.astype('int')
+    if(has_s == True):
+        len_s = H.shape[-3]
+        H_str_total = np.zeros((3,3,len_s,len_t,len(r)))
+    
+    else: 
+        len_s = 1
+        H_str_total = np.zeros((3,3,1,len_t,len(r)),dtype='complex128')
+        H = np.expand_dims(H,axis=-3)
+
+    # H = H--,H0-,H00,H+-,H0+,H++
+    if(H.shape[0] == 6):
+        #filling in one half of the matrix
+        H_str_total[0,0] = H[0] #--
+        H_str_total[0,1] = H[1] #-0
+        H_str_total[0,2] = H[3] #-+
+        H_str_total[1,1] = H[2] #00
+        H_str_total[1,2] = H[4] #0+
+        H_str_total[2,2] = H[5] #++
+
+        H_str_total[1,0] = H_str_total[0,1] #-0
+        H_str_total[2,0] = H_str_total[0,2] #-0
+        H_str_total[2,1] = H_str_total[1,2] #-0
+
+    else: H_str_total = H
+
+    diff_arr = np.zeros((3,3,len_s,len_t,len(r)),dtype='complex128')    #matrix to contain the offset from realness
+
+    diff_arr += H_str_total - (-1)**(np.abs(t))[np.newaxis,np.newaxis,np.newaxis,:,np.newaxis]*np.conj(H_str_total[2::-1,2::-1,:,len_t-1::-1,:])
+
+    print(np.amax(np.abs(diff_arr.real)),np.amax(np.abs(diff_arr.imag)))
 	
 def P(mu,l,m,N):
     """generalised associated legendre function"""

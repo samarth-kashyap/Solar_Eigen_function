@@ -7,3 +7,6 @@ eig_files/
 plots/
 *.dat
 *.out
+*.npy
+*.pdf
+*.png
