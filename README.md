@@ -9,7 +9,7 @@ Local directory should contain the following data files:
 These files can be downloaded at: https://drive.google.com/drive/folders/1NmmWv6FUxNtKBKxxcV7TXYsE-4DEeVUP?usp=sharing
 
 Sequence:
-1. Run read_eig.f90. Reads egvt.sfopal5h5 and saves eigenfunctions in separate files. 
+1. Run read_eigen.f90. Reads egvt.sfopal5h5 and saves eigenfunctions in separate files. 
 2. Run mince_eig.py. Reads eigenfunctions from above created files and saves individual modes in new directory eig_files.
 3. Run plot_kern.py. Plots required component of kernel for required modes.
 
