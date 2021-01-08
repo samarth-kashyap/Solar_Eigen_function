@@ -10,3 +10,5 @@ plots/
 *.npy
 *.pdf
 *.png
+jobscripts/*.log
+jobscripts/*.sh

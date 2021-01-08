@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
-import functions as fn
+# import functions as fn
 #all quantities in cgs
 #M_sol = 1.989e33 #gn,l = 0,200
 #R_sol = 6.956e10 #cm
@@ -8,7 +8,7 @@ import functions as fn
 #OM = np.sqrt(4*np.pi*R_sol*B_0**2/M_sol)
 
 OM = np.loadtxt('OM.dat') #importing normalising frequency value from file (in Hz (cgs))
-r = np.loadtxt('r.dat')
+r = np.loadtxt('/scratch/g.samarth/Solar_Eigen_function/r.dat')
 
 w_file = np.loadtxt('w_samarth.dat')
 

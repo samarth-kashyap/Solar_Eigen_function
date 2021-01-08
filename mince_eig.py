@@ -2,14 +2,14 @@ import numpy as np
 import os
 #import matplotlib.pyplot as plt
 
-cwd = os.getcwd()
-sd = cwd + '/eig_files' #storage directory
+datadir = "/scratch/g.samarth/Solar_Eigen_function"
+sd = datadir + '/eig_files' #storage directory
 
 if(os.path.isdir(sd) == False):	os.mkdir(sd)
 
-nl = np.loadtxt('nl.dat')
-U_list = np.loadtxt('eigU.dat')
-V_list = np.loadtxt('eigV.dat')
+nl = np.loadtxt(f'{datadir}/nl.dat')
+U_list = np.loadtxt(f'{datadir}/eigU.dat')
+V_list = np.loadtxt(f'{datadir}/eigV.dat')
 mode_count = len(nl)
 
 l_pres = 0

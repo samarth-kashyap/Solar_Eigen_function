@@ -22,7 +22,7 @@ program READ_EIGENFUNC
     max_l = 300 !I know this because I printed the results
 
     !reading this file first to fetch the value of nr -- the number of radial grids
-    open(99, file='egvt.sfopal5h5', form='unformatted', status='old')
+    open(99, file='/scratch/g.samarth/Solar_Eigen_function/egvt.sfopal5h5', form='unformatted', status='old')
     read(99)
     read(99) arr
 
@@ -37,7 +37,7 @@ program READ_EIGENFUNC
                                                 & nl_array(2,max_l))
 
     !reading file that contains miscellaneous physical quantities
-    open(199, file='sfopal5h5', form='unformatted', status='old')
+    open(199, file='/scratch/g.samarth/Solar_Eigen_function/sfopal5h5', form='unformatted', status='old')
     read(199)
     read(199) arr2
     
@@ -69,14 +69,14 @@ program READ_EIGENFUNC
     l = 0
     l_present = 0
 
-    open (unit=1,file='n_and_l.dat',status='replace')
-    open (unit=2,file='eigU.dat',status='replace')
-    open (unit=3,file='eigV.dat',status='replace')
-    open (unit=4,file='nl.dat', status='replace')
-    open (unit=5,file='rho.dat',status='replace')
-    open (unit=7,file='r.dat',status='replace')
-    open (unit=8,file='zk.dat',status='replace')
-    open (unit=9,file='muhz.dat',status='replace')
+    open (unit=1,file='/scratch/g.samarth/Solar_Eigen_function/n_and_l.dat',status='replace')
+    open (unit=2,file='/scratch/g.samarth/Solar_Eigen_function/eigU.dat',status='replace')
+    open (unit=3,file='/scratch/g.samarth/Solar_Eigen_function/eigV.dat',status='replace')
+    open (unit=4,file='/scratch/g.samarth/Solar_Eigen_function/nl.dat', status='replace')
+    open (unit=5,file='/scratch/g.samarth/Solar_Eigen_function/rho.dat',status='replace')
+    open (unit=7,file='/scratch/g.samarth/Solar_Eigen_function/r.dat',status='replace')
+    open (unit=8,file='/scratch/g.samarth/Solar_Eigen_function/zk.dat',status='replace')
+    open (unit=9,file='/scratch/g.samarth/Solar_Eigen_function/muhz.dat',status='replace')
     
 	write (5,*) rho(:)
 	write (7,*) r(:)

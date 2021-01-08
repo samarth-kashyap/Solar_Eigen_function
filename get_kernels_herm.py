@@ -6,6 +6,7 @@ import timing
 clock1 = timing.stopclock()
 tstamp = clock1.lap
 
+datadir = "/scratch/g.samarth/Solar_Eigen_function"
 
 class Hkernels:
     """This class handles l parameters of the kernel"""
@@ -17,7 +18,7 @@ class Hkernels:
         self.n_ = n_
         self.l_ = l_
         self.s = s
-        r_full = np.loadtxt('r.dat')
+        r_full = np.loadtxt(f'{datadir}/r.dat')
         r_start, r_end = np.argmin(np.abs(r_full-r[0])),np.argmin(np.abs(r_full-r[-1]))+1
         self.r_range = r_start,r_end
         self.r = r
@@ -30,10 +31,10 @@ class Hkernels:
         self.ss_i,__ = np.meshgrid(s,self.r, indexing = 'ij')
         
         #loading required functions
-        eig_dir = (getcwd() + '/eig_files')
+        eig_dir = f"{datadir}/eig_files"
         Ui,Vi = fn.load_eig(n,l,eig_dir)
         Ui_,Vi_= fn.load_eig(n_,l_,eig_dir)
-        rho = np.loadtxt('rho.dat')
+        rho = np.loadtxt(f'{datadir}/rho.dat')
 
         #slicing the radial function acoording to radial grids
         self.rho = rho[r_start:r_end]

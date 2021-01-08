@@ -14,6 +14,8 @@ import math
 
 P_j = np.array([])
 
+datadir = "/scratch/g.samarth/Solar_Eigen_function"
+
 #evaluation
 def wig(l1,l2,l3,m1,m2,m3):
 	"""returns numerical value of wigner3j symbol"""
@@ -63,7 +65,7 @@ def nearest_index(array, value):
 	return idx
 
 #loading
-nl_list = np.loadtxt('nl.dat')	
+nl_list = np.loadtxt(f'{datadir}/nl.dat')	
 def find_nl(n,l):
 	"""returns nl index from given n and l"""
 	for i in range(len(nl_list)):
@@ -79,7 +81,7 @@ def find_mode(nl):
 def nearest_freq_modes(l0,smax,om0,dom):
     #om0 in normalized units and dom in muHz
     OM = np.loadtxt('OM.dat')
-    omega_list = np.loadtxt('muhz.dat') * 1e-6 / OM
+    omega_list = np.loadtxt(f'{datadir}/muhz.dat') * 1e-6 / OM
     nl_ind = np.argsort(np.abs(omega_list-om0)) #puts central mode first
     om_sorted = np.sort(np.abs(omega_list-om0)) * OM * 1e6
     max_ind = np.argmin(np.abs(om_sorted - dom))
@@ -505,11 +507,11 @@ def a_coeff_GSO(del_om,l,jmax):
     return a
 
 def find_omega(n,l):
-    return np.loadtxt('muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
+    return np.loadtxt(f'{datadir}/muhz.dat')[find_nl(n,l)] * 1e-6 /np.loadtxt('OM.dat')    
 
 def plot_freqs(f_dpt,f_qdpt,nl_list,case,saveCond=False,f_DR=np.array([])):
     OM = np.loadtxt('OM.dat')
-    omega_list = np.loadtxt('muhz.dat')  #normlaised frequency list
+    omega_list = np.loadtxt(f'{datadir}/muhz.dat')  #normlaised frequency list
     omega_nl = np.array([omega_list[find_nl(mode[0], mode[1])] for mode in nl_list])
 
     dpi = 80

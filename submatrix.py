@@ -12,6 +12,8 @@ tstamp = clock2.lap
 
 OM = np.loadtxt('OM.dat')
 R_sol = 6.956e10 #cm
+
+datadir = "/scratch/g.samarth/Solar_Eigen_function"
         
 def lorentz(n_,n,l_,l,r,beta =0., field_type = 'dipolar'):   
     m = np.arange(-l,l+1,1)    #-l<=m<=l
@@ -179,9 +181,9 @@ def lorentz_all_st_equalB(n_,n,l_,l,r,b_r,s = np.array([0,1,2]),t = np.array([0]
 def diffrot(n_,n,l_,l,r,omega_ref,s=np.array([1,3,5])):
     wig_calc = np.vectorize(fn.wig)
     
-    r_full = np.loadtxt('r.dat')
+    r_full = np.loadtxt(f'{datadir}/r.dat')
     r_start, r_end = np.argmin(np.abs(r_full-r[0])),np.argmin(np.abs(r_full-r[-1]))+1
-    rho = np.loadtxt('rho.dat')[r_start:r_end]
+    rho = np.loadtxt(f'{datadir}/rho.dat')[r_start:r_end]
     
     m = np.arange(-min(l,l_),min(l,l_)+1,1)    #-l<=m<=l
     m_ = m  #-l_<=m<=l_    
